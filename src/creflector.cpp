@@ -4,6 +4,7 @@
 //
 //  Created by Jean-Luc Deltombe (LX3JL) on 31/10/2015.
 //  Copyright © 2015 Jean-Luc Deltombe (LX3JL). All rights reserved.
+//  Copyright © 2020 Thomas A. Early, N7TAE
 //
 // ----------------------------------------------------------------------------
 //    This file is part of xlxd.
@@ -617,9 +618,9 @@ void CReflector::WriteXmlFile(std::ofstream &xmlFile)
     // lock
     CPeers *peers = GetPeers();
     // iterate on peers
-    for ( int i = 0; i < peers->GetSize(); i++ )
+    for ( auto pit=peers->cbegin(); pit!=peers->cend(); pit++ )
     {
-        peers->GetPeer(i)->WriteXml(xmlFile);
+        (*pit)->WriteXml(xmlFile);
     }
     // unlock
     ReleasePeers();
@@ -630,11 +631,11 @@ void CReflector::WriteXmlFile(std::ofstream &xmlFile)
     // lock
     CClients *clients = GetClients();
     // iterate on clients
-    for ( auto it=clients->cbegin(); it!=clients->cend(); it++ )
+    for ( auto cit=clients->cbegin(); cit!=clients->cend(); cit++ )
     {
-        if ( (*it)->IsNode() )
+        if ( (*cit)->IsNode() )
         {
-            (*it)->WriteXml(xmlFile);
+            (*cit)->WriteXml(xmlFile);
         }
     }
     // unlock

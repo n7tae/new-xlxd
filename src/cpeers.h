@@ -4,6 +4,7 @@
 //
 //  Created by Jean-Luc Deltombe (LX3JL) on 10/12/2016.
 //  Copyright © 2016 Jean-Luc Deltombe (LX3JL). All rights reserved.
+//  Copyright © 2020 Thomas A. Early, N7TAE
 //
 // ----------------------------------------------------------------------------
 //    This file is part of xlxd.
@@ -40,32 +41,37 @@ class CPeers
 public:
     // constructors
     CPeers();
-    
+
     // destructors
     virtual ~CPeers();
-    
+
     // locks
     void Lock(void)                     { m_Mutex.lock(); }
     void Unlock(void)                   { m_Mutex.unlock(); }
-    
+
     // manage peers
     int     GetSize(void) const         { return (int)m_Peers.size(); }
     void    AddPeer(CPeer *);
     void    RemovePeer(CPeer *);
-    CPeer   *GetPeer(int);
-    
+
+	// pass-thru
+	std::list<CPeer *>::iterator begin()              { return m_Peers.begin(); }
+	std::list<CPeer *>::iterator end()                { return m_Peers.end(); }
+	std::list<CPeer *>::const_iterator cbegin() const { return m_Peers.cbegin(); }
+	std::list<CPeer *>::const_iterator cend() const   { return m_Peers.cend(); }
+
     // find peers
     CPeer *FindPeer(const CIp &, int);
     CPeer *FindPeer(const CCallsign &, const CIp &, int);
     CPeer *FindPeer(const CCallsign &, int);
 
     // iterate on peers
-    CPeer *FindNextPeer(int, int*);
+    CPeer *FindNextPeer(int, std::list<CPeer *>::iterator &);
 
 protected:
     // data
-    std::mutex               m_Mutex;
-    std::vector<CPeer *>     m_Peers;
+    std::mutex         m_Mutex;
+    std::list<CPeer *> m_Peers;
 };
 
 

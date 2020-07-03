@@ -32,10 +32,7 @@
 // constructor
 
 
-CPeers::CPeers()
-{
-    m_Peers.reserve(100);
-}
+CPeers::CPeers() {}
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // destructors
@@ -43,14 +40,9 @@ CPeers::CPeers()
 CPeers::~CPeers()
 {
     m_Mutex.lock();
-    {
-        for ( int i = 0; i < m_Peers.size(); i++ )
-        {
-            delete m_Peers[i];
-        }
-        m_Peers.clear();
-
-    }
+    for (auto it=begin(); it!=end(); it++ )
+		delete *it;
+    m_Peers.clear();
     m_Mutex.unlock();
 }
 
@@ -60,93 +52,68 @@ CPeers::~CPeers()
 void CPeers::AddPeer(CPeer *peer)
 {
     // first check if peer already exists
-    bool found = false;
-    for ( int i = 0; (i < m_Peers.size()) && !found; i++ )
+    for ( auto it=begin(); it!=end(); it++ )
     {
-        found = (*peer == *m_Peers[i]);
+        if (*peer == *(*it))
         // if found, just do nothing
         // so *peer keep pointing on a valid object
         // on function return
-        if ( found )
         {
             // delete new one
             delete peer;
-            //std::cout << "Adding existing peer " << peer->GetCallsign() << " at " << peer->GetIp() << std::endl;
+            return;
         }
     }
 
     // if not, append to the vector
-    if ( !found )
-    {
-        // grow vector capacity if needed
-        if ( m_Peers.capacity() == m_Peers.size() )
-        {
-            m_Peers.reserve(m_Peers.capacity()+10);
-        }
-        // append peer to reflector peer list
-        m_Peers.push_back(peer);
-        std::cout << "New peer " << peer->GetCallsign() << " at " << peer->GetIp()
-                  << " added with protocol " << peer->GetProtocolName()  << std::endl;
-        // and append all peer's client to reflector client list
-        // it is double lock safe to lock Clients list after Peers list
-        CClients *clients = g_Reflector.GetClients();
-        for ( auto cit=peer->cbegin(); cit!=peer->cend(); cit++ )
-        {
-            clients->AddClient(*cit);
-        }
-        g_Reflector.ReleaseClients();
+	m_Peers.push_back(peer);
+	std::cout << "New peer " << peer->GetCallsign() << " at " << peer->GetIp()
+				<< " added with protocol " << peer->GetProtocolName()  << std::endl;
+	// and append all peer's client to reflector client list
+	// it is double lock safe to lock Clients list after Peers list
+	CClients *clients = g_Reflector.GetClients();
+	for ( auto cit=peer->cbegin(); cit!=peer->cend(); cit++ )
+	{
+		clients->AddClient(*cit);
+	}
+	g_Reflector.ReleaseClients();
 
-        // notify
-        g_Reflector.OnPeersChanged();
-    }
+	// notify
+	g_Reflector.OnPeersChanged();
 }
 
 void CPeers::RemovePeer(CPeer *peer)
 {
     // look for the client
-    bool found = false;
-    for ( int i = 0; (i < m_Peers.size()) && !found; i++ )
+    for ( auto pit=begin(); pit!=end(); /*increment done in body */ )
     {
         // compare object pointers
-        if ( (m_Peers[i]) ==  peer )
-        {
-            // found it !
-            if ( !m_Peers[i]->IsAMaster() )
-            {
-                // remove all clients from reflector client list
-                // it is double lock safe to lock Clients list after Peers list
-                CClients *clients = g_Reflector.GetClients();
-                for ( auto cit=peer->begin(); cit!=peer->end(); cit++ )
-                {
-                    // this also delete the client object
-                    clients->RemoveClient(*cit);
-                }
-                // so clear it then
-                m_Peers[i]->ClearClients();
-                g_Reflector.ReleaseClients();
+        if (( *pit == peer ) && ( !(*pit)->IsAMaster() ))
+		{
+			// remove all clients from reflector client list
+			// it is double lock safe to lock Clients list after Peers list
+			CClients *clients = g_Reflector.GetClients();
+			for ( auto cit=peer->begin(); cit!=peer->end(); cit++ )
+			{
+				// this also delete the client object
+				clients->RemoveClient(*cit);
+			}
+			// so clear it then
+			(*pit)->ClearClients();
+			g_Reflector.ReleaseClients();
 
-                // remove it
-                std::cout << "Peer " << m_Peers[i]->GetCallsign() << " at " << m_Peers[i]->GetIp()
-                         << " removed" << std::endl;
-                delete m_Peers[i];
-                m_Peers.erase(m_Peers.begin()+i);
-                found = true;
-                // notify
-                g_Reflector.OnPeersChanged();
-            }
-        }
-    }
-}
-
-CPeer *CPeers::GetPeer(int i)
-{
-    if ( (i >= 0) && (i < m_Peers.size()) )
-    {
-        return m_Peers[i];
-    }
-    else
-    {
-        return NULL;
+			// remove it
+			std::cout << "Peer " << (*pit)->GetCallsign() << " at " << (*pit)->GetIp()
+						<< " removed" << std::endl;
+			delete *pit;
+			pit = m_Peers.erase(pit);
+			// notify
+			g_Reflector.OnPeersChanged();
+		}
+		else
+		{
+			pit++;
+		}
     }
 }
 
@@ -155,76 +122,59 @@ CPeer *CPeers::GetPeer(int i)
 
 CPeer *CPeers::FindPeer(const CIp &Ip, int Protocol)
 {
-    CPeer *peer = NULL;
-
-    // find peer
-    for ( int i = 0; (i < m_Peers.size()) && (peer == NULL); i++ )
+    for ( auto it=begin(); it!=end(); it++ )
     {
-        if ( (m_Peers[i]->GetIp() == Ip)  && (m_Peers[i]->GetProtocol() == Protocol))
+        if ( ((*it)->GetIp() == Ip)  && ((*it)->GetProtocol() == Protocol))
         {
-            peer = m_Peers[i];
+            return *it;
         }
     }
 
-    // done
-    return peer;
+    return NULL;
 }
 
 CPeer *CPeers::FindPeer(const CCallsign &Callsign, const CIp &Ip, int Protocol)
 {
-    CPeer *peer = NULL;
-
-    // find peer
-    for ( int i = 0; (i < m_Peers.size()) && (peer == NULL); i++ )
+    for ( auto it=begin(); it!=end(); it++ )
     {
-        if ( m_Peers[i]->GetCallsign().HasSameCallsign(Callsign) &&
-            (m_Peers[i]->GetIp() == Ip)  &&
-            (m_Peers[i]->GetProtocol() == Protocol) )
+        if ( (*it)->GetCallsign().HasSameCallsign(Callsign) &&
+            ((*it)->GetIp() == Ip)  &&
+            ((*it)->GetProtocol() == Protocol) )
         {
-            peer = m_Peers[i];
+            return *it;
         }
     }
 
-    // done
-    return peer;
+    return NULL;
 }
 
 CPeer *CPeers::FindPeer(const CCallsign &Callsign, int Protocol)
 {
-    CPeer *peer = NULL;
-
-    // find peer
-    for ( int i = 0; (i < m_Peers.size()) && (peer == NULL); i++ )
+    for ( auto it=begin(); it!=end(); it++ )
     {
-        if ( (m_Peers[i]->GetProtocol() == Protocol) &&
-            m_Peers[i]->GetCallsign().HasSameCallsign(Callsign) )
+        if ( ((*it)->GetProtocol() == Protocol) &&
+            (*it)->GetCallsign().HasSameCallsign(Callsign) )
         {
-            peer = m_Peers[i];
+            return *it;
         }
     }
 
-    // done
-    return peer;
+    return NULL;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // iterate on peers
 
-CPeer *CPeers::FindNextPeer(int Protocol, int *index)
+CPeer *CPeers::FindNextPeer(int Protocol, std::list<CPeer *>::iterator &it)
 {
-    CPeer *peer = NULL;
-
-    // find next peer
-    bool found = false;
-    for ( int i = *index+1; (i < m_Peers.size()) && !found; i++ )
+    while ( it!=end() )
     {
-        if ( m_Peers[i]->GetProtocol() == Protocol )
+        if ( (*it)->GetProtocol() == Protocol )
         {
-            found = true;
-            peer = m_Peers[i];
-            *index = i;
+            return *it++;
         }
+		it++;
     }
-    return peer;
+    return NULL;
 }
