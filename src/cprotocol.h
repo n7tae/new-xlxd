@@ -4,6 +4,7 @@
 //
 //  Created by Jean-Luc Deltombe (LX3JL) on 01/11/2015.
 //  Copyright © 2015 Jean-Luc Deltombe (LX3JL). All rights reserved.
+//  Copyright © 2020 Thomas A. Early, N7TAE
 //
 // ----------------------------------------------------------------------------
 //    This file is part of xlxd.
@@ -19,7 +20,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #ifndef cprotocol_h
@@ -71,44 +72,44 @@ class CProtocol
 public:
     // constructor
     CProtocol();
-    
+
     // destructor
     virtual ~CProtocol();
-    
+
     // initialization
     virtual bool Init(void);
     virtual void Close(void);
-    
+
     // queue
     CPacketQueue *GetQueue(void)        { m_Queue.Lock(); return &m_Queue; }
     void ReleaseQueue(void)             { m_Queue.Unlock(); }
-    
+
     // get
     const CCallsign &GetReflectorCallsign(void)const { return m_ReflectorCallsign; }
-    
+
     // task
     static void Thread(CProtocol *);
-    virtual void Task(void) {};
-    
+    virtual void Task(void) {}
+
 protected:
     // packet encoding helpers
     virtual bool EncodeDvPacket(const CPacket &, CBuffer *) const;
     virtual bool EncodeDvHeaderPacket(const CDvHeaderPacket &, CBuffer *) const         { return false; }
     virtual bool EncodeDvFramePacket(const CDvFramePacket &, CBuffer *) const           { return false; }
     virtual bool EncodeDvLastFramePacket(const CDvLastFramePacket &, CBuffer *) const   { return false; }
-    
+
     // stream helpers
     virtual bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &) { return false; }
     virtual void OnDvFramePacketIn(CDvFramePacket *, const CIp * = NULL);
     virtual void OnDvLastFramePacketIn(CDvLastFramePacket *, const CIp * = NULL);
-    
+
     // stream handle helpers
     CPacketStream *GetStream(uint16, const CIp * = NULL);
     void CheckStreamsTimeout(void);
-    
+
     // queue helper
     virtual void HandleQueue(void);
-    
+
     // keepalive helpers
     virtual void HandleKeepalives(void) {}
 
@@ -116,7 +117,7 @@ protected:
     bool IsNumber(char) const;
     bool IsLetter(char) const;
     bool IsSpace(char) const;
-    
+
     // dmr DstId to Module helper
     virtual char DmrDstIdToModule(uint32) const;
     virtual uint32 ModuleToDmrDestId(char) const;
@@ -124,20 +125,20 @@ protected:
 protected:
     // socket
     CUdpSocket      m_Socket;
-    
+
     // streams
-    std::vector<CPacketStream *> m_Streams;
-    
+    std::list<CPacketStream *> m_Streams;
+
     // queue
     CPacketQueue    m_Queue;
-    
+
     // thread
     bool            m_bStopThread;
     std::thread     *m_pThread;
-    
+
     // identity
     CCallsign       m_ReflectorCallsign;
-    
+
     // debug
     CTimePoint      m_DebugTimer;
 };
