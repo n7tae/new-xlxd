@@ -4,6 +4,7 @@
 //
 //  Created by Jean-Luc Deltombe (LX3JL) on 10/01/2016.
 //  Copyright © 2015 Jean-Luc Deltombe (LX3JL). All rights reserved.
+//  Copyright © 2020 Thomas A. Early, N7TAE
 //
 // ----------------------------------------------------------------------------
 //    This file is part of xlxd.
@@ -49,23 +50,23 @@ static uint8 g_DmrSyncMSData[]     = { 0x0D,0x5D,0x7F,0x77,0xFD,0x75,0x70 };
 bool CDmrplusProtocol::Init(void)
 {
     bool ok;
-    
+
     // base class
     ok = CProtocol::Init();
-    
+
     // update the reflector callsign
     //m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)"DMR", 3);
-    
+
     // create our socket
     ok &= m_Socket.Open(DMRPLUS_PORT);
-    
+
     // update time
     m_LastKeepaliveTime.Now();
-    
+
     // random number generator
     time_t t;
     ::srand((unsigned) time(&t));
-    
+
     // done
     return ok;
 }
@@ -83,7 +84,7 @@ void CDmrplusProtocol::Task(void)
     char                ToLinkModule;
     CDvHeaderPacket     *Header;
     CDvFramePacket      *Frames[3];
-    
+
     // handle incoming packets
     if ( m_Socket.Receive(&Buffer, &Ip, 20) != -1 )
     {
@@ -113,7 +114,7 @@ void CDmrplusProtocol::Task(void)
             //std::cout << "DMRplus DV header:"  << std::endl;
             //std::cout << "DMRplus DV header:"  << std::endl <<  *Header << std::endl;
             //Buffer.DebugDump(g_Reflector.m_DebugFile);
-            
+
             // callsign muted?
             if ( g_GateKeeper.MayTransmit(Header->GetMyCallsign(), Ip, PROTOCOL_DMRPLUS) )
             {
@@ -128,14 +129,14 @@ void CDmrplusProtocol::Task(void)
         else if ( IsValidConnectPacket(Buffer, &Callsign, &ToLinkModule, Ip) )
         {
             //std::cout << "DMRplus keepalive/connect packet for module " << ToLinkModule << " from " << Callsign << " at " << Ip << std::endl;
-            
+
             // callsign authorized?
             if ( g_GateKeeper.MayLink(Callsign, Ip, PROTOCOL_DMRPLUS) )
             {
                 // acknowledge the request
                 EncodeConnectAckPacket(&Buffer);
                 m_Socket.Send(Buffer, Ip);
-                
+
                 // add client if needed
                 CClients *clients = g_Reflector.GetClients();
                 CClient *client = clients->FindClient(Callsign, Ip, PROTOCOL_DMRPLUS);
@@ -143,10 +144,10 @@ void CDmrplusProtocol::Task(void)
                 if ( client == NULL )
                 {
                     std::cout << "DMRplus connect packet for module " << ToLinkModule << " from " << Callsign << " at " << Ip << std::endl;
-                    
+
                     // create the client
                     CDmrplusClient *newclient = new CDmrplusClient(Callsign, Ip, ToLinkModule);
-                    
+
                     // and append
                     clients->AddClient(newclient);
                 }
@@ -163,12 +164,12 @@ void CDmrplusProtocol::Task(void)
                 EncodeConnectNackPacket(&Buffer);
                 m_Socket.Send(Buffer, Ip);
             }
-            
+
         }
         else if ( IsValidDisconnectPacket(Buffer, &Callsign, &ToLinkModule) )
         {
             std::cout << "DMRplus disconnect packet for module " << ToLinkModule << " from " << Callsign << " at " << Ip << std::endl;
-            
+
             // find client & remove it
             CClients *clients = g_Reflector.GetClients();
             CClient *client = clients->FindClient(Ip, PROTOCOL_DMRPLUS);
@@ -183,20 +184,20 @@ void CDmrplusProtocol::Task(void)
             //std::cout << "DMRPlus packet (" << Buffer.size() << ")"  <<  " at " << Ip << std::endl;
         }
     }
-    
+
     // handle end of streaming timeout
     CheckStreamsTimeout();
-    
+
     // handle queue from reflector
     HandleQueue();
-    
-    
+
+
     // keep client alive
     if ( m_LastKeepaliveTime.DurationSinceNow() > DMRPLUS_KEEPALIVE_PERIOD )
     {
         //
         HandleKeepalives();
-        
+
         // update time
         m_LastKeepaliveTime.Now();
     }
@@ -208,7 +209,7 @@ void CDmrplusProtocol::Task(void)
 bool CDmrplusProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
 {
     bool newstream = false;
-    
+
     // find the stream
     CPacketStream *stream = GetStream(Header->GetStreamId());
     if ( stream == NULL )
@@ -237,18 +238,18 @@ bool CDmrplusProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip
         // and delete packet
         delete Header;
     }
-    
+
     // update last heard
     g_Reflector.GetUsers()->Hearing(Header->GetMyCallsign(), Header->GetRpt1Callsign(), Header->GetRpt2Callsign());
     g_Reflector.ReleaseUsers();
-    
+
     // delete header if needed
     if ( !newstream )
     {
         delete Header;
     }
-    
-    
+
+
     // done
     return newstream;
 }
@@ -258,17 +259,17 @@ bool CDmrplusProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip
 
 void CDmrplusProtocol::HandleQueue(void)
 {
-    
+
     m_Queue.Lock();
     while ( !m_Queue.empty() )
     {
         // get the packet
         CPacket *packet = m_Queue.front();
         m_Queue.pop();
-        
+
         // get our sender's id
         int iModId = g_Reflector.GetModuleIndex(packet->GetModuleId());
-        
+
         // encode
         CBuffer buffer;
 
@@ -279,7 +280,7 @@ void CDmrplusProtocol::HandleQueue(void)
             // this relies on queue feeder setting valid module id
             m_StreamsCache[iModId].m_dvHeader = CDvHeaderPacket((const CDvHeaderPacket &)*packet);
             m_StreamsCache[iModId].m_uiSeqId = 4;
-            
+
             // encode it
             EncodeDvHeaderPacket((const CDvHeaderPacket &)*packet, &buffer);
         }
@@ -307,17 +308,17 @@ void CDmrplusProtocol::HandleQueue(void)
                 default:
                     break;
             }
-            
+
         }
-        
+
         // send it
         if ( buffer.size() > 0 )
         {
             // and push it to all our clients linked to the module and who are not streaming in
             CClients *clients = g_Reflector.GetClients();
-            int index = -1;
+            auto it = clients->begin();
             CClient *client = NULL;
-            while ( (client = clients->FindNextClient(PROTOCOL_DMRPLUS, &index)) != NULL )
+            while ( (client = clients->FindNextClient(PROTOCOL_DMRPLUS, it)) != NULL )
             {
                 // is this client busy ?
                 if ( !client->IsAMaster() && (client->GetReflectorModule() == packet->GetModuleId()) )
@@ -327,7 +328,7 @@ void CDmrplusProtocol::HandleQueue(void)
                 }
             }
             g_Reflector.ReleaseClients();
-            
+
             // debug
             //buffer.DebugDump(g_Reflector.m_DebugFile);
         }
@@ -344,9 +345,9 @@ void CDmrplusProtocol::SendBufferToClients(const CBuffer &buffer, uint8 module)
     {
         // and push it to all our clients linked to the module and who are not streaming in
         CClients *clients = g_Reflector.GetClients();
-        int index = -1;
+        auto it = clients->begin();
         CClient *client = NULL;
-        while ( (client = clients->FindNextClient(PROTOCOL_DMRPLUS, &index)) != NULL )
+        while ( (client = clients->FindNextClient(PROTOCOL_DMRPLUS, it)) != NULL )
         {
             // is this client busy ?
             if ( !client->IsAMaster() && (client->GetReflectorModule() == module) )
@@ -356,7 +357,7 @@ void CDmrplusProtocol::SendBufferToClients(const CBuffer &buffer, uint8 module)
             }
         }
         g_Reflector.ReleaseClients();
-        
+
         // debug
         //buffer.DebugDump(g_Reflector.m_DebugFile);
     }
@@ -371,12 +372,12 @@ void CDmrplusProtocol::HandleKeepalives(void)
     // DMRplus protocol keepalive request is client tasks
     // here, just check that all clients are still alive
     // and disconnect them if not
-    
+
     // iterate on clients
     CClients *clients = g_Reflector.GetClients();
-    int index = -1;
+    auto it = clients->begin();
     CClient *client = NULL;
-    while ( (client = clients->FindNextClient(PROTOCOL_DMRPLUS, &index)) != NULL )
+    while ( (client = clients->FindNextClient(PROTOCOL_DMRPLUS, it)) != NULL )
     {
         // is this client busy ?
         if ( client->IsAMaster() )
@@ -391,12 +392,12 @@ void CDmrplusProtocol::HandleKeepalives(void)
             //CBuffer disconnect;
             //EncodeDisconnectPacket(&disconnect, client);
             //m_Socket.Send(disconnect, client->GetIp());
-            
+
             // remove it
             std::cout << "DMRplus client " << client->GetCallsign() << " keepalive timeout" << std::endl;
             clients->RemoveClient(client);
         }
-        
+
     }
     g_Reflector.ReleaseClients();
 }
@@ -471,7 +472,7 @@ bool CDmrplusProtocol::IsValidDvHeaderPacket(const CIp &Ip, const CBuffer &Buffe
             CCallsign rpt2 = m_ReflectorCallsign;
             rpt2.SetModule(DmrDstIdToModule(uiDstId));
             uint32 uiStreamId = IpToStreamId(Ip);
-            
+
             // and packet
             *Header = new CDvHeaderPacket(uiSrcId, CCallsign("CQCQCQ"), rpt1, rpt2, uiStreamId, 0, 0);
             valid = (*Header)->IsValid();
@@ -492,7 +493,7 @@ bool CDmrplusProtocol::IsValidDvFramePacket(const CIp &Ip, const CBuffer &Buffer
     frames[0] = NULL;
     frames[1] = NULL;
     frames[2] = NULL;
-    
+
     uint8 uiPacketType = Buffer.data()[8];
     if ( (Buffer.size() == 72)  && ((uiPacketType == 1) || (uiPacketType == 3)) )
     {
@@ -507,7 +508,7 @@ bool CDmrplusProtocol::IsValidDvFramePacket(const CIp &Ip, const CBuffer &Buffer
             uint8 uiVoiceSeq = (Buffer.data()[18] & 0x0F) - 7; // aka slot type
             //uint32 uiDstId = *(uint32 *)(&Buffer.data()[64]) & 0x00FFFFFF;
             //uint32 uiSrcId = *(uint32 *)(&Buffer.data()[68]) & 0x00FFFFFF;
-        
+
             // crack payload
             uint8 dmrframe[33];
             uint8 dmr3ambe[27];
@@ -526,17 +527,17 @@ bool CDmrplusProtocol::IsValidDvFramePacket(const CIp &Ip, const CBuffer &Buffer
             dmrsync[0] = dmrframe[13] & 0x0F;
             ::memcpy(&dmrsync[1], &dmrframe[14], 5);
             dmrsync[6] = dmrframe[19] & 0xF0;
-            
+
             // and create 3 dv frames
             uint32 uiStreamId = IpToStreamId(Ip);
             // frame1
             memcpy(dmrambe, &dmr3ambe[0], 9);
             frames[0] = new CDvFramePacket(dmrambe, dmrsync, uiStreamId, uiVoiceSeq, 1);
-            
+
             // frame2
             memcpy(dmrambe, &dmr3ambe[9], 9);
             frames[1] = new CDvFramePacket(dmrambe, dmrsync, uiStreamId, uiVoiceSeq, 2);
-            
+
             // frame3
             memcpy(dmrambe, &dmr3ambe[18], 9);
             if ( uiPacketType == 3 )
@@ -547,12 +548,12 @@ bool CDmrplusProtocol::IsValidDvFramePacket(const CIp &Ip, const CBuffer &Buffer
             {
                 frames[2] = new CDvFramePacket(dmrambe, dmrsync, uiStreamId, uiVoiceSeq, 3);
             }
-            
+
             // check
             valid = true;
         }
     }
-    
+
     // done
     return valid;
 }
@@ -578,7 +579,7 @@ bool CDmrplusProtocol::EncodeDvHeaderPacket(const CDvHeaderPacket &Packet, CBuff
     uint8 tag[]	= { 0x00,0x00,0x00,0x00,0x02,0x00,0x00,0x00,0x02,
         0x00,0x05,0x01,0x02,0x00,0x00,0x00  } ;
     Buffer->Set(tag, sizeof(tag));
-    
+
     // uiSeqId
     //Buffer->ReplaceAt(4, 2);
     // uiPktType
@@ -603,7 +604,7 @@ bool CDmrplusProtocol::EncodeDvHeaderPacket(const CDvHeaderPacket &Packet, CBuff
     Buffer->ReplaceAt(38, LOBYTE(HIWORD(uiSrcId)));
     Buffer->ReplaceAt(40, HIBYTE(LOWORD(uiSrcId)));
     Buffer->ReplaceAt(42, LOBYTE(LOWORD(uiSrcId)));
-    
+
     // reserved
     Buffer->Append((uint16)0x0000);
     // uiCallType
@@ -614,7 +615,7 @@ bool CDmrplusProtocol::EncodeDvHeaderPacket(const CDvHeaderPacket &Packet, CBuff
     Buffer->Append(uiDstId);
     // uiSrcId
     Buffer->Append(uiSrcId);
-    
+
     // done
     return true;
 }
@@ -624,11 +625,11 @@ void CDmrplusProtocol::EncodeDvPacket
      const CDvFramePacket &DvFrame0, const CDvFramePacket &DvFrame1, const CDvFramePacket &DvFrame2,
      uint8 seqid, CBuffer *Buffer) const
  {
-     
+
      uint8 tag[]	= { 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,
                         0x00,0x05,0x01,0x02,0x00,0x00,0x00  } ;
      Buffer->Set(tag, sizeof(tag));
-     
+
      // uiSeqId
      Buffer->ReplaceAt(4, seqid);
      // uiPktType
@@ -647,7 +648,7 @@ void CDmrplusProtocol::EncodeDvPacket
      Buffer->Append((uint16)0x1111);
      // reserved
      Buffer->Append((uint16)0x0000);
-     
+
      // payload
      uint32 uiSrcId = Header.GetMyCallsign().GetDmrid()  & 0x00FFFFFF;
      uint32 uiDstId = ModuleToDmrDestId(Header.GetRpt2Module()) & 0x00FFFFFF;
@@ -735,7 +736,7 @@ uint32 CDmrplusProtocol::ModuleToDmrDestId(char m) const
 void CDmrplusProtocol::AppendVoiceLCToBuffer(CBuffer *buffer, uint32 uiSrcId) const
 {
     uint8 payload[34];
-    
+
     // fill payload
     CBPTC19696 bptc;
     ::memset(payload, 0, sizeof(payload));
@@ -770,11 +771,11 @@ void CDmrplusProtocol::AppendVoiceLCToBuffer(CBuffer *buffer, uint32 uiSrcId) co
         payload[13U] = (payload[13U] & 0x0FU) | ((slottype[0U] << 6) & 0xC0U) | ((slottype[1U] >> 2) & 0x30U);
         payload[19U] = (payload[19U] & 0xF0U) | ((slottype[1U] >> 2) & 0x0FU);
         payload[20U] = (payload[20U] & 0x03U) | ((slottype[1U] << 6) & 0xC0U) | ((slottype[2U] >> 2) & 0x3CU);
-        
+
     }
     // and encode
     bptc.encode(lc, payload);
-    
+
     // and append
     buffer->Append(payload, sizeof(payload));
 }

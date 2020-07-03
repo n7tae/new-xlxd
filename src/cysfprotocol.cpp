@@ -4,6 +4,7 @@
 //
 //  Created by Jean-Luc Deltombe (LX3JL) on 20/05/2018.
 //  Copyright © 2015 Jean-Luc Deltombe (LX3JL). All rights reserved.
+//  Copyright © 2020 Thomas A. Early, N7TAE
 //
 // ----------------------------------------------------------------------------
 //    This file is part of xlxd.
@@ -47,26 +48,26 @@ CYsfProtocol::CYsfProtocol()
 bool CYsfProtocol::Init(void)
 {
     bool ok;
-    
+
     // base class
     ok = CProtocol::Init();
-    
+
     // update the reflector callsign
     m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)"YSF", 3);
-    
+
     // create our socket
     ok &= m_Socket.Open(YSF_PORT);
     if ( !ok )
     {
         std::cout << "Error opening socket on port UDP" << YSF_PORT << " on ip " << g_Reflector.GetListenIp() << std::endl;
     }
-    
+
     // init the wiresx cmd handler
     ok &= m_WiresxCmdHandler.Init();
-    
+
     // update time
     m_LastKeepaliveTime.Now();
-    
+
     // done
     return ok;
 }
@@ -75,7 +76,7 @@ void CYsfProtocol::Close(void)
 {
     // base class
     CProtocol::Close();
-    
+
     // and close wiresx handler
     m_WiresxCmdHandler.Close();
 }
@@ -92,7 +93,7 @@ void CYsfProtocol::Task(void)
     CDvHeaderPacket     *Header;
     CDvFramePacket      *Frames[5];
     CWiresxCmd          WiresxCmd;
-    
+
     int                 iWiresxCmd;
     int                 iWiresxArg;
 
@@ -108,7 +109,7 @@ void CYsfProtocol::Task(void)
         }
         m_WiresxCmdHandler.ReleasePacketQueue();
     }
-    
+
     // handle incoming packets
     if ( m_Socket.Receive(&Buffer, &Ip, 20) != -1 )
     {
@@ -119,7 +120,7 @@ void CYsfProtocol::Task(void)
             if ( IsValidDvFramePacket(Ip, Fich, Buffer, Frames) )
             {
                 //std::cout << "YSF DV frame"  << std::endl;
-                
+
                 // handle it
                 OnDvFramePacketIn(Frames[0], &Ip);
                 OnDvFramePacketIn(Frames[1], &Ip);
@@ -131,7 +132,7 @@ void CYsfProtocol::Task(void)
             {
                 //std::cout << "YSF DV header:"  << std::endl << *Header << std::endl;
                 //std::cout << "YSF DV header:"  << std::endl;
-                
+
                 // node linked and callsign muted?
                 if ( g_GateKeeper.MayTransmit(Header->GetMyCallsign(), Ip, PROTOCOL_YSF, Header->GetRpt2Module())  )
                 {
@@ -157,14 +158,14 @@ void CYsfProtocol::Task(void)
         else if ( IsValidConnectPacket(Buffer, &Callsign) )
         {
             //std::cout << "YSF keepalive/connect packet from " << Callsign << " at " << Ip << std::endl;
-            
+
             // callsign authorized?
             if ( g_GateKeeper.MayLink(Callsign, Ip, PROTOCOL_YSF) )
             {
                 // acknowledge the request
                 EncodeConnectAckPacket(&Buffer);
                 m_Socket.Send(Buffer, Ip);
-                
+
                 // add client if needed
                 CClients *clients = g_Reflector.GetClients();
                 CClient *client = clients->FindClient(Callsign, Ip, PROTOCOL_YSF);
@@ -172,15 +173,15 @@ void CYsfProtocol::Task(void)
                 if ( client == NULL )
                 {
                     std::cout << "YSF connect packet from " << Callsign << " at " << Ip << std::endl;
-                    
+
                     // create the client
                     CYsfClient *newclient = new CYsfClient(Callsign, Ip);
-                    
+
                     // aautolink, if enabled
                     #if YSF_AUTOLINK_ENABLE
                         newclient->SetReflectorModule(YSF_AUTOLINK_MODULE);
                     #endif
-                    
+
                     // and append
                     clients->AddClient(newclient);
                 }
@@ -215,19 +216,19 @@ void CYsfProtocol::Task(void)
             //Buffer.DebugDump(g_Reflector.m_DebugFile);
         }
     }
-    
+
     // handle end of streaming timeout
     CheckStreamsTimeout();
-    
+
     // handle queue from reflector
     HandleQueue();
-    
+
     // keep client alive
     if ( m_LastKeepaliveTime.DurationSinceNow() > YSF_KEEPALIVE_PERIOD )
     {
         //
         HandleKeepalives();
-        
+
         // update time
         m_LastKeepaliveTime.Now();
     }
@@ -239,14 +240,14 @@ void CYsfProtocol::Task(void)
 bool CYsfProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
 {
     bool newstream = false;
-    
+
     // find the stream
     CPacketStream *stream = GetStream(Header->GetStreamId());
     if ( stream == NULL )
     {
         // no stream open yet, open a new one
         CCallsign via(Header->GetRpt1Callsign());
-        
+
         // find this client
         CClient *client = g_Reflector.GetClients()->FindClient(Ip, PROTOCOL_YSF);
         if ( client != NULL )
@@ -266,14 +267,14 @@ bool CYsfProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
         }
         // release
         g_Reflector.ReleaseClients();
-        
+
         // update last heard
         if ( g_Reflector.IsValidModule(Header->GetRpt2Module()) )
         {
             g_Reflector.GetUsers()->Hearing(Header->GetMyCallsign(), via, Header->GetRpt2Callsign());
             g_Reflector.ReleaseUsers();
         }
-        
+
         // delete header if needed
         if ( !newstream )
         {
@@ -288,7 +289,7 @@ bool CYsfProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
         // and delete packet
         delete Header;
     }
-    
+
     // done
     return newstream;
 }
@@ -298,27 +299,27 @@ bool CYsfProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
 
 void CYsfProtocol::HandleQueue(void)
 {
-    
+
     m_Queue.Lock();
     while ( !m_Queue.empty() )
     {
         // get the packet
         CPacket *packet = m_Queue.front();
         m_Queue.pop();
-        
+
         // get our sender's id
         int iModId = g_Reflector.GetModuleIndex(packet->GetModuleId());
-        
+
         // encode
         CBuffer buffer;
-        
+
         // check if it's header
         if ( packet->IsDvHeader() )
         {
             // update local stream cache
             // this relies on queue feeder setting valid module id
             m_StreamsCache[iModId].m_dvHeader = CDvHeaderPacket((const CDvHeaderPacket &)*packet);
-            
+
             // encode it
             EncodeDvHeaderPacket((const CDvHeaderPacket &)*packet, &buffer);
         }
@@ -339,32 +340,32 @@ void CYsfProtocol::HandleQueue(void)
                 m_StreamsCache[iModId].m_dvFrames[sid] = CDvFramePacket((const CDvFramePacket &)*packet);
                 if ( sid == 4 )
                 {
-                    
+
                     EncodeDvPacket(m_StreamsCache[iModId].m_dvHeader, m_StreamsCache[iModId].m_dvFrames, &buffer);
                 }
             }
         }
-        
+
         // send it
         if ( buffer.size() > 0 )
         {
             // and push it to all our clients linked to the module and who are not streaming in
             CClients *clients = g_Reflector.GetClients();
-            int index = -1;
+            auto it = clients->begin();
             CClient *client = NULL;
-            while ( (client = clients->FindNextClient(PROTOCOL_YSF, &index)) != NULL )
+            while ( (client = clients->FindNextClient(PROTOCOL_YSF, it)) != NULL )
             {
                 // is this client busy ?
                 if ( !client->IsAMaster() && (client->GetReflectorModule() == packet->GetModuleId()) )
                 {
                     // no, send the packet
                     m_Socket.Send(buffer, client->GetIp());
-                    
+
                 }
             }
             g_Reflector.ReleaseClients();
         }
-        
+
         // done
         delete packet;
     }
@@ -379,12 +380,12 @@ void CYsfProtocol::HandleKeepalives(void)
     // YSF protocol keepalive request is client tasks
     // here, just check that all clients are still alive
     // and disconnect them if not
-    
+
     // iterate on clients
     CClients *clients = g_Reflector.GetClients();
-    int index = -1;
+    auto it = clients->begin();
     CClient *client = NULL;
-    while ( (client = clients->FindNextClient(PROTOCOL_YSF, &index)) != NULL )
+    while ( (client = clients->FindNextClient(PROTOCOL_YSF, it)) != NULL )
     {
         // is this client busy ?
         if ( client->IsAMaster() )
@@ -399,7 +400,7 @@ void CYsfProtocol::HandleKeepalives(void)
             std::cout << "YSF client " << client->GetCallsign() << " keepalive timeout" << std::endl;
             clients->RemoveClient(client);
         }
-        
+
     }
     g_Reflector.ReleaseClients();
 }
@@ -424,7 +425,7 @@ bool CYsfProtocol::IsValidConnectPacket(const CBuffer &Buffer, CCallsign *callsi
 bool CYsfProtocol::IsValidDvPacket(const CBuffer &Buffer, CYSFFICH *Fich)
 {
     uint8 tag[] = { 'Y','S','F','D' };
-    
+
     bool valid = false;
 
     if ( (Buffer.size() == 155) && (Buffer.Compare(tag, sizeof(tag)) == 0) )
@@ -451,7 +452,7 @@ bool CYsfProtocol::IsValidDvHeaderPacket(const CIp &Ip, const CYSFFICH &Fich, co
     {
         // get stream id
         uint32 uiStreamId = IpToStreamId(Ip);
-        
+
         // get header data
         CYSFPayload ysfPayload;
         if ( ysfPayload.processHeaderData((unsigned char *)&(Buffer.data()[35])) )
@@ -470,7 +471,7 @@ bool CYsfProtocol::IsValidDvHeaderPacket(const CIp &Ip, const CYSFFICH &Fich, co
             // destid, set module to none and rely on OnDvHeaderPacketIn()
             // to later fill it with proper value
             rpt2.SetModule(' ');
-            
+
             // and packet
             *header = new CDvHeaderPacket(csMY, CCallsign("CQCQCQ"), rpt1, rpt2, uiStreamId, Fich.getFN());
         }
@@ -481,7 +482,7 @@ bool CYsfProtocol::IsValidDvHeaderPacket(const CIp &Ip, const CYSFFICH &Fich, co
             frames[0] = new CDvFramePacket(uiAmbe, uiStreamId, Fich.getFN(), 0, 0);
             frames[1] = new CDvFramePacket(uiAmbe, uiStreamId, Fich.getFN(), 1, 0);
         }
-        
+
         // check validity of packets
         if ( ((*header) == NULL) || !(*header)->IsValid() ||
              (frames[0] == NULL) || !(frames[0]->IsValid()) ||
@@ -501,7 +502,7 @@ bool CYsfProtocol::IsValidDvHeaderPacket(const CIp &Ip, const CYSFFICH &Fich, co
          }
 
     }
-    
+
     // done
     return valid;
 }
@@ -514,13 +515,13 @@ bool CYsfProtocol::IsValidDvFramePacket(const CIp &Ip, const CYSFFICH &Fich, con
     frames[2] = NULL;
     frames[3] = NULL;
     frames[4] = NULL;
-    
+
     // is it DV frame ?
     if ( Fich.getFI() == YSF_FI_COMMUNICATIONS )
     {
         // get stream id
         uint32 uiStreamId = IpToStreamId(Ip);
-        
+
         // get DV frames
         uint8   ambe0[AMBEPLUS_SIZE];
         uint8   ambe1[AMBEPLUS_SIZE];
@@ -537,7 +538,7 @@ bool CYsfProtocol::IsValidDvFramePacket(const CIp &Ip, const CYSFFICH &Fich, con
         frames[2] = new CDvFramePacket(ambe2, uiStreamId, Fich.getFN(), 2, fid);
         frames[3] = new CDvFramePacket(ambe3, uiStreamId, Fich.getFN(), 3, fid);
         frames[4] = new CDvFramePacket(ambe4, uiStreamId, Fich.getFN(), 4, fid);
-        
+
         // check validity of packets
         if ( (frames[0] == NULL) || !(frames[0]->IsValid()) ||
             (frames[1] == NULL) || !(frames[1]->IsValid()) ||
@@ -571,13 +572,13 @@ bool CYsfProtocol::IsValidDvLastFramePacket(const CIp &Ip, const CYSFFICH &Fich,
     bool valid = false;
     frames[0] = NULL;
     frames[1] = NULL;
-    
+
     // DV header ?
     if ( Fich.getFI() == YSF_FI_TERMINATOR )
     {
         // get stream id
         uint32 uiStreamId = IpToStreamId(Ip);
-        
+
         // get DV frames
         {
             uint8  uiAmbe[AMBE_SIZE];
@@ -585,11 +586,11 @@ bool CYsfProtocol::IsValidDvLastFramePacket(const CIp &Ip, const CYSFFICH &Fich,
             frames[0] = new CDvFramePacket(uiAmbe, uiStreamId, Fich.getFN(), 0, 0);
             frames[1] = new CDvLastFramePacket(uiAmbe, uiStreamId, Fich.getFN(), 1, 0);
         }
-        
+
         // check validity of packets
         if ( (frames[0] == NULL) || !(frames[0]->IsValid()) ||
              (frames[1] == NULL) || !(frames[1]->IsValid()) )
-            
+
         {
             delete frames[0];
             delete frames[1];
@@ -601,7 +602,7 @@ bool CYsfProtocol::IsValidDvLastFramePacket(const CIp &Ip, const CYSFFICH &Fich,
             valid = true;
         }
     }
-    
+
     // done
     return valid;
 }
@@ -666,7 +667,7 @@ bool CYsfProtocol::EncodeDvHeaderPacket(const CDvHeaderPacket &Header, CBuffer *
     uint8 temp[120];
     payload.writeHeader(temp, csd1, csd2);
     Buffer->Append(temp+30, 120-30);
-     
+
     // done
     return true;
 }
@@ -678,7 +679,7 @@ bool CYsfProtocol::EncodeDvPacket(const CDvHeaderPacket &Header, const CDvFrameP
     uint8 gps[]  = { 0x52,0x22,0x61,0x5F,0x27,0x03,0x5E,0x20,0x20,0x20 };
     char  sz[YSF_CALLSIGN_LENGTH];
     uint8 fichd[YSF_FICH_LENGTH_BYTES];
-    
+
      // tag
     Buffer->Set(tag, sizeof(tag));
     // rpt1
@@ -769,7 +770,7 @@ bool CYsfProtocol::EncodeDvLastPacket(const CDvHeaderPacket &Header, CBuffer *Bu
     uint8 dest[] = { 'A','L','L',' ',' ',' ',' ',' ',' ',' ' };
     char  sz[YSF_CALLSIGN_LENGTH];
     uint8 fichd[YSF_FICH_LENGTH_BYTES];
-    
+
     // tag
     Buffer->Set(tag, sizeof(tag));
     // rpt1
@@ -813,7 +814,7 @@ bool CYsfProtocol::EncodeDvLastPacket(const CDvHeaderPacket &Header, CBuffer *Bu
     uint8 temp[120];
     payload.writeHeader(temp, csd1, csd2);
     Buffer->Append(temp+30, 120-30);
-    
+
     // done
     return true;
 }
@@ -939,7 +940,7 @@ bool CYsfProtocol::IsValidwirexPacket(const CBuffer &Buffer, CYSFFICH *Fich, CCa
 bool CYsfProtocol::IsValidServerStatusPacket(const CBuffer &Buffer) const
 {
     uint8 tag[] = { 'Y','S','F','S' };
-     
+
     return ( (Buffer.size() >= 4) && (Buffer.Compare(tag, sizeof(tag)) == 0) );
 }
 
@@ -950,7 +951,7 @@ bool CYsfProtocol::EncodeServerStatusPacket(CBuffer *Buffer) const
     uint8 tag[] = { 'Y','S','F','S' };
     uint8 description[] = { 'X','L','X',' ','r','e','f','l','e','c','t','o','r',' ' };
     uint8 callsign[16];
-     
+
     // tag
     Buffer->Set(tag, sizeof(tag));
     // hash
@@ -969,7 +970,7 @@ bool CYsfProtocol::EncodeServerStatusPacket(CBuffer *Buffer) const
     g_Reflector.ReleaseClients();
     ::sprintf(sz, "%03u", count);
     Buffer->Append((uint8 *)sz, 3);
-    
+
     // done
     return true;
 }
@@ -1015,7 +1016,7 @@ bool CYsfProtocol::DebugTestDecodePacket(const CBuffer &Buffer)
     CYSFPayload payload;
     CBuffer dump;
     bool valid = false;
-    
+
     if ( (Buffer.size() == 155) && (Buffer.Compare(tag, sizeof(tag)) == 0) )
     {
         // decode YSH fich
@@ -1027,7 +1028,7 @@ bool CYsfProtocol::DebugTestDecodePacket(const CBuffer &Buffer)
                       << (int)Fich.getBT() << ","
                       << (int)Fich.getFN() << ","
                       << (int)Fich.getFT() << " : ";
-            
+
             switch ( Fich.getFI() )
             {
                 case YSF_FI_HEADER:
@@ -1076,14 +1077,14 @@ bool CYsfProtocol::DebugDumpHeaderPacket(const CBuffer &Buffer)
     uint8 data[200];
 
     :: memset(data, 0, sizeof(data));
-    
+
 
     ok = IsValidDvPacket(Buffer, &fich);
     if ( ok && (fich.getFI() == YSF_FI_HEADER) )
     {
         ok &= payload.processHeaderData((unsigned char *)&(Buffer.data()[35]));
     }
-    
+
     std::cout << "HD-" <<(ok ? "ok " : "xx ") << "src: " << payload.getSource() << "dest: " << payload.getDest() << std::endl;
 
     return ok;
@@ -1105,7 +1106,7 @@ bool CYsfProtocol::DebugDumpDvPacket(const CBuffer &Buffer)
     }
 
     std::cout << "DV-" <<(ok ? "ok " : "xx ") << "FN:" << (int)fich.getFN() << "  payload: " << (char *)data << std::endl;
- 
+
     return ok;
 }
 
@@ -1117,14 +1118,14 @@ bool CYsfProtocol::DebugDumpLastDvPacket(const CBuffer &Buffer)
     uint8 data[200];
 
     :: memset(data, 0, sizeof(data));
-    
+
 
     ok = IsValidDvPacket(Buffer, &fich);
     if ( ok && (fich.getFI() == YSF_FI_TERMINATOR) )
     {
         ok &= payload.processHeaderData((unsigned char *)&(Buffer.data()[35]));
     }
-    
+
     std::cout << "TC-" <<(ok ? "ok " : "xx ") << "src: " << payload.getSource() << "dest: " << payload.getDest() << std::endl;
 
     return ok;

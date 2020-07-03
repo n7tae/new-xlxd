@@ -271,9 +271,9 @@ void CXlxProtocol::HandleQueue(void)
 
                 // and push it to all our clients linked to the module and who are not streaming in
                 CClients *clients = g_Reflector.GetClients();
-                int index = -1;
+                auto it = clients->begin();
                 CClient *client = NULL;
-                while ( (client = clients->FindNextClient(PROTOCOL_XLX, &index)) != NULL )
+                while ( (client = clients->FindNextClient(PROTOCOL_XLX, it)) != NULL )
                 {
                     // is this client busy ?
                     if ( !client->IsAMaster() && (client->GetReflectorModule() == packet->GetModuleId()) )

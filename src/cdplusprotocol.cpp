@@ -4,6 +4,7 @@
 //
 //  Created by Jean-Luc Deltombe (LX3JL) on 01/11/2015.
 //  Copyright © 2015 Jean-Luc Deltombe (LX3JL). All rights reserved.
+//  Copyright © 2020 Thomas A. Early, N7TAE
 //
 // ----------------------------------------------------------------------------
 //    This file is part of xlxd.
@@ -19,7 +20,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #include "main.h"
@@ -36,23 +37,23 @@
 bool CDplusProtocol::Init(void)
 {
     bool ok;
-    
+
     // base class
     ok = CProtocol::Init();
-    
+
     // update the reflector callsign
     m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)"REF", 3);
-    
+
     // create our socket
     ok &= m_Socket.Open(DPLUS_PORT);
     if ( !ok )
     {
         std::cout << "Error opening socket on port UDP" << DPLUS_PORT << " on ip " << g_Reflector.GetListenIp() << std::endl;
     }
-    
+
     // update time
     m_LastKeepaliveTime.Now();
-    
+
     // done
     return ok;
 }
@@ -70,7 +71,7 @@ void CDplusProtocol::Task(void)
     CDvHeaderPacket     *Header;
     CDvFramePacket      *Frame;
     CDvLastFramePacket  *LastFrame;
-    
+
     // handle incoming packets
     if ( m_Socket.Receive(&Buffer, &Ip, 20) != -1 )
     {
@@ -78,14 +79,14 @@ void CDplusProtocol::Task(void)
         if ( (Frame = IsValidDvFramePacket(Buffer)) != NULL )
         {
             //std::cout << "DPlus DV frame" << std::endl;
-            
+
             // handle it
             OnDvFramePacketIn(Frame, &Ip);
         }
         else if ( (Header = IsValidDvHeaderPacket(Buffer)) != NULL )
         {
             //std::cout << "DPlus DV header:" << std::endl << *Header << std::endl;
-            
+
             // callsign muted?
             if ( g_GateKeeper.MayTransmit(Header->GetMyCallsign(), Ip, PROTOCOL_DPLUS, Header->GetRpt2Module()) )
             {
@@ -100,7 +101,7 @@ void CDplusProtocol::Task(void)
         else if ( (LastFrame = IsValidDvLastFramePacket(Buffer)) != NULL )
         {
             //std::cout << "DPlus DV last frame" << std::endl;
-            
+
             // handle it
             OnDvLastFramePacketIn(LastFrame, &Ip);
        }
@@ -114,17 +115,17 @@ void CDplusProtocol::Task(void)
         else if ( IsValidLoginPacket(Buffer, &Callsign) )
         {
             std::cout << "DPlus login packet from " << Callsign << " at " << Ip << std::endl;
-            
+
             // callsign authorized?
             if ( g_GateKeeper.MayLink(Callsign, Ip, PROTOCOL_DPLUS) )
             {
                 // acknowledge the request
                 EncodeLoginAckPacket(&Buffer);
                 m_Socket.Send(Buffer, Ip);
-                
+
                // create the client
                 CDplusClient *client = new CDplusClient(Callsign, Ip);
-                
+
                 // and append
                 g_Reflector.GetClients()->AddClient(client);
                 g_Reflector.ReleaseClients();
@@ -135,12 +136,12 @@ void CDplusProtocol::Task(void)
                 EncodeLoginNackPacket(&Buffer);
                 m_Socket.Send(Buffer, Ip);
             }
-            
+
         }
         else if ( IsValidDisconnectPacket(Buffer) )
         {
             std::cout << "DPlus disconnect packet from " << Ip << std::endl;
-            
+
             // find client
             CClients *clients = g_Reflector.GetClients();
             CClient *client = clients->FindClient(Ip, PROTOCOL_DPLUS);
@@ -157,12 +158,12 @@ void CDplusProtocol::Task(void)
         else if ( IsValidKeepAlivePacket(Buffer) )
         {
             //std::cout << "DPlus keepalive packet from " << Ip << std::endl;
-            
+
             // find all clients with that callsign & ip and keep them alive
             CClients *clients = g_Reflector.GetClients();
-            int index = -1;
+            auto it = clients->begin();
             CClient *client = NULL;
-            while ( (client = clients->FindNextClient(Ip, PROTOCOL_DPLUS, &index)) != NULL )
+            while ( (client = clients->FindNextClient(Ip, PROTOCOL_DPLUS, it)) != NULL )
             {
                 client->Alive();
             }
@@ -173,19 +174,19 @@ void CDplusProtocol::Task(void)
             std::cout << "DPlus packet (" << Buffer.size() << ")" << std::endl;
         }
     }
-    
+
     // handle end of streaming timeout
     CheckStreamsTimeout();
-    
+
     // handle queue from reflector
     HandleQueue();
-    
+
     // keep client alive
     if ( m_LastKeepaliveTime.DurationSinceNow() > DPLUS_KEEPALIVE_PERIOD )
     {
         //
         HandleKeepalives();
-        
+
         // update time
         m_LastKeepaliveTime.Now();
     }
@@ -197,14 +198,14 @@ void CDplusProtocol::Task(void)
 bool CDplusProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
 {
     bool newstream = false;
-    
+
     // find the stream
     CPacketStream *stream = GetStream(Header->GetStreamId());
     if ( stream == NULL )
     {
         // no stream open yet, open a new one
         CCallsign via(Header->GetRpt1Callsign());
-        
+
         // first, check module is valid
         if ( g_Reflector.IsValidModule(Header->GetRpt1Module()) )
         {
@@ -234,11 +235,11 @@ bool CDplusProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
             }
             // release
             g_Reflector.ReleaseClients();
-            
+
             // update last heard
             g_Reflector.GetUsers()->Hearing(Header->GetMyCallsign(), via, Header->GetRpt2Callsign());
             g_Reflector.ReleaseUsers();
-            
+
             // delete header if needed
             if ( !newstream )
             {
@@ -258,7 +259,7 @@ bool CDplusProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
         // and delete packet
         delete Header;
     }
-    
+
     // done
     return newstream;
 }
@@ -274,10 +275,10 @@ void CDplusProtocol::HandleQueue(void)
         // get the packet
         CPacket *packet = m_Queue.front();
         m_Queue.pop();
-        
+
         // get our sender's id
         int iModId = g_Reflector.GetModuleIndex(packet->GetModuleId());
-        
+
         // check if it's header and update cache
         if ( packet->IsDvHeader() )
         {
@@ -294,9 +295,9 @@ void CDplusProtocol::HandleQueue(void)
             // note that for dplus protocol, all stream of all modules are push to all clients
             // it's client who decide which stream he's interrrested in
             CClients *clients = g_Reflector.GetClients();
-            int index = -1;
+            auto it = clients->begin();
             CClient *client = NULL;
-            while ( (client = clients->FindNextClient(PROTOCOL_DPLUS, &index)) != NULL )
+            while ( (client = clients->FindNextClient(PROTOCOL_DPLUS, it)) != NULL )
             {
                 // is this client busy ?
                 if ( !client->IsAMaster() )
@@ -332,8 +333,8 @@ void CDplusProtocol::HandleQueue(void)
             }
             g_Reflector.ReleaseClients();
         }
-        
-        
+
+
         // done
         delete packet;
     }
@@ -368,13 +369,13 @@ void CDplusProtocol::SendDvHeader(CDvHeaderPacket *packet, CDplusClient *client)
                 // no, send also the genuine packet
                 m_Socket.Send(buffer, client->GetIp());
             }
-        } 
+        }
         else
         {
             // otherwise, send the original packet
             m_Socket.Send(buffer, client->GetIp());
         }
-    }      
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -385,17 +386,17 @@ void CDplusProtocol::HandleKeepalives(void)
     // send keepalives
     CBuffer keepalive;
     EncodeKeepAlivePacket(&keepalive);
-    
+
     // iterate on clients
     CClients *clients = g_Reflector.GetClients();
-    int index = -1;
+    auto it = clients->begin();
     CClient *client = NULL;
-    while ( (client = clients->FindNextClient(PROTOCOL_DPLUS, &index)) != NULL )
+    while ( (client = clients->FindNextClient(PROTOCOL_DPLUS, it)) != NULL )
     {
         // send keepalive
         //std::cout << "Sending DPlus packet @ " << client->GetIp() << std::endl;
         m_Socket.Send(keepalive, client->GetIp());
-        
+
         // is this client busy ?
         if ( client->IsAMaster() )
         {
@@ -409,7 +410,7 @@ void CDplusProtocol::HandleKeepalives(void)
             CBuffer disconnect;
             EncodeDisconnectPacket(&disconnect);
             m_Socket.Send(disconnect, client->GetIp());
-            
+
             // and remove it
             std::cout << "DPlus client " << client->GetCallsign() << " keepalive timeout" << std::endl;
             clients->RemoveClient(client);
@@ -431,7 +432,7 @@ bool CDplusProtocol::IsValidLoginPacket(const CBuffer &Buffer, CCallsign *Callsi
 {
     uint8 Tag[] = { 0x1C,0xC0,0x04,0x00 };
     bool valid = false;
-    
+
     if ( (Buffer.size() == 28) &&(::memcmp(Buffer.data(), Tag, sizeof(Tag)) == 0) )
     {
         Callsign->SetCallsign(&(Buffer.data()[4]), 8);
@@ -455,7 +456,7 @@ bool CDplusProtocol::IsValidKeepAlivePacket(const CBuffer &Buffer)
 CDvHeaderPacket *CDplusProtocol::IsValidDvHeaderPacket(const CBuffer &Buffer)
 {
     CDvHeaderPacket *header = NULL;
-    
+
     if ( (Buffer.size() == 58) &&
          (Buffer.data()[0] == 0x3A) && (Buffer.data()[1] == 0x80) &&
          (Buffer.Compare((uint8 *)"DSVT", 2, 4) == 0) &&
@@ -477,7 +478,7 @@ CDvHeaderPacket *CDplusProtocol::IsValidDvHeaderPacket(const CBuffer &Buffer)
 CDvFramePacket *CDplusProtocol::IsValidDvFramePacket(const CBuffer &Buffer)
 {
     CDvFramePacket *dvframe = NULL;
-    
+
     if ( (Buffer.size() == 29) &&
          (Buffer.data()[0] == 0x1D) && (Buffer.data()[1] == 0x80) &&
          (Buffer.Compare((uint8 *)"DSVT", 2, 4) == 0) &&
@@ -499,7 +500,7 @@ CDvFramePacket *CDplusProtocol::IsValidDvFramePacket(const CBuffer &Buffer)
 CDvLastFramePacket *CDplusProtocol::IsValidDvLastFramePacket(const CBuffer &Buffer)
 {
     CDvLastFramePacket *dvframe = NULL;
-    
+
     if ( (Buffer.size() == 32) &&
          (Buffer.Compare((uint8 *)"DSVT", 2, 4) == 0) &&
          (Buffer.data()[0] == 0x20) && (Buffer.data()[1] == 0x80) &&
@@ -551,9 +552,9 @@ bool CDplusProtocol::EncodeDvHeaderPacket(const CDvHeaderPacket &Packet, CBuffer
 {
     uint8 tag[]	= { 0x3A,0x80,0x44,0x53,0x56,0x54,0x10,0x00,0x00,0x00,0x20,0x00,0x01,0x02 };
     struct dstar_header DstarHeader;
-    
+
     Packet.ConvertToDstarStruct(&DstarHeader);
-   
+
     Buffer->Set(tag, sizeof(tag));
     Buffer->Append(Packet.GetStreamId());
     Buffer->Append((uint8)0x80);
@@ -571,9 +572,9 @@ bool CDplusProtocol::EncodeDvFramePacket(const CDvFramePacket &Packet, CBuffer *
     Buffer->Append((uint8)(Packet.GetPacketId() % 21));
     Buffer->Append((uint8 *)Packet.GetAmbe(), AMBE_SIZE);
     Buffer->Append((uint8 *)Packet.GetDvData(), DVDATA_SIZE);
-    
+
     return true;
-    
+
 }
 
 bool CDplusProtocol::EncodeDvLastFramePacket(const CDvLastFramePacket &Packet, CBuffer *Buffer) const
@@ -585,6 +586,6 @@ bool CDplusProtocol::EncodeDvLastFramePacket(const CDvLastFramePacket &Packet, C
     Buffer->Append(Packet.GetStreamId());
     Buffer->Append((uint8)((Packet.GetPacketId() % 21) | 0x40));
     Buffer->Append(tag2, sizeof(tag2));
-    
-    return true;    
+
+    return true;
 }

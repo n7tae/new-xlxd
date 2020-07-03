@@ -4,6 +4,7 @@
 //
 //  Created by Marius Petrescu (YO2LOJ) on 03/06/2019.
 //  Copyright © 2019 Marius Petrescu (YO2LOJ). All rights reserved.
+//  Copyright © 2020 Thomas A. Early, N7TAE
 //
 // ----------------------------------------------------------------------------
 //    This file is part of xlxd.
@@ -19,7 +20,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #include "main.h"
@@ -167,7 +168,7 @@ void CG3Protocol::PresenceTask(void)
             Owner.SetCallsign(&Buffer.data()[16], 8);
             Terminal.SetCallsign(&Buffer.data()[24], 8);
 
-            std::cout << "Presence from " << Ip << " as " << Callsign << " on terminal " << Terminal << std::endl; 
+            std::cout << "Presence from " << Ip << " as " << Callsign << " on terminal " << Terminal << std::endl;
 
             // accept
             Buffer.data()[2] = 0x80; // response
@@ -175,7 +176,7 @@ void CG3Protocol::PresenceTask(void)
 
             if (m_GwAddress == 0)
             {
-                Buffer.Append(*(uint32 *)m_ConfigSocket.GetLocalAddr()); 
+                Buffer.Append(*(uint32 *)m_ConfigSocket.GetLocalAddr());
             }
             else
             {
@@ -183,10 +184,9 @@ void CG3Protocol::PresenceTask(void)
             }
 
             CClients *clients = g_Reflector.GetClients();
-
-            int index = -1;
+            auto it = clients->begin();
             CClient *extant = NULL;
-            while ( (extant = clients->FindNextClient(PROTOCOL_G3, &index)) != NULL )
+            while ( (extant = clients->FindNextClient(PROTOCOL_G3, it)) != NULL )
             {
                 CIp ClIp = extant->GetIp();
                 if (ClIp.GetAddr() == Ip.GetAddr())
@@ -197,10 +197,10 @@ void CG3Protocol::PresenceTask(void)
 
             if (extant == NULL)
             {
-                index = -1;
-                
+                it = clients->begin();
+
                 // do we already have a client with the same call (IP changed)?
-                while ( (extant = clients->FindNextClient(PROTOCOL_G3, &index)) != NULL )
+                while ( (extant = clients->FindNextClient(PROTOCOL_G3, it)) != NULL )
                 {
                     {
                         if (extant->GetCallsign().HasSameCallsign(Terminal))
@@ -328,7 +328,7 @@ void CG3Protocol::ConfigTask(void)
 
                 if (m_GwAddress == 0)
                 {
-                    Buffer.Append(*(uint32 *)m_ConfigSocket.GetLocalAddr()); 
+                    Buffer.Append(*(uint32 *)m_ConfigSocket.GetLocalAddr());
                 }
                 else
                 {
@@ -359,10 +359,9 @@ void CG3Protocol::IcmpTask(void)
         if (iIcmpType == ICMP_DEST_UNREACH)
         {
                 CClients *clients = g_Reflector.GetClients();
-
-                int index = -1;
+				auto it = clients->begin();
                 CClient *client = NULL;
-                while ( (client = clients->FindNextClient(PROTOCOL_G3, &index)) != NULL )
+                while ( (client = clients->FindNextClient(PROTOCOL_G3, it)) != NULL )
                 {
                     CIp ClientIp = client->GetIp();
                     if (ClientIp.GetAddr() == Ip.GetAddr())
@@ -396,9 +395,9 @@ void CG3Protocol::Task(void)
         CIp ClIp;
         CIp *BaseIp = NULL;
         CClients *clients = g_Reflector.GetClients();
-        int index = -1;
+        auto it = clients->begin();
         CClient *client = NULL;
-        while ( (client = clients->FindNextClient(PROTOCOL_G3, &index)) != NULL )
+        while ( (client = clients->FindNextClient(PROTOCOL_G3, it)) != NULL )
         {
             ClIp = client->GetIp();
             if (ClIp.GetAddr() == Ip.GetAddr())
@@ -491,16 +490,16 @@ void CG3Protocol::HandleQueue(void)
         // get the packet
         CPacket *packet = m_Queue.front();
         m_Queue.pop();
-        
+
         // encode it
         CBuffer buffer;
         if ( EncodeDvPacket(*packet, &buffer) )
         {
             // and push it to all our clients linked to the module and who are not streaming in
             CClients *clients = g_Reflector.GetClients();
-            int index = -1;
+            auto it = clients->begin();
             CClient *client = NULL;
-            while ( (client = clients->FindNextClient(PROTOCOL_G3, &index)) != NULL )
+            while ( (client = clients->FindNextClient(PROTOCOL_G3, it)) != NULL )
             {
                 // is this client busy ?
                 if ( !client->IsAMaster() && (client->GetReflectorModule() == packet->GetModuleId()) )
@@ -515,7 +514,7 @@ void CG3Protocol::HandleQueue(void)
             }
             g_Reflector.ReleaseClients();
         }
-        
+
         // done
         delete packet;
     }
@@ -534,9 +533,9 @@ void CG3Protocol::HandleKeepalives(void)
 
     // iterate on clients
     CClients *clients = g_Reflector.GetClients();
-    int index = -1;
+    auto it = clients->begin();
     CClient *client = NULL;
-    while ( (client = clients->FindNextClient(PROTOCOL_G3, &index)) != NULL )
+    while ( (client = clients->FindNextClient(PROTOCOL_G3, it)) != NULL )
     {
         if (!client->IsAlive())
         {
@@ -568,10 +567,9 @@ bool CG3Protocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
 
         // find this client
         CClients *clients = g_Reflector.GetClients();
-
-        int index = -1;
+        auto it = clients->begin();
         CClient *client = NULL;
-        while ( (client = clients->FindNextClient(PROTOCOL_G3, &index)) != NULL )
+        while ( (client = clients->FindNextClient(PROTOCOL_G3, it)) != NULL )
         {
             CIp ClIp = client->GetIp();
             if (ClIp.GetAddr() == Ip.GetAddr())
@@ -653,7 +651,7 @@ bool CG3Protocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
 CDvHeaderPacket *CG3Protocol::IsValidDvHeaderPacket(const CBuffer &Buffer)
 {
     CDvHeaderPacket *header = NULL;
-    
+
     if ( (Buffer.size() == 56) && (Buffer.Compare((uint8 *)"DSVT", 4) == 0) &&
          (Buffer.data()[4] == 0x10) && (Buffer.data()[8] == 0x20) )
     {
@@ -673,7 +671,7 @@ CDvHeaderPacket *CG3Protocol::IsValidDvHeaderPacket(const CBuffer &Buffer)
 CDvFramePacket *CG3Protocol::IsValidDvFramePacket(const CBuffer &Buffer)
 {
     CDvFramePacket *dvframe = NULL;
-    
+
     if ( (Buffer.size() == 27) && (Buffer.Compare((uint8 *)"DSVT", 4) == 0) &&
          (Buffer.data()[4] == 0x20) && (Buffer.data()[8] == 0x20) &&
          ((Buffer.data()[14] & 0x40) == 0) )
@@ -694,7 +692,7 @@ CDvFramePacket *CG3Protocol::IsValidDvFramePacket(const CBuffer &Buffer)
 CDvLastFramePacket *CG3Protocol::IsValidDvLastFramePacket(const CBuffer &Buffer)
 {
     CDvLastFramePacket *dvframe = NULL;
-    
+
     if ( (Buffer.size() == 27) && (Buffer.Compare((uint8 *)"DSVT", 4) == 0) &&
          (Buffer.data()[4] == 0x20) && (Buffer.data()[8] == 0x20) &&
          ((Buffer.data()[14] & 0x40) != 0) )
@@ -719,41 +717,41 @@ bool CG3Protocol::EncodeDvHeaderPacket(const CDvHeaderPacket &Packet, CBuffer *B
 {
     uint8 tag[]	= { 'D','S','V','T',0x10,0x00,0x00,0x00,0x20,0x00,0x01,0x02 };
     struct dstar_header DstarHeader;
-    
+
     Packet.ConvertToDstarStruct(&DstarHeader);
-    
+
     Buffer->Set(tag, sizeof(tag));
     Buffer->Append(Packet.GetStreamId());
     Buffer->Append((uint8)0x80);
     Buffer->Append((uint8 *)&DstarHeader, sizeof(struct dstar_header));
-    
+
     return true;
 }
 
 bool CG3Protocol::EncodeDvFramePacket(const CDvFramePacket &Packet, CBuffer *Buffer) const
 {
     uint8 tag[] = { 'D','S','V','T',0x20,0x00,0x00,0x00,0x20,0x00,0x01,0x02 };
-    
+
     Buffer->Set(tag, sizeof(tag));
     Buffer->Append(Packet.GetStreamId());
     Buffer->Append((uint8)(Packet.GetPacketId() % 21));
     Buffer->Append((uint8 *)Packet.GetAmbe(), AMBE_SIZE);
     Buffer->Append((uint8 *)Packet.GetDvData(), DVDATA_SIZE);
-    
+
     return true;
-    
+
 }
 
 bool CG3Protocol::EncodeDvLastFramePacket(const CDvLastFramePacket &Packet, CBuffer *Buffer) const
 {
     uint8 tag1[] = { 'D','S','V','T',0x20,0x00,0x00,0x00,0x20,0x00,0x01,0x02 };
     uint8 tag2[] = { 0x55,0xC8,0x7A,0x00,0x00,0x00,0x00,0x00,0x00,0x25,0x1A,0xC6 };
-    
+
     Buffer->Set(tag1, sizeof(tag1));
     Buffer->Append(Packet.GetStreamId());
     Buffer->Append((uint8)((Packet.GetPacketId() % 21) | 0x40));
     Buffer->Append(tag2, sizeof(tag2));
-    
+
     return true;
 }
 
@@ -785,9 +783,9 @@ void CG3Protocol::NeedReload(void)
 
             // we have new options - iterate on clients for potential removal
             CClients *clients = g_Reflector.GetClients();
-            int index = -1;
+            auto it = clients->begin();
             CClient *client = NULL;
-            while ( (client = clients->FindNextClient(PROTOCOL_G3, &index)) != NULL )
+            while ( (client = clients->FindNextClient(PROTOCOL_G3, it)) != NULL )
             {
                 char module = client->GetReflectorModule();
                 if (!strchr(m_Modules.c_str(), module) && !strchr(m_Modules.c_str(), '*'))
@@ -858,4 +856,3 @@ void CG3Protocol::ReadOptions(void)
         }
     }
 }
-
