@@ -19,135 +19,128 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
-#include "main.h"
 #include <string.h>
-#include "cprotocol.h"
+#include "cbuffer.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // constructor
 
-CBuffer::CBuffer(uint8 *buffer, int len)
+CBuffer::CBuffer(uint8_t *buffer, int len)
 {
-    resize(len);
-    ::memcpy(data(), buffer, len);
+	m_data.resize(len);
+	::memcpy(m_data.data(), buffer, len);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // set
 
-void CBuffer::Set(uint8 *buffer, int len)
+void CBuffer::Set(uint8_t *buffer, int len)
 {
-    resize(len);
-    ::memcpy(data(), buffer, len);
+	m_data.resize(len);
+	::memcpy(m_data.data(), buffer, len);
 }
 
 void CBuffer::Set(const char *sz)
 {
-    resize(::strlen(sz)+1);
-    ::strcpy((char *)data(), sz);
+	m_data.resize(::strlen(sz)+1);
+	::strcpy((char *)m_data.data(), sz);
 }
 
-void CBuffer::Append(uint8 *buffer, int len)
+void CBuffer::Append(const uint8_t *buffer, int len)
 {
-    int n = (int)size();
-    resize(n+len);
-    ::memcpy(&(data()[n]), buffer, len);
+	int n = (int)m_data.size();
+	m_data.resize(n+len);
+	::memcpy(&(m_data.data()[n]), buffer, len);
 }
 
-void CBuffer::Append(uint8 ui, int len)
+void CBuffer::Append(uint8_t ui, int len)
 {
-    int n = (int)size();
-    resize(n+len);
-    ::memset(&(data()[n]), ui, len);
+	int n = (int)m_data.size();
+	m_data.resize(n+len);
+	::memset(&(m_data.data()[n]), ui, len);
 }
 
-void CBuffer::Append(uint8 ui)
+void CBuffer::Append(uint8_t ui)
 {
-    int n = (int)size();
-    resize(n+sizeof(uint8));
-    ::memcpy(&(data()[n]), &ui, sizeof(uint8));
+	int n = (int)m_data.size();
+	m_data.resize(n+sizeof(uint8_t));
+	::memcpy(&(m_data.data()[n]), &ui, sizeof(uint8_t));
 }
 
-void CBuffer::Append(uint16 ui)
+void CBuffer::Append(uint16_t ui)
 {
-    int n = (int)size();
-    resize(n+sizeof(uint16));
-    ::memcpy(&(data()[n]), &ui, sizeof(uint16));
+	int n = (int)m_data.size();
+	m_data.resize(n+sizeof(uint16_t));
+	::memcpy(&(m_data.data()[n]), &ui, sizeof(uint16_t));
 }
 
-void CBuffer::Append(uint32 ui)
+void CBuffer::Append(uint32_t ui)
 {
-    int n = (int)size();
-    resize(n+sizeof(uint32));
-    ::memcpy(&(data()[n]), &ui, sizeof(uint32));
+	int n = (int)m_data.size();
+	m_data.resize(n+sizeof(uint32_t));
+	::memcpy(&(m_data.data()[n]), &ui, sizeof(uint32_t));
 }
 
 void CBuffer::Append(const char *sz)
 {
-    Append((uint8 *)sz, (int)strlen(sz));
-    Append((uint8)0x00);
+	Append((uint8_t *)sz, (int)strlen(sz));
+	Append((uint8_t)0x00);
 }
 
-void CBuffer::ReplaceAt(int i, uint8 ui)
+void CBuffer::ReplaceAt(int i, uint8_t ui)
 {
-    if ( size() < (i+sizeof(uint8)) )
-    {
-        resize(i+sizeof(uint8));
-    }
-    *(uint8 *)(&(data()[i])) = ui;
+	if ( m_data.size() < (i+sizeof(uint8_t)) ) {
+		m_data.resize(i+sizeof(uint8_t));
+	}
+	*(uint8_t *)(&(m_data.data()[i])) = ui;
 }
 
-void CBuffer::ReplaceAt(int i, uint16 ui)
+void CBuffer::ReplaceAt(int i, uint16_t ui)
 {
-    if ( size() < (i+sizeof(uint16)) )
-    {
-        resize(i+sizeof(uint16));
-    }
-    *(uint16 *)(&(data()[i])) = ui;
+	if ( m_data.size() < (i+sizeof(uint16_t)) ) {
+		m_data.resize(i+sizeof(uint16_t));
+	}
+	*(uint16_t *)(&(m_data.data()[i])) = ui;
 }
 
-void CBuffer::ReplaceAt(int i, uint32 ui)
+void CBuffer::ReplaceAt(int i, uint32_t ui)
 {
-    if ( size() < (i+sizeof(uint32)) )
-    {
-        resize(i+sizeof(uint32));
-    }
-    *(uint32 *)(&(data()[i])) = ui;
+	if ( m_data.size() < (i+sizeof(uint32_t)) ) {
+		m_data.resize(i+sizeof(uint32_t));
+	}
+	*(uint32_t *)(&(m_data.data()[i])) = ui;
 }
 
-void CBuffer::ReplaceAt(int i, const uint8 *ptr, int len)
+void CBuffer::ReplaceAt(int i, const uint8_t *ptr, int len)
 {
-    if ( size() < (i+len) )
-    {
-        resize(i+len);
-    }
-    ::memcpy(&(data()[i]), ptr, len);
+	if ( m_data.size() < unsigned(i+len) ) {
+		m_data.resize(i+len);
+	}
+	::memcpy(&(m_data.data()[i]), ptr, len);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // operation
 
-int CBuffer::Compare(uint8 *buffer, int len) const
+int CBuffer::Compare(uint8_t *buffer, int len) const
 {
-    int result = -1;
-    if ( size() >= len )
-    {
-        result = ::memcmp(data(), buffer, len);
-    }
-    return result;
+	int result = -1;
+	if ( m_data.size() >= unsigned(len) ) {
+		result = ::memcmp(m_data.data(), buffer, len);
+	}
+	return result;
 }
 
-int CBuffer::Compare(uint8 *buffer, int off, int len) const
+int CBuffer::Compare(uint8_t *buffer, int off, int len) const
 {
-    int result = -1;
-    if ( size() >= (off+len) )
-    {
-        result = ::memcmp(&(data()[off]), buffer, len);
-    }
-    return result;
+	int result = -1;
+	if ( m_data.size() >= unsigned(off+len) ) {
+		result = ::memcmp(&(m_data.data()[off]), buffer, len);
+	}
+	return result;
 }
 
 
@@ -156,25 +149,23 @@ int CBuffer::Compare(uint8 *buffer, int off, int len) const
 
 bool CBuffer::operator ==(const CBuffer &Buffer) const
 {
-    if ( size() == Buffer.size() )
-    {
-        return (::memcmp((const char *)data(), (const char *)Buffer.data(), size()) == 0);
-    }
-    return false;
+	if ( m_data.size() == Buffer.m_data.size() ) {
+		return (::memcmp((const char *)m_data.data(), (const char *)Buffer.m_data.data(), m_data.size()) == 0);
+	}
+	return false;
 }
 
 bool CBuffer::operator ==(const char *sz) const
 {
-    if ( size() == ::strlen(sz) )
-    {
-        return (::memcmp((const char *)data(), sz, size()) == 0);
-    }
-    return false;
+	if ( m_data.size() == ::strlen(sz) ) {
+		return (::memcmp((const char *)m_data.data(), sz, m_data.size()) == 0);
+	}
+	return false;
 }
 
 CBuffer::operator const char *() const
 {
-    return (const char *)data();
+	return (const char *)m_data.data();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -182,47 +173,32 @@ CBuffer::operator const char *() const
 
 void CBuffer::DebugDump(std::ofstream &debugout) const
 {
-    // dump an hex line
-    for ( int i = 0; i < size(); i++ )
-    {
-        char sz[16];
-        //sprintf(sz, "%02X", data()[i]);
-        sprintf(sz, "0x%02X", data()[i]);
-        debugout << sz;
-        if ( i == size()-1 )
-        {
-            debugout << std::endl;
-        }
-        else
-        {
-            debugout << ',';
-        }
-    }
+	// dump an hex line
+	for ( unsigned int i = 0; i < m_data.size(); i++ ) {
+		char sz[16];
+		//sprintf(sz, "%02X", m_data.data()[i]);
+		sprintf(sz, "0x%02X", m_data.data()[i]);
+		debugout << sz;
+		if ( i == m_data.size()-1 ) {
+			debugout << std::endl;
+		} else {
+			debugout << ',';
+		}
+	}
 }
 
 void CBuffer::DebugDumpAscii(std::ofstream &debugout) const
 {
-    // dump an ascii line
-    for ( int i = 0; i < size(); i++ )
-    {
-        char c = data()[i];
-        if ( isascii(c) )
-        {
-            debugout << c;
-        }
-        else
-        {
-            debugout << '.';
-        }
-        if ( i == size()-1 )
-        {
-            debugout << std::endl;
-        }
-        //else
-        //{
-        //    debugout << ',';
-        //}
-    }
+	// dump an ascii line
+	for ( unsigned int i = 0; i < m_data.size(); i++ ) {
+		char c = m_data.data()[i];
+		if ( isascii(c) ) {
+			debugout << c;
+		} else {
+			debugout << '.';
+		}
+		if ( i == m_data.size()-1 ) {
+			debugout << std::endl;
+		}
+	}
 }
-
-
