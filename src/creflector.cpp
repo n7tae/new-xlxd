@@ -647,9 +647,9 @@ void CReflector::WriteXmlFile(std::ofstream &xmlFile)
     // lock
     CUsers *users = GetUsers();
     // iterate on users
-    for ( int i = 0; i < users->GetSize(); i++ )
+    for ( auto it=users->begin(); it!=users->end(); it++ )
     {
-        users->GetUser(i)->WriteXml(xmlFile);
+        (*it).WriteXml(xmlFile);
     }
     // unlock
     ReleaseUsers();
@@ -724,10 +724,10 @@ void CReflector::SendJsonStationsObject(CUdpSocket &Socket, CIp &Ip)
     // lock
     CUsers *users = GetUsers();
     // iterate on users
-    for ( int i = 0; i < users->GetSize(); i++ )
+    for ( auto it=users->begin(); it!=users->end(); )
     {
-        users->GetUser(i)->GetJsonObject(Buffer);
-        if ( i < users->GetSize()-1 )
+        (*it++).GetJsonObject(Buffer);
+        if ( it != users->end() )
         {
         	::strcat(Buffer, ",");
         }
