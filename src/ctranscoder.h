@@ -4,6 +4,7 @@
 //
 //  Created by Jean-Luc Deltombe (LX3JL) on 13/04/2017.
 //  Copyright © 2015 Jean-Luc Deltombe (LX3JL). All rights reserved.
+//  Copyright © 2020 Thomas A. Early N7TAE
 //
 // ----------------------------------------------------------------------------
 //    This file is part of xlxd.
@@ -43,7 +44,7 @@ class CTranscoder
 public:
     // constructor
     CTranscoder();
-    
+
     // destructor
     virtual ~CTranscoder();
 
@@ -54,14 +55,14 @@ public:
     // locks
     void Lock(void)                     { m_Mutex.lock(); }
     void Unlock(void)                   { m_Mutex.unlock(); }
-    
+
     // status
     bool IsConnected(void) const        { return m_bConnected; }
-    
+
     // manage streams
     CCodecStream *GetStream(CPacketStream *, uint8);
     void ReleaseStream(CCodecStream *);
-    
+
     // task
     static void Thread(CTranscoder *);
     void Task(void);
@@ -79,18 +80,18 @@ protected:
     void EncodeKeepAlivePacket(CBuffer *);
     void EncodeOpenstreamPacket(CBuffer *, uint8, uint8);
     void EncodeClosestreamPacket(CBuffer *, uint16);
-    
+
 protected:
     // streams
-    std::mutex                  m_Mutex;
-    std::vector<CCodecStream *> m_Streams;
+    std::mutex                m_Mutex;
+    std::list<CCodecStream *> m_Streams;
 
     // sync objects for Openstream
     CSemaphore      m_SemaphoreOpenStream;
     bool            m_bStreamOpened;
     uint16          m_StreamidOpenStream;
     uint16          m_PortOpenStream;
-    
+
     // thread
     bool            m_bStopThread;
     std::thread     *m_pThread;
