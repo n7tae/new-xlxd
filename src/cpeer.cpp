@@ -4,6 +4,7 @@
 //
 //  Created by Jean-Luc Deltombe (LX3JL) on 10/12/2016.
 //  Copyright © 2016 Jean-Luc Deltombe (LX3JL). All rights reserved.
+//  Copyright © 2020 Thomas A. Early, N7TAE
 //
 // ----------------------------------------------------------------------------
 //    This file is part of xlxd.
@@ -35,7 +36,6 @@
 CPeer::CPeer()
 {
     ::memset(m_ReflectorModules, 0, sizeof(m_ReflectorModules));
-    m_Clients.reserve(100);
     m_ConnectTime = std::time(NULL);
     m_LastHeardTime = std::time(NULL);
 }
@@ -68,9 +68,9 @@ CPeer::CPeer(const CPeer &peer)
 
 CPeer::~CPeer()
 {
-    for ( int i = 0; i < m_Clients.size(); i++ )
+    for ( auto it=begin(); it!=end(); it++ )
     {
-        delete m_Clients[i];
+        delete *it;
     }
     m_Clients.clear();
 }
@@ -80,16 +80,26 @@ CPeer::~CPeer()
 
 bool CPeer::operator ==(const CPeer &peer) const
 {
-    bool same = true;
-    
-    same &= (peer.m_Callsign == m_Callsign);
-    same &= (peer.m_Ip == m_Ip);
-    same &= (peer.m_Version == m_Version);
-    for ( int i = 0; (i < m_Clients.size()) && same ; i++ )
+    if (peer.m_Callsign != m_Callsign)
+		return false;
+    if (peer.m_Ip != m_Ip)
+		return false;
+    if (! (peer.m_Version == m_Version))
+		return false;
+	auto it1 = cbegin();
+	auto it2 = peer.cbegin();
+    while (true)
     {
-        same &= (peer.m_Clients[i] == m_Clients[i]);
+		if (it1==cend() && it2==peer.cend())
+			break;
+		if (it1==cend() || it2==peer.cend())
+			return false;
+		if (*it1 != *it2)
+			return false;
+        it1++;
+		it2++;
     }
-    return same;
+    return true;
 }
 
 
@@ -98,41 +108,22 @@ bool CPeer::operator ==(const CPeer &peer) const
 
 bool CPeer::IsAMaster(void) const
 {
-    bool master = false;
-    for ( int i = 0; (i < m_Clients.size()) && !master ; i++ )
+    for ( auto it=cbegin(); it!=cend(); it++ )
     {
-        master |= m_Clients[i]->IsAMaster();
+        if ((*it)->IsAMaster())
+			return true;
     }
-    return master;
+    return false;
 }
 
 void CPeer::Alive(void)
 {
     m_LastKeepaliveTime.Now();;
-    for ( int i = 0; i < m_Clients.size(); i++ )
+    for ( auto it=begin(); it!=end(); it++ )
     {
-        m_Clients[i]->Alive();
+        (*it)->Alive();
     }
 }
-
-////////////////////////////////////////////////////////////////////////////////////////
-// manage clients
-
-CClient *CPeer::GetClient(int i)
-{
-    if ( (i >= 0) && (i < m_Clients.size()) )
-    {
-        return m_Clients[i];
-    }
-    else
-    {
-        return NULL;
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////
-// reporting
-
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // reporting
@@ -161,11 +152,11 @@ void CPeer::GetJsonObject(char *Buffer)
     char sz[512];
     char mbstr[100];
     char cs[16];
-    
+
     if (std::strftime(mbstr, sizeof(mbstr), "%A %c", std::localtime(&m_LastHeardTime)))
     {
         m_Callsign.GetCallsignString(cs);
-        
+
         ::sprintf(sz, "{\"callsign\":\"%s\",\"linkedto\":\"%s\",\"time\":\"%s\"}",
                   cs,
                   m_ReflectorModules,

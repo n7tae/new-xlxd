@@ -4,6 +4,7 @@
 //
 //  Created by Jean-Luc Deltombe (LX3JL) on 10/12/2016.
 //  Copyright © 2016 Jean-Luc Deltombe (LX3JL). All rights reserved.
+//  Copyright © 2020 Thomas A. Early, N7TAE
 //
 // ----------------------------------------------------------------------------
 //    This file is part of xlxd.
@@ -44,52 +45,57 @@ public:
     CPeer();
     CPeer(const CCallsign &, const CIp &, const char *, const CVersion &);
     CPeer(const CPeer &);
-    
+
     // destructor
     virtual ~CPeer();
-    
+
     // operators
     bool operator ==(const CPeer &) const;
-    
+
     // get
     const CCallsign &GetCallsign(void) const            { return m_Callsign; }
     const CIp &GetIp(void) const                        { return m_Ip; }
     char *GetReflectorModules(void)                     { return m_ReflectorModules; }
-    
+
     // set
-    
+
     // identity
     virtual int GetProtocol(void) const                 { return PROTOCOL_NONE; }
     virtual int GetProtocolRevision(void) const         { return 0; }
     virtual const char *GetProtocolName(void) const     { return "none"; }
-    
+
     // status
     virtual bool IsAMaster(void) const;
     virtual void Alive(void);
     virtual bool IsAlive(void) const                    { return false; }
     virtual void Heard(void)                            { m_LastHeardTime = std::time(NULL); }
-    
+
     // clients access
     int     GetNbClients(void) const                    { return (int)m_Clients.size(); }
     void    ClearClients(void)                          { m_Clients.clear(); }
-    CClient *GetClient(int);
-    
+
+	// pass-thru
+	std::list<CClient *>::iterator begin()              { return m_Clients.begin(); }
+	std::list<CClient *>::iterator end()                { return m_Clients.end(); }
+ 	std::list<CClient *>::const_iterator cbegin() const { return m_Clients.cbegin(); }
+	std::list<CClient *>::const_iterator cend() const   { return m_Clients.cend(); }
+
     // reporting
     virtual void WriteXml(std::ofstream &);
     virtual void GetJsonObject(char *);
-    
+
 protected:
     // data
-    CCallsign               m_Callsign;
-    CIp                     m_Ip;
-    char                    m_ReflectorModules[NB_MODULES_MAX+1];
-    CVersion                m_Version;
-    std::vector<CClient *>  m_Clients;
-    
+    CCallsign             m_Callsign;
+    CIp                   m_Ip;
+    char                  m_ReflectorModules[NB_MODULES_MAX+1];
+    CVersion              m_Version;
+    std::list<CClient *>  m_Clients;
+
     // status
-    CTimePoint              m_LastKeepaliveTime;
-    std::time_t             m_ConnectTime;
-    std::time_t             m_LastHeardTime;
+    CTimePoint            m_LastKeepaliveTime;
+    std::time_t           m_ConnectTime;
+    std::time_t           m_LastHeardTime;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

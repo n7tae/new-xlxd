@@ -4,6 +4,7 @@
 //
 //  Created by Antony Chazapis (SV9OAN) on 25/2/2018.
 //  Copyright © 2016 Jean-Luc Deltombe (LX3JL). All rights reserved.
+//  Copyright © 2020 Thomas A. Early, N7TAE
 //
 // ----------------------------------------------------------------------------
 //    This file is part of xlxd.
@@ -41,7 +42,7 @@ CDextraPeer::CDextraPeer(const CCallsign &callsign, const CIp &ip, const char *m
 : CPeer(callsign, ip, modules, version)
 {
     std::cout << "Adding DExtra peer" << std::endl;
-    
+
     // and construct the DExtra clients
     for ( int i = 0; i < ::strlen(modules); i++ )
     {
@@ -55,17 +56,11 @@ CDextraPeer::CDextraPeer(const CCallsign &callsign, const CIp &ip, const char *m
 CDextraPeer::CDextraPeer(const CDextraPeer &peer)
 : CPeer(peer)
 {
-    for ( int i = 0; i < peer.m_Clients.size(); i++ )
+    for ( auto it=peer.cbegin(); it!=peer.cend(); it++ )
     {
-        CDextraClient *client = new CDextraClient((const CDextraClient &)*(peer.m_Clients[i]));
-        // grow vector capacity if needed
-        if ( m_Clients.capacity() == m_Clients.size() )
-        {
-            m_Clients.reserve(m_Clients.capacity()+10);
-        }
-        // and append
+        CDextraClient *client = new CDextraClient((const CDextraClient &)*(*it));
         m_Clients.push_back(client);
-        
+
     }
 }
 
@@ -81,12 +76,12 @@ CDextraPeer::~CDextraPeer()
 
 bool CDextraPeer::IsAlive(void) const
 {
-    bool alive = true;
-    for ( int i = 0; (i < m_Clients.size()) && alive ; i++ )
+    for ( auto it=cbegin(); it!=cend(); it++ )
     {
-        alive &= m_Clients[i]->IsAlive();
+        if (! (*it)->IsAlive())
+			return false;
     }
-    return alive;
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -96,4 +91,3 @@ int CDextraPeer::GetProtocolRevision(const CVersion &version)
 {
     return version.GetMajor();
 }
-

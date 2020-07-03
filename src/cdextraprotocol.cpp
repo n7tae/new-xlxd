@@ -352,9 +352,9 @@ void CDextraProtocol::HandleKeepalives(void)
             CBuffer disconnect;
             EncodeDisconnectPacket(&disconnect, peer->GetReflectorModules()[0]);
             CClients *clients = g_Reflector.GetClients();
-            for ( int i = 0; i < peer->GetNbClients(); i++ )
+            for ( auto cit=peer->cbegin(); cit!=peer->cend(); cit++ )
             {
-                m_Socket.Send(disconnect, peer->GetClient(i)->GetIp());
+                m_Socket.Send(disconnect, (*cit)->GetIp());
             }
             g_Reflector.ReleaseClients();
 
