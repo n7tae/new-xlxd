@@ -27,6 +27,7 @@
 
 #include <vector>
 #include <array>
+#include <list>
 #include <map>
 #include <queue>
 #include <chrono>
@@ -54,17 +55,21 @@
 // global ------------------------------------------------------
 
 #define RUN_AS_DAEMON
-#define JSON_MONITOR
+//#define JSON_MONITOR
 
 // debug -------------------------------------------------------
 
 //#define DEBUG_NO_ERROR_ON_XML_OPEN_FAIL
 //#define DEBUG_DUMPFILE
 
+// system constants ---------------------------------------------
+
+#define NB_MODULES_MAX                  26
+
 // reflector ---------------------------------------------------
 
-#define NB_OF_MODULES                   10
-//#define NB_OF_MODULES                   NB_MODULES_MAX
+//#define NB_OF_MODULES                   10
+#define NB_OF_MODULES                   NB_MODULES_MAX
 
 // protocols ---------------------------------------------------
 
@@ -175,10 +180,6 @@
 #define INTERLINKLIST_PATH              "/xlxd/xlxd.interlink"
 #define TERMINALOPTIONS_PATH            "/xlxd/xlxd.terminal"
 #define DEBUGDUMP_PATH                  "/var/log/xlxd.debug"
-
-// system constants ---------------------------------------------
-
-#define NB_MODULES_MAX                  26
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // typedefs

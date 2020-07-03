@@ -1,4 +1,7 @@
 *.o
-src/xlxd
-ambed/ambed
-ambedtest/ambedtest
+*.d
+.vscode
+xlxd
+xrfd
+ambed
+main.h

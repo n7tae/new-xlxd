@@ -34,21 +34,21 @@ bool CPeerCallsignList::LoadFromFile(const char *filename)
 {
     bool ok = false;
     char sz[256];
-    
+
     // and load
     std::ifstream file (filename);
     if ( file.is_open() )
     {
         Lock();
-        
+
         // empty list
-        clear();
+        m_Callsigns.clear();
         // fill with file content
         while ( file.getline(sz, sizeof(sz)).good()  )
         {
             // remove leading & trailing spaces
             char *szt = TrimWhiteSpaces(sz);
-            
+
             // crack it
             if ( (::strlen(szt) > 0) && (szt[0] != '#') )
             {
@@ -64,7 +64,7 @@ bool CPeerCallsignList::LoadFromFile(const char *filename)
                         if ( (szt = ::strtok(NULL, " ,\t")) != NULL )
                         {
                             // and load
-                            push_back(CCallsignListItem(callsign, szip, szt));
+                            m_Callsigns.push_back(CCallsignListItem(callsign, szip, szt));
                         }
                     }
                 }
@@ -72,24 +72,22 @@ bool CPeerCallsignList::LoadFromFile(const char *filename)
         }
         // close file
         file.close();
-        
+
         // keep file path
         m_Filename = filename;
-        
+
         // update time
         GetLastModTime(&m_LastModTime);
-        
+
         // and done
         Unlock();
         ok = true;
-        std::cout << "Gatekeeper loaded " << size() << " lines from " << filename <<  std::endl;
+        std::cout << "Gatekeeper loaded " << m_Callsigns.size() << " lines from " << filename <<  std::endl;
     }
     else
     {
         std::cout << "Gatekeeper cannot find " << filename <<  std::endl;
     }
-    
+
     return ok;
 }
-
-
