@@ -4,6 +4,7 @@
 //
 //  Created by Jean-Luc Deltombe (LX3JL) on 09/10/2019.
 //  Copyright © 2019 Jean-Luc Deltombe (LX3JL). All rights reserved.
+//  Copyright © 2020 Thomas A. Early, N7TAE
 //
 // ----------------------------------------------------------------------------
 //    This file is part of xlxd.
@@ -32,22 +33,29 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // class
 
-class CWiresxPacketQueue : public std::queue<CWiresxPacket>
+class CWiresxPacketQueue
 {
 public:
     // constructor
-    CWiresxPacketQueue() {};
-    
+    CWiresxPacketQueue() {}
+
     // destructor
-    ~CWiresxPacketQueue() {};
-    
+    ~CWiresxPacketQueue() {}
+
     // lock
     void Lock()                 { m_Mutex.lock(); }
     void Unlock()               { m_Mutex.unlock(); }
-    
+
+	// pass thru
+	CWiresxPacket front()           { return queue.front(); }
+	void pop()                      { queue.pop(); }
+	void push(CWiresxPacket packet) { queue.push(packet); }
+	bool empty() const              { return queue.empty(); }
+
 protected:
     // status
     std::mutex  m_Mutex;
+	std::queue<CWiresxPacket> queue;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

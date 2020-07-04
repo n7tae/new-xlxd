@@ -4,6 +4,7 @@
 //
 //  Created by Jean-Luc Deltombe (LX3JL) on 02/11/2015.
 //  Copyright © 2015 Jean-Luc Deltombe (LX3JL). All rights reserved.
+//  Copyright © 2020 Thomas A. Early, N7TAE
 //
 // ----------------------------------------------------------------------------
 //    This file is part of xlxd.
@@ -19,7 +20,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #ifndef cpacketqueue_h
@@ -35,27 +36,43 @@
 
 class CClient;
 
-class CPacketQueue : public std::queue<CPacket *>
+class CPacketQueue
 {
 public:
     // constructor
-    CPacketQueue() {};
-    
+    CPacketQueue() {}
+
     // destructor
-    ~CPacketQueue() {};
-    
+    ~CPacketQueue()
+	{
+		Lock();
+		while (! queue.empty())
+		{
+			delete queue.front();
+			queue.pop();
+		}
+		Unlock();
+	}
+
     // lock
-    void Lock()                 { m_Mutex.lock(); }
-    void Unlock()               { m_Mutex.unlock(); }
-    
+    void Lock()   { m_Mutex.lock(); }
+    void Unlock() { m_Mutex.unlock(); }
+
+	// pass thru
+	CPacket *front()           { return queue.front(); }
+	void pop()                 { queue.pop(); }
+	void push(CPacket *packet) { queue.push(packet); }
+	bool empty() const         { return queue.empty(); }
+
 protected:
     // status
     bool        m_bOpen;
     uint16      m_uiStreamId;
     std::mutex  m_Mutex;
-    
+
     // owner
-    CClient     *m_Client;
+    CClient              *m_Client;
+	std::queue<CPacket *> queue;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////
