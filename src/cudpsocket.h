@@ -4,6 +4,7 @@
 //
 //  Created by Jean-Luc Deltombe (LX3JL) on 31/10/2015.
 //  Copyright © 2015 Jean-Luc Deltombe (LX3JL). All rights reserved.
+//  Copyright © 2020 Thomas A. Early, N7TAE
 //
 // ----------------------------------------------------------------------------
 //    This file is part of xlxd.
@@ -19,14 +20,14 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #ifndef cudpsocket_h
 #define cudpsocket_h
 
+#include <cstdint>
 #include <sys/types.h>
-//#include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/socket.h>
@@ -48,30 +49,33 @@
 class CUdpSocket
 {
 public:
-    // constructor
-    CUdpSocket();
-    
-    // destructor
-    ~CUdpSocket();
-    
-    // open & close
-    bool Open(uint16);
-    void Close(void);
-    int  GetSocket(void)        { return m_Socket; }
-    
-    // read
-    int Receive(CBuffer *, CIp *, int);
-    
-    // write
-    int Send(const CBuffer &, const CIp &);
-    int Send(const CBuffer &, const CIp &, uint16);
-    int Send(const char *, const CIp &);
-    int Send(const char *, const CIp &, uint16);
-    
+	// constructor
+	CUdpSocket();
+
+	// destructor
+	~CUdpSocket();
+
+	// open & close
+	bool Open(const CIp &Ip);
+	void Close(void);
+	int  GetSocket(void)
+	{
+		return m_fd;
+	}
+
+	// read
+	bool Receive(CBuffer &, CIp &, int);
+
+	// write
+	void Send(const CBuffer &, const CIp &) const;
+	void Send(const char    *, const CIp &) const;
+	void Send(const CBuffer &, const CIp &, uint16_t) const;
+	void Send(const char    *, const CIp &, uint16_t) const;
+
 protected:
-    // data
-    int                 m_Socket;
-    struct sockaddr_in  m_SocketAddr;
+	// data
+	int m_fd;
+	CIp m_addr;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #include "main.h"
@@ -54,7 +54,7 @@ bool CRawSocket::Open(uint16 uiProto)
 {
     bool open = false;
     int on = 1;
-    
+
     // create socket
     m_Socket = socket(AF_INET,SOCK_RAW,uiProto);
     if ( m_Socket != -1 )
@@ -63,7 +63,7 @@ bool CRawSocket::Open(uint16 uiProto)
         open = true;
         m_Proto = uiProto;
     }
-    
+
     // done
     return open;
 }
@@ -113,7 +113,7 @@ int CRawSocket::Receive(CBuffer *Buffer, CIp *Ip, int timeout)
             Buffer->resize(iRecvLen);
 
             // get IP
-            Ip->SetSockAddr(&Sin);
+            memcpy(Ip->GetPointer(), &Sin, sizeof(struct sockaddr_in));
         }
     }
 
@@ -148,7 +148,7 @@ int CRawSocket::IcmpReceive(CBuffer *Buffer, CIp *Ip, int timeout)
             Sin.sin_family = AF_INET;
             Sin.sin_addr.s_addr = remote_iph->ip_dst.s_addr;
 
-            Ip->SetSockAddr(&Sin);
+        	memcpy(Ip->GetPointer(), &Sin, sizeof(struct sockaddr_in));
 
         }
     }

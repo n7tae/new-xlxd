@@ -111,7 +111,7 @@ void CYsfProtocol::Task(void)
     }
 
     // handle incoming packets
-    if ( m_Socket.Receive(&Buffer, &Ip, 20) != -1 )
+    if ( m_Socket.Receive(Buffer, Ip, 20) )
     {
         // crack the packet
         if ( IsValidDvPacket(Buffer, &Fich) )

@@ -429,7 +429,7 @@ void CReflector::JsonReportThread(CReflector *This)
         while ( !This->m_bStopThreads )
         {
             // any command ?
-            if ( Socket.Receive(&Buffer, &Ip, 50) != -1 )
+            if ( Socket.Receive(Buffer, Ip, 50) )
             {
                 // check verb
                 if ( Buffer.Compare((uint8 *)"hello", 5) == 0 )

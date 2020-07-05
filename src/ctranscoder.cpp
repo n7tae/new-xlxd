@@ -140,7 +140,7 @@ void CTranscoder::Task(void)
 
     // anything coming in from codec server ?
     //if ( (m_Socket.Receive(&Buffer, &Ip, 20) != -1) && (Ip == m_Ip) )
-    if ( m_Socket.Receive(&Buffer, &Ip, 20) != -1 )
+    if ( m_Socket.Receive(Buffer, Ip, 20) )
     {
         m_LastActivityTime.Now();
 

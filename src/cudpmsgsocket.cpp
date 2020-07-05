@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #include "main.h"
@@ -34,7 +34,7 @@ bool CUdpMsgSocket::Open(uint16 uiPort)
     int on = 1;
 
     ret = CUdpSocket::Open(uiPort);
-    setsockopt(m_Socket, IPPROTO_IP, IP_PKTINFO, (char *)&on, sizeof(on));
+    setsockopt(m_fd, IPPROTO_IP, IP_PKTINFO, (char *)&on, sizeof(on));
 
     return ret;
 }
@@ -60,7 +60,7 @@ int CUdpMsgSocket::Receive(CBuffer *Buffer, CIp *Ip, int timeout)
     } Control;
 
     // socket valid ?
-    if ( m_Socket != -1 )
+    if ( m_fd != -1 )
     {
         // allocate buffer
         Buffer->resize(UDP_MSG_BUFFER_LENMAX);
@@ -80,22 +80,23 @@ int CUdpMsgSocket::Receive(CBuffer *Buffer, CIp *Ip, int timeout)
 
         // control socket
         FD_ZERO(&FdSet);
-        FD_SET(m_Socket, &FdSet);
+        FD_SET(m_fd, &FdSet);
         tv.tv_sec = timeout / 1000;
         tv.tv_usec = (timeout % 1000) * 1000;
-        select(m_Socket + 1, &FdSet, 0, 0, &tv);
-        
+        select(m_fd + 1, &FdSet, 0, 0, &tv);
+
         // read
-        iRecvLen = (int)recvmsg(m_Socket, &Msg, 0);
-        
+        iRecvLen = (int)recvmsg(m_fd, &Msg, 0);
+
         // handle
         if ( iRecvLen != -1 )
         {
             // adjust buffer size
             Buffer->resize(iRecvLen);
-            
+
             // get IP
-            Ip->SetSockAddr(&Sin);
+			if (AF_INET == m_addr.GetFamily())
+				memcpy(Ip->GetPointer(), &Sin, sizeof(struct sockaddr_in));
 
             // get local IP
             struct cmsghdr *Cmsg;
@@ -109,8 +110,7 @@ int CUdpMsgSocket::Receive(CBuffer *Buffer, CIp *Ip, int timeout)
             }
         }
     }
- 
+
     // done
     return iRecvLen;
 }
-

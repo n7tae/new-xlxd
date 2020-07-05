@@ -97,7 +97,7 @@ void CDmrmmdvmProtocol::Task(void)
     CDvLastFramePacket  *LastFrame;
 
     // handle incoming packets
-    if ( m_Socket.Receive(&Buffer, &Ip, 20) != -1 )
+    if ( m_Socket.Receive(Buffer, Ip, 20) )
     {
         //Buffer.DebugDump(g_Reflector.m_DebugFile);
         // crack the packet

@@ -73,7 +73,7 @@ void CDplusProtocol::Task(void)
     CDvLastFramePacket  *LastFrame;
 
     // handle incoming packets
-    if ( m_Socket.Receive(&Buffer, &Ip, 20) != -1 )
+    if ( m_Socket.Receive(Buffer, Ip, 20) )
     {
         // crack the packet
         if ( (Frame = IsValidDvFramePacket(Buffer)) != NULL )

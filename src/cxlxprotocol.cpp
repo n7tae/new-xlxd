@@ -75,7 +75,7 @@ void CXlxProtocol::Task(void)
     CDvLastFramePacket  *LastFrame;
 
     // any incoming packet ?
-    if ( m_Socket.Receive(&Buffer, &Ip, 20) != -1 )
+    if ( m_Socket.Receive(Buffer, Ip, 20) )
     {
         // crack the packet
         if ( (Frame = IsValidDvFramePacket(Buffer)) != NULL )

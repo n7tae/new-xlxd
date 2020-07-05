@@ -4,6 +4,7 @@
 //
 //  Created by Jean-Luc Deltombe (LX3JL) on 31/10/2015.
 //  Copyright © 2015 Jean-Luc Deltombe (LX3JL). All rights reserved.
+//  Copyright © 2020 Thomas A. Early, N7TAE
 //
 // ----------------------------------------------------------------------------
 //    This file is part of xlxd.
@@ -19,11 +20,11 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
-#include "main.h"
 #include <string.h>
+#include "main.h"
 #include "creflector.h"
 #include "cudpsocket.h"
 
@@ -33,7 +34,7 @@
 
 CUdpSocket::CUdpSocket()
 {
-    m_Socket = -1;
+	m_fd = -1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -41,133 +42,142 @@ CUdpSocket::CUdpSocket()
 
 CUdpSocket::~CUdpSocket()
 {
-    if ( m_Socket != -1 )
-    {
-        Close();
-    }
+	Close();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // open & close
 
-bool CUdpSocket::Open(uint16 uiPort)
+// returns true on error
+bool CUdpSocket::Open(const CIp &Ip)
 {
-    bool open = false;
-    
-    // create socket
-    m_Socket = socket(PF_INET,SOCK_DGRAM,0);
-    if ( m_Socket != -1 )
-    {
-        // initialize sockaddr struct
-        ::memset(&m_SocketAddr, 0, sizeof(struct sockaddr_in));
-        m_SocketAddr.sin_family = AF_INET;
-        m_SocketAddr.sin_port = htons(uiPort);
-        m_SocketAddr.sin_addr.s_addr = inet_addr(g_Reflector.GetListenIp());
-        
-        if ( bind(m_Socket, (struct sockaddr *)&m_SocketAddr, sizeof(struct sockaddr_in)) == 0 )
-        {
-            fcntl(m_Socket, F_SETFL, O_NONBLOCK);
-            open = true;
-        }
-        else
-        {
-            close(m_Socket);
-            m_Socket = -1;
-        }
-    }
-    
-    // done
-    return open;
+	// check for a vaild family
+	if (AF_UNSPEC == Ip.GetFamily())
+		return true;
+
+	// create socket
+	m_fd = socket(Ip.GetFamily(), SOCK_DGRAM, 0);
+	if ( m_fd < 0 )
+	{
+		std::cerr << "Unable to open socket on " << Ip << ", " << strerror(errno) << std::endl;
+		return false;
+	}
+	// initialize sockaddr struct
+	m_addr = Ip;
+
+	int reuse = 1;
+	if ( 0 > setsockopt(m_fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(int)))
+	{
+		std::cerr << "Cannot set the UDP socket option on " << m_addr << ", " << strerror(errno) << std::endl;
+		Close();
+		return false;
+	}
+
+	if (fcntl(m_fd, F_SETFL, O_NONBLOCK))
+	{
+		std::cerr << "fcntl set non-blocking failed on " << m_addr << ", " << strerror(errno) << std::endl;
+		Close();
+		return false;
+	}
+
+	if ( bind(m_fd, m_addr.GetCPointer(), m_addr.GetSize()) )
+	{
+		std::cerr << "bind failed on " << m_addr << ", " << strerror(errno) << std::endl;
+		Close();
+		return false;
+	}
+
+	if (0 == m_addr.GetPort()) {	// get the assigned port for an ephemeral port request
+		CIp a;
+		socklen_t len = sizeof(struct sockaddr_storage);
+		if (getsockname(m_fd, a.GetPointer(), &len))
+		{
+			std::cerr << "getsockname error " << m_addr << ", " << strerror(errno) << std::endl;
+			Close();
+			return false;
+		}
+		if (a != m_addr)
+			std::cout << "getsockname didn't return the same address as set: returned " << a << ", should have been " << m_addr << std::endl;
+
+		m_addr.SetPort(a.GetPort());
+	}
+
+	// done
+	return true;
 }
 
 void CUdpSocket::Close(void)
 {
-    if ( m_Socket != -1 )
-    {
-        close(m_Socket);
-        m_Socket = -1;
-    }
+	if ( m_fd >= 0 )
+	{
+		close(m_fd);
+		m_fd = -1;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // read
 
-int CUdpSocket::Receive(CBuffer *Buffer, CIp *Ip, int timeout)
+bool CUdpSocket::Receive(CBuffer &Buffer, CIp &Ip, int timeout)
 {
-    struct sockaddr_in Sin;
-    fd_set FdSet;
-    unsigned int uiFromLen = sizeof(struct sockaddr_in);
-    int iRecvLen = -1;
-    struct timeval tv;
-    
-    // socket valid ?
-    if ( m_Socket != -1 )
-    {
-        // control socket
-        FD_ZERO(&FdSet);
-        FD_SET(m_Socket, &FdSet);
-        tv.tv_sec = timeout / 1000;
-        tv.tv_usec = (timeout % 1000) * 1000;
-        select(m_Socket + 1, &FdSet, 0, 0, &tv);
-        
-        // allocate buffer
-        Buffer->resize(UDP_BUFFER_LENMAX);
-        
-        // read
-        iRecvLen = (int)recvfrom(m_Socket,
-            (void *)Buffer->data(), UDP_BUFFER_LENMAX,
-            0, (struct sockaddr *)&Sin, &uiFromLen);
-        
-        // handle
-        if ( iRecvLen != -1 )
-        {
-            // adjust buffer size
-            Buffer->resize(iRecvLen);
-            
-            // get IP
-            Ip->SetSockAddr(&Sin);
-        }
-    }
- 
-    // done
-    return iRecvLen;
+	// socket valid ?
+	if ( 0 > m_fd )
+		return false;
+
+	// control socket
+	fd_set FdSet;
+	FD_ZERO(&FdSet);
+	FD_SET(m_fd, &FdSet);
+	struct timeval tv;
+	tv.tv_sec = timeout / 1000;
+	tv.tv_usec = (timeout % 1000) * 1000;
+	auto rval = select(m_fd + 1, &FdSet, 0, 0, &tv);
+	if (0 > rval)
+	{
+		std::cerr << "select error on UPD port " << m_addr << ": " << strerror(errno) << std::endl;
+		return false;
+	}
+	else if (0 == rval)
+		return false;
+
+	// read
+	uint8_t buf[UDP_BUFFER_LENMAX];
+	unsigned int fromsize = sizeof(struct sockaddr_storage);
+	auto iRecvLen = recvfrom(m_fd, buf, UDP_BUFFER_LENMAX, 0, Ip.GetPointer(), &fromsize);
+
+	// handle
+	if (0 >= iRecvLen)
+		return false;
+
+	Buffer.Set(buf, iRecvLen);
+
+	// done
+	return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // write
 
-int CUdpSocket::Send(const CBuffer &Buffer, const CIp &Ip)
+void CUdpSocket::Send(const CBuffer &Buffer, const CIp &Ip) const
 {
-    CIp temp(Ip);
-    return (int)::sendto(m_Socket,
-           (void *)Buffer.data(), Buffer.size(),
-           0, (struct sockaddr *)temp.GetSockAddr(), sizeof(struct sockaddr_in));
+	sendto(m_fd, Buffer.data(), Buffer.size(), 0, Ip.GetCPointer(), Ip.GetSize());
 }
 
-int CUdpSocket::Send(const char *Buffer, const CIp &Ip)
+void CUdpSocket::Send(const char *Buffer, const CIp &Ip) const
 {
-    CIp temp(Ip);
-    return (int)::sendto(m_Socket,
-           (void *)Buffer, ::strlen(Buffer),
-           0, (struct sockaddr *)temp.GetSockAddr(), sizeof(struct sockaddr_in));
+	sendto(m_fd, Buffer, ::strlen(Buffer), 0, Ip.GetCPointer(), Ip.GetSize());
 }
 
-int CUdpSocket::Send(const CBuffer &Buffer, const CIp &Ip, uint16 destport)
+void CUdpSocket::Send(const CBuffer &Buffer, const CIp &Ip, uint16_t destport) const
 {
-    CIp temp(Ip);
-    temp.GetSockAddr()->sin_port = htons(destport);
-    return (int)::sendto(m_Socket,
-                         (void *)Buffer.data(), Buffer.size(),
-                         0, (struct sockaddr *)temp.GetSockAddr(), sizeof(struct sockaddr_in));
+	CIp temp(Ip);
+	temp.SetPort(destport);
+	sendto(m_fd, Buffer.data(), Buffer.size(), 0, temp.GetCPointer(), temp.GetSize());
 }
 
-int CUdpSocket::Send(const char *Buffer, const CIp &Ip, uint16 destport)
+void CUdpSocket::Send(const char *Buffer, const CIp &Ip, uint16_t destport) const
 {
-    CIp temp(Ip);
-    temp.GetSockAddr()->sin_port = htons(destport);
-    return (int)::sendto(m_Socket,
-                         (void *)Buffer, ::strlen(Buffer),
-                         0, (struct sockaddr *)temp.GetSockAddr(), sizeof(struct sockaddr_in));
+	CIp temp(Ip);
+	temp.SetPort(destport);
+	sendto(m_fd, Buffer, ::strlen(Buffer), 0, temp.GetCPointer(), temp.GetSize());
 }
-
-

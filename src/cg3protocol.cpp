@@ -156,11 +156,11 @@ void CG3Protocol::PresenceTask(void)
     CCallsign           Terminal;
 
 
-    if ( m_PresenceSocket.Receive(&Buffer, &ReqIp, 20) != -1 )
+    if ( m_PresenceSocket.Receive(Buffer, ReqIp, 20) )
     {
 
         CIp Ip(ReqIp);
-        Ip.GetSockAddr()->sin_port = htons(G3_DV_PORT);
+        Ip.SetPort(G3_DV_PORT);
 
         if (Buffer.size() == 32)
         {
@@ -390,7 +390,7 @@ void CG3Protocol::Task(void)
     CDvLastFramePacket  *LastFrame;
 
     // any incoming packet ?
-    if ( m_Socket.Receive(&Buffer, &Ip, 20) != -1 )
+    if ( m_Socket.Receive(Buffer, Ip, 20) != -1 )
     {
         CIp ClIp;
         CIp *BaseIp = NULL;

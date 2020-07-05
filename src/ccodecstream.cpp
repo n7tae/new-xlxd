@@ -61,7 +61,7 @@ CCodecStream::~CCodecStream()
 {
     // close socket
     m_Socket.Close();
-    
+
     // kill threads
     m_bStopThread = true;
     if ( m_pThread != NULL )
@@ -69,7 +69,7 @@ CCodecStream::~CCodecStream()
         m_pThread->join();
         delete m_pThread;
     }
-    
+
     // empty local queue
     while ( !m_LocalQueue.empty() )
     {
@@ -90,14 +90,14 @@ CCodecStream::~CCodecStream()
 bool CCodecStream::Init(uint16 uiPort)
 {
     bool ok;
-    
+
     // reset stop flag
     m_bStopThread = false;
-    
+
     // create server's IP
     m_Ip = g_Reflector.GetTranscoderIp();
     m_uiPort = uiPort;
-    
+
     // create our socket
     ok = m_Socket.Open(uiPort);
     if ( ok )
@@ -111,7 +111,7 @@ bool CCodecStream::Init(uint16 uiPort)
         std::cout << "Error opening socket on port UDP" << uiPort << " on ip " << g_Reflector.GetListenIp() << std::endl;
         m_bConnected = false;
     }
-    
+
     // done
     return ok;
 }
@@ -121,7 +121,7 @@ void CCodecStream::Close(void)
     // close socket
     m_bConnected = false;
     m_Socket.Close();
-    
+
     // kill threads
     m_bStopThread = true;
     if ( m_pThread != NULL )
@@ -157,33 +157,33 @@ void CCodecStream::Task(void)
     CIp     Ip;
     uint8   Ambe[AMBE_SIZE];
     uint8   DStarSync[] = { 0x55,0x2D,0x16 };
-    
+
     // any packet from transcoder
-    if ( m_Socket.Receive(&Buffer, &Ip, 5) != -1 )
+    if ( m_Socket.Receive(Buffer, Ip, 5) )
     {
         // crack
         if ( IsValidAmbePacket(Buffer, Ambe) )
         {
             // tickle
             m_TimeoutTimer.Now();
-            
+
             // update statistics
             double ping = m_StatsTimer.DurationSinceNow();
             if ( m_fPingMin == -1 )
             {
                 m_fPingMin = ping;
                 m_fPingMax = ping;
-                
+
             }
             else
             {
                 m_fPingMin = MIN(m_fPingMin, ping);
                 m_fPingMax = MAX(m_fPingMax, ping);
-                
+
             }
             m_fPingSum += ping;
             m_fPingCount += 1;
-            
+
             // pop the original packet
             if ( !m_LocalQueue.empty() )
             {
@@ -208,14 +208,14 @@ void CCodecStream::Task(void)
             }
          }
     }
-    
+
     // anything in our queue
     while ( !empty() )
     {
         // yes, pop it from queue
         CPacket *Packet = front();
         pop();
-        
+
         // yes, send to ambed
         // this assume that thread pushing the Packet
         // have verified that the CodecStream is connected
@@ -224,11 +224,11 @@ void CCodecStream::Task(void)
         m_uiTotalPackets++;
         EncodeAmbePacket(&Buffer, ((CDvFramePacket *)Packet)->GetAmbe(m_uiCodecIn));
         m_Socket.Send(Buffer, m_Ip, m_uiPort);
-       
+
         // and push to our local queue
         m_LocalQueue.push(Packet);
     }
-    
+
     // handle timeout
     if ( !m_LocalQueue.empty() && (m_TimeoutTimer.DurationSinceNow() >= (TRANSCODER_AMBEPACKET_TIMEOUT/1000.0f)) )
     {
@@ -243,7 +243,7 @@ void CCodecStream::Task(void)
 bool CCodecStream::IsValidAmbePacket(const CBuffer &Buffer, uint8 *Ambe)
 {
     bool valid = false;
-    
+
     if ( (Buffer.size() == 11) && (Buffer.data()[0] == m_uiCodecOut) )
     {
         ::memcpy(Ambe, &(Buffer.data()[2]), 9);

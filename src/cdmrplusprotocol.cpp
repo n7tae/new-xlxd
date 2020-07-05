@@ -86,7 +86,7 @@ void CDmrplusProtocol::Task(void)
     CDvFramePacket      *Frames[3];
 
     // handle incoming packets
-    if ( m_Socket.Receive(&Buffer, &Ip, 20) != -1 )
+    if ( m_Socket.Receive(Buffer, Ip, 20) )
     {
        // crack the packet
         if ( IsValidDvFramePacket(Ip, Buffer, Frames) )
