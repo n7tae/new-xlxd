@@ -36,7 +36,7 @@
 
 CCodecStream::CCodecStream(uint16 uiId, uint8 uiCodecIn, uint8 uiCodecOut)
 {
-    m_bStopThread = false;
+    keep_running = true;
     m_pThread = NULL;
     m_uiStreamId = uiId;
     m_uiPid = 0;
@@ -59,9 +59,9 @@ CCodecStream::~CCodecStream()
 {
     // close socket
     m_Socket.Close();
-    
+
     // kill threads
-    m_bStopThread = true;
+    keep_running = false;
     if ( m_pThread != NULL )
     {
         m_pThread->join();
@@ -75,10 +75,10 @@ CCodecStream::~CCodecStream()
 bool CCodecStream::Init(uint16 uiPort)
 {
     bool ok;
-    
+
     // reset stop flag
-    m_bStopThread = false;
-    
+    keep_running = true;
+
     // copy our test data
     if ( m_uiCodecIn == CODEC_AMBE2PLUS )
     {
@@ -108,11 +108,11 @@ bool CCodecStream::Init(uint16 uiPort)
             m_AmbeDest.push_back(ambe);
         }
     }
-    
+
     // create server's IP
     m_Ip = g_Transcoder.GetAmbedIp();
     m_uiPort = uiPort;
-    
+
     // create our socket
     ok = m_Socket.Open(uiPort);
     if ( ok )
@@ -129,7 +129,7 @@ bool CCodecStream::Init(uint16 uiPort)
         std::cout << "Error opening socket on port UDP" << uiPort << " on ip " << m_Ip << std::endl;
         m_bConnected = false;
     }
-    
+
     // done
     return ok;
 }
@@ -139,9 +139,9 @@ void CCodecStream::Close(void)
     // close socket
     m_bConnected = false;
     m_Socket.Close();
-    
+
     // kill threads
-    m_bStopThread = true;
+    keep_running = false;
     if ( m_pThread != NULL )
     {
         m_pThread->join();
@@ -156,7 +156,7 @@ void CCodecStream::Close(void)
 
 void CCodecStream::Thread(CCodecStream *This)
 {
-    while ( !This->m_bStopThread )
+    while (This->keep_running)
     {
         This->Task();
     }
@@ -167,7 +167,7 @@ void CCodecStream::Task(void)
     CBuffer Buffer;
     CIp     Ip;
     uint8   Ambe[AMBE_SIZE];
-    
+
     // connected ?
     if ( m_bConnected )
     {
@@ -176,17 +176,17 @@ void CCodecStream::Task(void)
         {
             // yes
             m_FrameTimer.Now();
-            
+
             // encode packet @ send it
             EncodeAmbePacket(&Buffer, m_AmbeSrc[m_iAmbeSrcPtr]->GetData());
             m_Socket.Send(Buffer, m_Ip, m_uiPort);
-            
+
             // and increment pointer
             m_iAmbeSrcPtr = (m_iAmbeSrcPtr + 1) % m_AmbeSrc.size();
          m_uiNbTotalPacketSent++;
             m_uiNbPacketSent++;
         }*/
-        
+
         // any packt to send to trancoder ?
         uint32 uiNbPacketToSend = (uint32)(m_FrameTimer.DurationSinceNow() * 50.0) - m_uiNbTotalPacketSent;
         if ( uiNbPacketToSend > 0 )
@@ -196,14 +196,14 @@ void CCodecStream::Task(void)
                 // encode packet @ send it
                 EncodeAmbePacket(&Buffer, m_AmbeSrc[m_iAmbeSrcPtr]->GetData());
                 m_Socket.Send(Buffer, m_Ip, m_uiPort);
-                
+
                 // and increment pointer
                 m_iAmbeSrcPtr = (m_iAmbeSrcPtr + 1) % m_AmbeSrc.size();
                 m_uiNbTotalPacketSent++;
                 m_uiNbPacketSent++;
             }
         }
-        
+
         // any packet from transcoder
         if ( m_Socket.Receive(&Buffer, &Ip, 1) != -1 )
         {
@@ -211,7 +211,7 @@ void CCodecStream::Task(void)
             if ( IsValidAmbePacket(Buffer, Ambe) )
             {
                 m_TimeoutTimer.Now();
-                
+
                 // check the PID
                 // check the transcoded packet
                 /*if ( ::memcmp(Ambe, m_AmbeDest[m_iAmbeDestPtr]->GetData(), AMBE_SIZE) != 0 )
@@ -219,15 +219,15 @@ void CCodecStream::Task(void)
                     m_uiNbPacketBad++;
                     ::memcpy((void *)m_AmbeDest[m_iAmbeDestPtr]->GetData(), Ambe, AMBE_SIZE);
                 }*/
-                
+
                 // and increment pointer
                 m_iAmbeDestPtr = (m_iAmbeDestPtr + 1) % m_AmbeDest.size();
                 m_uiNbPacketReceived++;
-                
+
             }
         }
     }
-    
+
     // display stats
     if ( m_DisplayStatsTimer.DurationSinceNow() >= 2.0 )
     {
@@ -249,7 +249,7 @@ void CCodecStream::Task(void)
 bool CCodecStream::IsValidAmbePacket(const CBuffer &Buffer, uint8 *Ambe)
 {
     bool valid = false;
-    
+
     if ( (Buffer.size() == 11) && (Buffer.data()[0] == m_uiCodecOut) )
     {
         ::memcpy(Ambe, &(Buffer.data()[2]), 9);
@@ -282,7 +282,7 @@ void CCodecStream::ResetStats(void)
     m_uiNbPacketReceived = 0;
     m_uiNbPacketBad = 0;
     m_uiNbPacketTimeout = 0;
-    
+
 }
 
 void CCodecStream::DisplayStats(void)
@@ -292,10 +292,10 @@ void CCodecStream::DisplayStats(void)
     uint32 uiReceived = m_uiNbPacketReceived;
     uint32 uiBad = m_uiNbPacketBad;
     double fps = (double)uiReceived / m_StatsTimer.DurationSinceNow();
-    
+
     // resets
     ResetStats();
-    
+
     // displays
     char sz[256];
     sprintf(sz, "Stream %d (%d->%d) : %u / %u / %u : %.1f fps",

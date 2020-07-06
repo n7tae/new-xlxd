@@ -41,7 +41,7 @@ class CTranscoder
 public:
     // constructor
     CTranscoder();
-    
+
     // destructor
     virtual ~CTranscoder();
 
@@ -52,16 +52,16 @@ public:
     // locks
     void Lock(void)                     { m_Mutex.lock(); }
     void Unlock(void)                   { m_Mutex.unlock(); }
-    
+
     // get
     const CIp &GetListenIp(void) const  { return m_ListenIp; }
     const CIp &GetAmbedIp(void) const   { return m_AmbedIp; }
     bool  IsAmbedConnected(void) const  { return m_bConnected; }
-    
+
     // manage streams
     CCodecStream *GetStream(uint8);
     void ReleaseStream(CCodecStream *);
-    
+
     // task
     static void Thread(CTranscoder *);
     void Task(void);
@@ -79,12 +79,12 @@ protected:
     void EncodeKeepAlivePacket(CBuffer *);
     void EncodeOpenstreamPacket(CBuffer *, uint8, uint8);
     void EncodeClosestreamPacket(CBuffer *, uint16);
-    
+
 protected:
     // IP's
     CIp                         m_ListenIp;
     CIp                         m_AmbedIp;
-    
+
     // streams
     std::mutex                  m_Mutex;
     std::vector<CCodecStream *> m_Streams;
@@ -94,9 +94,9 @@ protected:
     bool                        m_bStreamOpened;
     uint16                      m_StreamidOpenStream;
     uint16                      m_PortOpenStream;
-    
+
     // thread
-    bool                        m_bStopThread;
+    std::atomic<bool> keep_running;
     std::thread                 *m_pThread;
 
     // socket

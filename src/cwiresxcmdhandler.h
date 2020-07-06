@@ -41,10 +41,10 @@ class CWiresxCmdHandler
 public:
     // constructor
     CWiresxCmdHandler();
-    
+
     // destructor
     virtual ~CWiresxCmdHandler();
-    
+
     // initialization
     virtual bool Init(void);
     virtual void Close(void);
@@ -56,18 +56,18 @@ public:
     void ReleasePacketQueue(void)               { m_PacketQueue.Unlock(); }
 
     // get
-    
+
     // task
     static void Thread(CWiresxCmdHandler *);
     virtual void Task(void);
-    
+
 protected:
     // packet encoding
     bool ReplyToWiresxDxReqPacket(const CIp &, const CWiresxInfo &, char);
     bool ReplyToWiresxAllReqPacket(const CIp &, const CWiresxInfo &, int);
     bool ReplyToWiresxConnReqPacket(const CIp &, const CWiresxInfo &, char);
     bool ReplyToWiresxDiscReqPacket(const CIp &, const CWiresxInfo &);
-    
+
     // packet encoding helpers
     bool EncodeAndSendWiresxPacket(const CIp &, const CBuffer &, const CWiresxInfo &);
     uint8 WiresxCalcFt(uint, uint) const;
@@ -80,13 +80,13 @@ protected:
     // data
     CWiresxInfo        m_ReflectorWiresxInfo;
     uint8_t            m_seqNo;
-    
+
     // queues
     CWiresxCmdQueue    m_CmdQueue;
     CWiresxPacketQueue m_PacketQueue;
-    
+
     // thread
-    bool               m_bStopThread;
+    std::atomic<bool> keep_running;
     std::thread        *m_pThread;
 };
 

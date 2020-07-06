@@ -38,7 +38,7 @@
 
 CReflector::CReflector()
 {
-    m_bStopThreads = false;
+    keep_running = true;
     m_XmlReportThread = NULL;
     m_JsonReportThread = NULL;
     for ( int i = 0; i < NB_OF_MODULES; i++ )
@@ -55,7 +55,7 @@ CReflector::CReflector(const CCallsign &callsign)
 #ifdef DEBUG_DUMPFILE
     m_DebugFile.close();
 #endif
-    m_bStopThreads = false;
+    keep_running = true;
     m_XmlReportThread = NULL;
     m_JsonReportThread = NULL;
     for ( int i = 0; i < NB_OF_MODULES; i++ )
@@ -70,7 +70,7 @@ CReflector::CReflector(const CCallsign &callsign)
 
 CReflector::~CReflector()
 {
-    m_bStopThreads = true;
+    keep_running = false;
     if ( m_XmlReportThread != NULL )
     {
         m_XmlReportThread->join();
@@ -100,7 +100,7 @@ bool CReflector::Start(void)
     bool ok = true;
 
     // reset stop flag
-    m_bStopThreads = false;
+    keep_running = true;
 
     // init gate keeper
     ok &= g_GateKeeper.Init();
@@ -144,7 +144,7 @@ bool CReflector::Start(void)
 void CReflector::Stop(void)
 {
     // stop & delete all threads
-    m_bStopThreads = true;
+    keep_running = false;
 
     // stop & delete report threads
     if ( m_XmlReportThread != NULL )
@@ -325,7 +325,7 @@ void CReflector::RouterThread(CReflector *This, CPacketStream *streamIn)
     // get on input queue
     CPacket *packet;
 
-    while ( !This->m_bStopThreads )
+    while (This->keep_running)
     {
         // any packet in our input queue ?
         streamIn->Lock();
@@ -384,7 +384,7 @@ void CReflector::RouterThread(CReflector *This, CPacketStream *streamIn)
 
 void CReflector::XmlReportThread(CReflector *This)
 {
-    while ( !This->m_bStopThreads )
+    while (This->keep_running)
     {
         // report to xml file
         std::ofstream xmlFile;
@@ -423,7 +423,7 @@ void CReflector::JsonReportThread(CReflector *This)
     if ( Socket.Open(JSON_PORT) )
     {
         // and loop
-        while ( !This->m_bStopThreads )
+        while (This->keep_running)
         {
             // any command ?
             if ( Socket.Receive(Buffer, Ip, 50) )

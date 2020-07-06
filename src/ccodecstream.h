@@ -48,14 +48,14 @@ class CCodecStream : public CPacketQueue
 public:
     // constructor
     CCodecStream(CPacketStream *, uint16, uint8, uint8);
-    
+
     // destructor
     virtual ~CCodecStream();
-    
+
     // initialization
     bool Init(uint16);
     void Close(void);
-    
+
     // get
     bool   IsConnected(void) const          { return m_bConnected; }
     uint16 GetStreamId(void) const          { return m_uiStreamId; }
@@ -69,16 +69,16 @@ public:
     // task
     static void Thread(CCodecStream *);
     void Task(void);
-    
+
 
 protected:
     // packet decoding helpers
     bool IsValidAmbePacket(const CBuffer &, uint8 *);
-    
+
     // packet encoding helpers
     void EncodeAmbePacket(CBuffer *, const uint8 *);
 
-    
+
 protected:
     // data
     uint16          m_uiStreamId;
@@ -91,17 +91,17 @@ protected:
     CIp             m_Ip;
     CUdpSocket      m_Socket;
     bool            m_bConnected;
-    
+
     // associated packet stream
     CPacketStream   *m_PacketStream;
     CPacketQueue    m_LocalQueue;
 
     // thread
-    bool            m_bStopThread;
+    std::atomic<bool> keep_running;
     std::thread     *m_pThread;
     CTimePoint      m_TimeoutTimer;
     CTimePoint      m_StatsTimer;
-    
+
     // statistics
     double          m_fPingMin;
     double          m_fPingMax;

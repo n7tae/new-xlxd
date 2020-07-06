@@ -38,7 +38,7 @@
 
 CCodecStream::CCodecStream(CPacketStream *PacketStream, uint16 uiId, uint8 uiCodecIn, uint8 uiCodecOut)
 {
-    m_bStopThread = false;
+    keep_running = true;
     m_pThread = NULL;
     m_uiStreamId = uiId;
     m_uiPid = 0;
@@ -63,7 +63,7 @@ CCodecStream::~CCodecStream()
     m_Socket.Close();
 
     // kill threads
-    m_bStopThread = true;
+    keep_running = false;
     if ( m_pThread != NULL )
     {
         m_pThread->join();
@@ -90,7 +90,7 @@ CCodecStream::~CCodecStream()
 bool CCodecStream::Init(uint16 uiPort)
 {
     // reset stop flag
-    m_bConnected = m_bStopThread = false;
+    m_bConnected = keep_running = true;
 
     // create server's IP
     m_uiPort = uiPort;
@@ -124,7 +124,7 @@ void CCodecStream::Close(void)
     m_Socket.Close();
 
     // kill threads
-    m_bStopThread = true;
+    keep_running = false;
     if ( m_pThread != NULL )
     {
         m_pThread->join();
@@ -146,7 +146,7 @@ bool CCodecStream::IsEmpty(void) const
 
 void CCodecStream::Thread(CCodecStream *This)
 {
-    while ( !This->m_bStopThread )
+    while (This->keep_running)
     {
         This->Task();
     }

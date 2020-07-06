@@ -34,14 +34,14 @@
 
 CDmridDir::CDmridDir()
 {
-    m_bStopThread = false;
+    keep_running = true;
     m_pThread = NULL;
 }
 
 CDmridDir::~CDmridDir()
 {
     // kill threads
-    m_bStopThread = true;
+    keep_running = false;
     if ( m_pThread != NULL )
     {
         m_pThread->join();
@@ -57,10 +57,10 @@ bool CDmridDir::Init(void)
 {
 	// load content
 	Reload();
-	
+
     // reset stop flag
-    m_bStopThread = false;
-    
+    keep_running = true;
+
     // start  thread;
     m_pThread = new std::thread(CDmridDir::Thread, this);
 
@@ -69,7 +69,7 @@ bool CDmridDir::Init(void)
 
 void CDmridDir::Close(void)
 {
-    m_bStopThread = true;
+    keep_running = false;
     if ( m_pThread != NULL )
     {
         m_pThread->join();
@@ -83,7 +83,7 @@ void CDmridDir::Close(void)
 
 void CDmridDir::Thread(CDmridDir *This)
 {
-    while ( !This->m_bStopThread )
+    while (This->keep_running)
     {
         // Wait 30 seconds
         CTimePoint::TaskSleepFor(DMRIDDB_REFRESH_RATE * 60000);
@@ -103,7 +103,7 @@ bool CDmridDir::Reload(void)
 {
     CBuffer buffer;
     bool ok = false;
-    
+
     if ( LoadContent(&buffer) )
     {
         Lock();
@@ -157,4 +157,3 @@ bool CDmridDir::IsValidDmrid(const char *sz)
     }
     return ok;
 }
-

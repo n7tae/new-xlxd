@@ -136,7 +136,7 @@ protected:
     std::array<CPacketStream, NB_OF_MODULES> m_Streams;
 
     // threads
-    bool            m_bStopThreads;
+    std::atomic<bool> keep_running;
     std::array<std::thread *, NB_OF_MODULES> m_RouterThreads;
     std::thread    *m_XmlReportThread;
     std::thread    *m_JsonReportThread;

@@ -25,6 +25,7 @@
 #ifndef main_h
 #define main_h
 
+#include <atomic>
 #include <vector>
 #include <array>
 #include <list>

@@ -33,7 +33,7 @@
 // constructor
 
 
-CProtocol::CProtocol() : m_bStopThread(false), m_pThread(NULL) {}
+CProtocol::CProtocol() : keep_running(true), m_pThread(NULL) {}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ CProtocol::CProtocol() : m_bStopThread(false), m_pThread(NULL) {}
 CProtocol::~CProtocol()
 {
     // kill threads
-    m_bStopThread = true;
+    keep_running = false;
     if ( m_pThread != NULL )
     {
         m_pThread->join();
@@ -71,7 +71,7 @@ bool CProtocol::Initialize(const char *type, uint16 port)
     m_ReflectorCallsign = g_Reflector.GetCallsign();
 
     // reset stop flag
-    m_bStopThread = false;
+    keep_running = true;
 
     // update the reflector callsign
 	if (type)
@@ -110,7 +110,7 @@ bool CProtocol::Initialize(const char *type, uint16 port)
 
 void CProtocol::Thread(CProtocol *This)
 {
-	while (! This->m_bStopThread)
+	while (This->keep_running)
 	{
 		This->Task();
 	}
@@ -118,7 +118,7 @@ void CProtocol::Thread(CProtocol *This)
 
 void CProtocol::Close(void)
 {
-    m_bStopThread = true;
+    keep_running = true;
     if ( m_pThread != NULL )
     {
         m_pThread->join();

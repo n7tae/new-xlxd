@@ -46,7 +46,7 @@ bool CG3Protocol::Init(void)
     m_ReflectorCallsign = g_Reflector.GetCallsign();
 
     // reset stop flag
-    m_bStopThread = false;
+    keep_running = true;
 
     // update the reflector callsign
 	m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)"XLX", 3);
@@ -124,7 +124,7 @@ void CG3Protocol::Close(void)
 
 void CG3Protocol::PresenceThread(CG3Protocol *This)
 {
-    while ( !This->m_bStopThread )
+    while (This->keep_running)
     {
         This->PresenceTask();
     }
@@ -132,7 +132,7 @@ void CG3Protocol::PresenceThread(CG3Protocol *This)
 
 void CG3Protocol::ConfigThread(CG3Protocol *This)
 {
-    while ( !This->m_bStopThread )
+    while (This->keep_running)
     {
         This->ConfigTask();
     }
@@ -140,7 +140,7 @@ void CG3Protocol::ConfigThread(CG3Protocol *This)
 
 void CG3Protocol::IcmpThread(CG3Protocol *This)
 {
-    while ( !This->m_bStopThread )
+    while (This->keep_running)
     {
         This->IcmpTask();
     }

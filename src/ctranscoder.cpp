@@ -46,7 +46,7 @@ CTranscoder g_Transcoder;
 
 CTranscoder::CTranscoder()
 {
-    m_bStopThread = false;
+    keep_running = true;
     m_pThread = NULL;
     m_bConnected = false;
     m_LastKeepaliveTime.Now();
@@ -72,7 +72,7 @@ bool CTranscoder::Init(void)
     bool ok;
 
     // reset stop flag
-    m_bStopThread = false;
+    keep_running = true;
 
     // create server's IP
     auto s = g_Reflector.GetTranscoderIp();
@@ -116,7 +116,7 @@ void CTranscoder::Close(void)
     m_Mutex.unlock();
 
     // kill threads
-    m_bStopThread = true;
+    keep_running = false;
     if ( m_pThread != NULL )
     {
         m_pThread->join();
@@ -130,7 +130,7 @@ void CTranscoder::Close(void)
 
 void CTranscoder::Thread(CTranscoder *This)
 {
-    while ( !This->m_bStopThread )
+    while (This->keep_running)
     {
         This->Task();
     }

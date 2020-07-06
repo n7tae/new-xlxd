@@ -33,14 +33,14 @@
 
 CYsfNodeDir::CYsfNodeDir()
 {
-    m_bStopThread = false;
+    keep_running = true;
     m_pThread = NULL;
 }
 
 CYsfNodeDir::~CYsfNodeDir()
 {
     // kill threads
-    m_bStopThread = true;
+    keep_running = false;
     if ( m_pThread != NULL )
     {
         m_pThread->join();
@@ -56,10 +56,10 @@ bool CYsfNodeDir::Init(void)
 {
     // load content
     Reload();
-    
+
     // reset stop flag
-    m_bStopThread = false;
-    
+    keep_running = true;
+
     // start  thread;
     m_pThread = new std::thread(CYsfNodeDir::Thread, this);
 
@@ -68,7 +68,7 @@ bool CYsfNodeDir::Init(void)
 
 void CYsfNodeDir::Close(void)
 {
-    m_bStopThread = true;
+    keep_running = false;
     if ( m_pThread != NULL )
     {
         m_pThread->join();
@@ -82,7 +82,7 @@ void CYsfNodeDir::Close(void)
 
 void CYsfNodeDir::Thread(CYsfNodeDir *This)
 {
-    while ( !This->m_bStopThread )
+    while (This->keep_running)
     {
         // Wait 30 seconds
         CTimePoint::TaskSleepFor(YSFNODEDB_REFRESH_RATE * 60000);
@@ -102,7 +102,7 @@ bool CYsfNodeDir::Reload(void)
 {
     CBuffer buffer;
     bool ok = false;
-    
+
     if ( LoadContent(&buffer) )
     {
         Lock();

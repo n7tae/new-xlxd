@@ -59,11 +59,11 @@ public:
      // init & close
     virtual bool Init(void);
     virtual void Close(void);
-    
+
     // locks
     void Lock(void)                                 { m_Mutex.lock(); }
     void Unlock(void)                               { m_Mutex.unlock(); }
-    
+
     // refresh
     virtual bool LoadContent(CBuffer *)             { return false; }
     virtual bool RefreshContent(const CBuffer &)    { return false; }
@@ -79,14 +79,14 @@ protected:
     bool Reload(void);
     virtual bool NeedReload(void)                    { return false; }
     //bool IsValidDmrid(const char *);
-    
+
 
 protected:
     // Lock()
      std::mutex          m_Mutex;
-            
+
      // thread
-     bool                m_bStopThread;
+     std::atomic<bool> keep_running;
      std::thread         *m_pThread;
 };
 
