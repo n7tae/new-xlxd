@@ -46,6 +46,7 @@ public:
 	bool operator!=(const CIp &rhs) const;
 
 	// state methods
+	bool IsSet() const { return is_set; }
 	bool AddressIsZero() const;
 	void ClearAddress();
 	const char *GetAddress() const;
@@ -68,6 +69,7 @@ public:
 private:
 	struct sockaddr_storage addr;
 	mutable char straddr[INET6_ADDRSTRLEN];
+	bool is_set;
 };
 
 std::ostream &operator<<(std::ostream &stream, const CIp &Ip);

@@ -37,27 +37,15 @@
 
 bool CXlxProtocol::Init(void)
 {
-    bool ok;
-
-    // base class
-    ok = CProtocol::Init();
-
-    // update the reflector callsign
-    m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)"XLX", 3);
-
-    // create our socket
-    ok &= m_Socket.Open(XLX_PORT);
-    if ( !ok )
-    {
-        std::cout << "Error opening socket on port UDP" << XLX_PORT << " on ip " << g_Reflector.GetListenIp() << std::endl;
-    }
+    if (! Initialize("XLX", XLX_PORT))
+		return false;
 
     // update time
     m_LastKeepaliveTime.Now();
     m_LastPeersLinkTime.Now();
 
     // done
-    return ok;
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +63,7 @@ void CXlxProtocol::Task(void)
     CDvLastFramePacket  *LastFrame;
 
     // any incoming packet ?
-    if ( m_Socket.Receive(Buffer, Ip, 20) )
+    if ( m_Socket4.Receive(Buffer, Ip, 10) || m_Socket6.Receive(Buffer, Ip, 10) )
     {
         // crack the packet
         if ( (Frame = IsValidDvFramePacket(Buffer)) != NULL )
@@ -130,7 +118,7 @@ void CXlxProtocol::Task(void)
                             {
                                 // acknowledge the request
                                 EncodeConnectAckPacket(&Buffer, Modules);
-                                m_Socket.Send(Buffer, Ip);
+                                Send(Buffer, Ip);
                             }
                             g_Reflector.ReleasePeers();
 
@@ -141,7 +129,7 @@ void CXlxProtocol::Task(void)
                     default:
                         // acknowledge the request
                         EncodeConnectAckPacket(&Buffer, Modules);
-                        m_Socket.Send(Buffer, Ip);
+                        Send(Buffer, Ip);
                         break;
                 }
             }
@@ -149,7 +137,7 @@ void CXlxProtocol::Task(void)
             {
                 // deny the request
                 EncodeConnectNackPacket(&Buffer);
-                m_Socket.Send(Buffer, Ip);
+                Send(Buffer, Ip);
             }
         }
         else if ( IsValidAckPacket(Buffer, &Callsign, Modules, &Version)  )
@@ -284,17 +272,17 @@ void CXlxProtocol::HandleQueue(void)
                         {
                             case XLX_PROTOCOL_REVISION_0:
                             case XLX_PROTOCOL_REVISION_1:
-                                m_Socket.Send(bufferLegacy, client->GetIp());
+                                Send(bufferLegacy, client->GetIp());
                                 break;
                             case XLX_PROTOCOL_REVISION_2:
                             default:
                                 if ( g_Transcoder.IsConnected() )
                                 {
-                                    m_Socket.Send(buffer, client->GetIp());
+                                    Send(buffer, client->GetIp());
                                 }
                                 else
                                 {
-                                    m_Socket.Send(bufferLegacy, client->GetIp());
+                                    Send(bufferLegacy, client->GetIp());
                                 }
                                 break;
                         }
@@ -328,7 +316,7 @@ void CXlxProtocol::HandleKeepalives(void)
     while ( (peer = peers->FindNextPeer(PROTOCOL_XLX, pit)) != NULL )
     {
         // send keepalive
-        m_Socket.Send(keepalive, peer->GetIp());
+        Send(keepalive, peer->GetIp());
 
         // client busy ?
         if ( peer->IsAMaster() )
@@ -342,7 +330,7 @@ void CXlxProtocol::HandleKeepalives(void)
             // no, disconnect
             CBuffer disconnect;
             EncodeDisconnectPacket(&disconnect);
-            m_Socket.Send(disconnect, peer->GetIp());
+            Send(disconnect, peer->GetIp());
 
             // remove it
             std::cout << "XLX peer " << peer->GetCallsign() << " keepalive timeout" << std::endl;
@@ -373,7 +361,7 @@ void CXlxProtocol::HandlePeerLinks(void)
         {
             // send disconnect packet
             EncodeDisconnectPacket(&buffer);
-            m_Socket.Send(buffer, peer->GetIp());
+            Send(buffer, peer->GetIp());
             std::cout << "Sending disconnect packet to XLX peer " << peer->GetCallsign() << std::endl;
             // remove client
             peers->RemovePeer(peer);
@@ -392,7 +380,7 @@ void CXlxProtocol::HandlePeerLinks(void)
             (*it).ResolveIp();
             // send connect packet to re-initiate peer link
             EncodeConnectPacket(&buffer, (*it).GetModules());
-            m_Socket.Send(buffer, (*it).GetIp(), XLX_PORT);
+            Send(buffer, (*it).GetIp(), XLX_PORT);
             std::cout << "Sending connect packet to XLX peer " << (*it).GetCallsign() << " @ " << (*it).GetIp() << " for modules " << (*it).GetModules() << std::endl;
         }
     }

@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #ifndef cdcsprotocol_h
@@ -42,7 +42,7 @@ class CDcsStreamCacheItem
 public:
     CDcsStreamCacheItem()     { m_iSeqCounter = 0; }
     ~CDcsStreamCacheItem()    {}
-    
+
     CDvHeaderPacket m_dvHeader;
     uint32          m_iSeqCounter;
 };
@@ -50,35 +50,29 @@ public:
 class CDcsProtocol : public CProtocol
 {
 public:
-    // constructor
-    CDcsProtocol() {};
-    
-    // destructor
-    virtual ~CDcsProtocol() {};
-    
     // initialization
     bool Init(void);
-    
+
     // task
     void Task(void);
-    
+
 protected:
     // queue helper
     void HandleQueue(void);
-    
+
     // keepalive helpers
     void HandleKeepalives(void);
-    
+
     // stream helpers
     bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &);
-    
+
     // packet decoding helpers
     bool IsValidConnectPacket(const CBuffer &, CCallsign *, char *);
     bool IsValidDisconnectPacket(const CBuffer &, CCallsign *);
     bool IsValidKeepAlivePacket(const CBuffer &, CCallsign *);
     bool IsValidDvPacket(const CBuffer &, CDvHeaderPacket **, CDvFramePacket **);
     bool IsIgnorePacket(const CBuffer &);
-    
+
     // packet encoding helpers
     void EncodeKeepAlivePacket(CBuffer *);
     void EncodeKeepAlivePacket(CBuffer *, CClient *);
@@ -87,11 +81,11 @@ protected:
     void EncodeDisconnectPacket(CBuffer *, CClient *);
     void EncodeDvPacket(const CDvHeaderPacket &, const CDvFramePacket &, uint32, CBuffer *) const;
     void EncodeDvLastPacket(const CDvHeaderPacket &, const CDvFramePacket &, uint32, CBuffer *) const;
-    
+
 protected:
     // for keep alive
     CTimePoint          m_LastKeepaliveTime;
-    
+
     // for queue header caches
     std::array<CDcsStreamCacheItem, NB_OF_MODULES>    m_StreamsCache;
 };

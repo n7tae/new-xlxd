@@ -36,26 +36,15 @@
 
 bool CDplusProtocol::Init(void)
 {
-    bool ok;
-
     // base class
-    ok = CProtocol::Init();
-
-    // update the reflector callsign
-    m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)"REF", 3);
-
-    // create our socket
-    ok &= m_Socket.Open(DPLUS_PORT);
-    if ( !ok )
-    {
-        std::cout << "Error opening socket on port UDP" << DPLUS_PORT << " on ip " << g_Reflector.GetListenIp() << std::endl;
-    }
+    if (Initialize("REF", DPLUS_PORT))
+		return false;
 
     // update time
     m_LastKeepaliveTime.Now();
 
     // done
-    return ok;
+    return true;
 }
 
 
@@ -73,7 +62,7 @@ void CDplusProtocol::Task(void)
     CDvLastFramePacket  *LastFrame;
 
     // handle incoming packets
-    if ( m_Socket.Receive(Buffer, Ip, 20) )
+    if ( m_Socket6.Receive(Buffer, Ip, 10) && m_Socket4.Receive(Buffer, Ip, 10) )
     {
         // crack the packet
         if ( (Frame = IsValidDvFramePacket(Buffer)) != NULL )
@@ -110,7 +99,7 @@ void CDplusProtocol::Task(void)
             std::cout << "DPlus connect request packet from " << Ip << std::endl;
 
             // acknowledge the request
-            m_Socket.Send(Buffer, Ip);
+            Send(Buffer, Ip);
         }
         else if ( IsValidLoginPacket(Buffer, &Callsign) )
         {
@@ -121,7 +110,7 @@ void CDplusProtocol::Task(void)
             {
                 // acknowledge the request
                 EncodeLoginAckPacket(&Buffer);
-                m_Socket.Send(Buffer, Ip);
+                Send(Buffer, Ip);
 
                // create the client
                 CDplusClient *client = new CDplusClient(Callsign, Ip);
@@ -134,7 +123,7 @@ void CDplusProtocol::Task(void)
             {
                 // deny the request
                 EncodeLoginNackPacket(&Buffer);
-                m_Socket.Send(Buffer, Ip);
+                Send(Buffer, Ip);
             }
 
         }
@@ -151,7 +140,7 @@ void CDplusProtocol::Task(void)
                 clients->RemoveClient(client);
                 // and acknowledge the disconnect
                 EncodeDisconnectPacket(&Buffer);
-                m_Socket.Send(Buffer, Ip);
+                Send(Buffer, Ip);
             }
             g_Reflector.ReleaseClients();
         }
@@ -313,7 +302,7 @@ void CDplusProtocol::HandleQueue(void)
                     else if ( packet->IsDvFrame() )
                     {
                         // and send the DV frame
-                         m_Socket.Send(buffer, client->GetIp());
+                         Send(buffer, client->GetIp());
 
                         // is it time to insert a DVheader copy ?
                         if ( (m_StreamsCache[iModId].m_iSeqCounter++ % 21) == 20 )
@@ -327,7 +316,7 @@ void CDplusProtocol::HandleQueue(void)
                     else
                     {
                         // otherwise, send the original packet
-                        m_Socket.Send(buffer, client->GetIp());
+                        Send(buffer, client->GetIp());
                     }
                 }
             }
@@ -360,20 +349,20 @@ void CDplusProtocol::SendDvHeader(CDvHeaderPacket *packet, CDplusClient *client)
             if ( EncodeDvPacket(packet2, &buffer2) )
             {
                 // and send it
-                m_Socket.Send(buffer2, client->GetIp());
+                Send(buffer2, client->GetIp());
             }
 
             // client type known ?
             if ( !client->HasModule() )
             {
                 // no, send also the genuine packet
-                m_Socket.Send(buffer, client->GetIp());
+                Send(buffer, client->GetIp());
             }
         }
         else
         {
             // otherwise, send the original packet
-            m_Socket.Send(buffer, client->GetIp());
+            Send(buffer, client->GetIp());
         }
     }
 }
@@ -395,7 +384,7 @@ void CDplusProtocol::HandleKeepalives(void)
     {
         // send keepalive
         //std::cout << "Sending DPlus packet @ " << client->GetIp() << std::endl;
-        m_Socket.Send(keepalive, client->GetIp());
+        Send(keepalive, client->GetIp());
 
         // is this client busy ?
         if ( client->IsAMaster() )
@@ -409,7 +398,7 @@ void CDplusProtocol::HandleKeepalives(void)
             // no, disconnect
             CBuffer disconnect;
             EncodeDisconnectPacket(&disconnect);
-            m_Socket.Send(disconnect, client->GetIp());
+            Send(disconnect, client->GetIp());
 
             // and remove it
             std::cout << "DPlus client " << client->GetCallsign() << " keepalive timeout" << std::endl;

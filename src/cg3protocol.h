@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #ifndef cg3protocol_h
@@ -64,17 +64,14 @@ class CG3Protocol : public CProtocol
 {
 public:
     // constructor
-    CG3Protocol() : m_GwAddress(0u), m_Modules("*"), m_LastModTime(0) {};
-    
-    // destructor
-    virtual ~CG3Protocol() {};
-    
+    CG3Protocol() : m_GwAddress(0u), m_Modules("*"), m_LastModTime(0) {}
+
     // initialization
     bool Init(void);
 
     // close
     void Close(void);
-    
+
     // task
     void Task(void);
 

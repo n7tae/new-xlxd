@@ -77,7 +77,7 @@ public:
     virtual ~CProtocol();
 
     // initialization
-    virtual bool Init(void);
+    bool Initialize(const char *, uint16);
     virtual void Close(void);
 
     // queue
@@ -89,7 +89,7 @@ public:
 
     // task
     static void Thread(CProtocol *);
-    virtual void Task(void) {}
+    virtual void Task(void) = 0;
 
 protected:
     // packet encoding helpers
@@ -122,9 +122,13 @@ protected:
     virtual char DmrDstIdToModule(uint32) const;
     virtual uint32 ModuleToDmrDestId(char) const;
 
-protected:
+	void Send(const CBuffer &buf, const CIp &Ip) const;
+	void Send(const char    *buf, const CIp &Ip) const;
+	void Send(const CBuffer &buf, const CIp &Ip, uint16 port) const;
+	void Send(const char    *buf, const CIp &Ip, uint16 port) const;
+
     // socket
-    CUdpSocket      m_Socket;
+    CUdpSocket      m_Socket4, m_Socket6;
 
     // streams
     std::list<CPacketStream *> m_Streams;

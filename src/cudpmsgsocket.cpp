@@ -28,12 +28,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // open
-bool CUdpMsgSocket::Open(uint16 uiPort)
+bool CUdpMsgSocket::Open(const CIp &ip)
 {
     bool ret;
     int on = 1;
 
-    ret = CUdpSocket::Open(uiPort);
+    ret = CUdpSocket::Open(ip);
     setsockopt(m_fd, IPPROTO_IP, IP_PKTINFO, (char *)&on, sizeof(on));
 
     return ret;

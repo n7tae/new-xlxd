@@ -40,55 +40,58 @@
 
 bool CG3Protocol::Init(void)
 {
-    bool ok;
-
     ReadOptions();
 
-    // base class
-    ok = CProtocol::Init();
+    // init reflector apparent callsign
+    m_ReflectorCallsign = g_Reflector.GetCallsign();
 
-    // update reflector callsign
-    m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)"XLX", 3);
+    // reset stop flag
+    m_bStopThread = false;
 
-    // create our DV socket
-    ok &= m_Socket.Open(G3_DV_PORT);
-    if ( !ok )
-    {
-        std::cout << "Error opening socket on port UDP" << G3_DV_PORT << " on ip " << g_Reflector.GetListenIp() << std::endl;
+    // update the reflector callsign
+	m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)"XLX", 3);
+
+    // create our sockets
+	CIp ip(AF_INET, G3_DV_PORT, g_Reflector.GetListenIPv4());
+	if ( ip.IsSet() )
+	{
+		if (! m_Socket4.Open(ip))
+			return false;
+	}
+	else
+		return false;
+
+    //create helper socket
+	ip.SetPort(G3_PRESENCE_PORT);
+	if (! m_PresenceSocket.Open(ip)) {
+  	    std::cout << "Error opening socket on port UDP" << G3_PRESENCE_PORT << " on ip " << ip << std::endl;
+ 		return false;
     }
 
-    //create helper sockets
-    ok &= m_PresenceSocket.Open(G3_PRESENCE_PORT);
-    if ( !ok )
-    {
-        std::cout << "Error opening socket on port UDP" << G3_PRESENCE_PORT << " on ip " << g_Reflector.GetListenIp() << std::endl;
-    }
+	ip.SetPort(G3_CONFIG_PORT);
+    if (! m_ConfigSocket.Open(ip))
+	{
+        std::cout << "Error opening G3 config socket on port UDP" << G3_CONFIG_PORT << " on ip " << ip << std::endl;
+		return false;
+	}
 
-    ok &= m_ConfigSocket.Open(G3_CONFIG_PORT);
-    if ( !ok )
-    {
-        std::cout << "Error opening socket on port UDP" << G3_CONFIG_PORT << " on ip " << g_Reflector.GetListenIp() << std::endl;
-    }
-
-    ok &= m_IcmpRawSocket.Open(IPPROTO_ICMP);
-    if ( !ok )
+    if (! m_IcmpRawSocket.Open(IPPROTO_ICMP))
     {
         std::cout << "Error opening raw socket for ICMP" << std::endl;
+		return false;
     }
 
-    if (ok)
-    {
-        // start helper threads
-        m_pPresenceThread = new std::thread(PresenceThread, this);
-        m_pPresenceThread = new std::thread(ConfigThread, this);
-        m_pPresenceThread = new std::thread(IcmpThread, this);
-    }
+    // start helper threads
+	m_pThread = new std::thread(CProtocol::Thread, this);
+	m_pPresenceThread = new std::thread(PresenceThread, this);
+	m_pPresenceThread = new std::thread(ConfigThread, this);
+	m_pPresenceThread = new std::thread(IcmpThread, this);
 
     // update time
     m_LastKeepaliveTime.Now();
 
     // done
-    return ok;
+    return true;
 }
 
 void CG3Protocol::Close(void)
@@ -390,7 +393,7 @@ void CG3Protocol::Task(void)
     CDvLastFramePacket  *LastFrame;
 
     // any incoming packet ?
-    if ( m_Socket.Receive(Buffer, Ip, 20) != -1 )
+    if ( m_Socket4.Receive(Buffer, Ip, 20) )
     {
         CIp ClIp;
         CIp *BaseIp = NULL;
@@ -508,7 +511,7 @@ void CG3Protocol::HandleQueue(void)
                     int n = packet->IsDvHeader() ? 5 : 1;
                     for ( int i = 0; i < n; i++ )
                     {
-                        m_Socket.Send(buffer, client->GetIp());
+                        Send(buffer, client->GetIp());
                     }
                 }
             }
@@ -544,7 +547,7 @@ void CG3Protocol::HandleKeepalives(void)
         else
         {
             // send keepalive packet
-            m_Socket.Send(keepalive, client->GetIp());
+            Send(keepalive, client->GetIp());
         }
     }
     g_Reflector.ReleaseClients();

@@ -89,31 +89,32 @@ CCodecStream::~CCodecStream()
 
 bool CCodecStream::Init(uint16 uiPort)
 {
-    bool ok;
-
     // reset stop flag
-    m_bStopThread = false;
+    m_bConnected = m_bStopThread = false;
 
     // create server's IP
-    m_Ip = g_Reflector.GetTranscoderIp();
     m_uiPort = uiPort;
+	auto s = g_Reflector.GetTranscoderIp();
+	m_Ip.Initialize(strchr(s, ':') ? AF_INET6 : AF_INET, m_uiPort, s);
 
     // create our socket
-    ok = m_Socket.Open(uiPort);
-    if ( ok )
-    {
-        // start  thread;
-        m_pThread = new std::thread(CCodecStream::Thread, this);
-        m_bConnected = true;
-    }
-    else
-    {
-        std::cout << "Error opening socket on port UDP" << uiPort << " on ip " << g_Reflector.GetListenIp() << std::endl;
-        m_bConnected = false;
-    }
+    if (m_Ip.IsSet())
+	{
+		if (! m_Socket.Open(m_Ip)) {
+			std::cerr << "Error opening socket on port UDP" << uiPort << " on ip " << m_Ip << std::endl;
+			return false;
+		}
+	}
+	else
+	{
+		std::cerr << "Could not initialize Codec Stream on " << m_Ip << std::endl;
+		return false;
+	}
 
-    // done
-    return ok;
+	m_pThread = new std::thread(CCodecStream::Thread, this);
+    m_bConnected = true;
+
+    return true;
 }
 
 void CCodecStream::Close(void)

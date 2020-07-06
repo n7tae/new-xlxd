@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 // Description:
@@ -40,7 +40,7 @@ class CUdpMsgSocket : public CUdpSocket
 {
 public:
     // open
-    bool Open(uint16);
+    bool Open(const CIp &ip);
 
     // read
     int Receive(CBuffer *, CIp *, int);

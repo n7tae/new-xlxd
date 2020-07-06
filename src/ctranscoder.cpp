@@ -75,22 +75,27 @@ bool CTranscoder::Init(void)
     m_bStopThread = false;
 
     // create server's IP
-    m_Ip = g_Reflector.GetTranscoderIp();
+    auto s = g_Reflector.GetTranscoderIp();
+	m_Ip.Initialize(strchr(s, ':') ? AF_INET6 : AF_INET, TRANSCODER_PORT, s);
 
     // create our socket
-    ok = m_Socket.Open(TRANSCODER_PORT);
-    if ( ok )
-    {
-        // start  thread;
-        m_pThread = new std::thread(CTranscoder::Thread, this);
-    }
-    else
-    {
-        std::cout << "Error opening socket on port UDP" << TRANSCODER_PORT << " on ip " << g_Reflector.GetListenIp() << std::endl;
-    }
+	if (m_Ip.IsSet())
+	{
+    	if (! m_Socket.Open(TRANSCODER_PORT)) {
+			std::cerr << "Error opening socket on port UDP" << TRANSCODER_PORT << " on ip " << m_Ip << std::endl;
+			return false;
+		}
+	}
+	else
+	{
+		std::cerr << "Could not initialize transcoder socket on " << m_Ip << std::endl;
+		return false;
+	}
 
-    // done
-    return ok;
+    // start  thread;
+    m_pThread = new std::thread(CTranscoder::Thread, this);
+
+    return true;
 }
 
 void CTranscoder::Close(void)

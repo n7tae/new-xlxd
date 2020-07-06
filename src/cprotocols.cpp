@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #include "main.h"
@@ -33,18 +33,6 @@
 #include "cg3protocol.h"
 #include "cprotocols.h"
 
-
-////////////////////////////////////////////////////////////////////////////////////////
-// constructor
-
-CProtocols::CProtocols()
-{
-    for ( int i = 0; i < m_Protocols.size(); i++ )
-    {
-        m_Protocols[i] = NULL;
-    }
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////
 // destructor
 
@@ -52,10 +40,12 @@ CProtocols::~CProtocols()
 {
     m_Mutex.lock();
     {
-        for ( int i = 0; i < m_Protocols.size(); i++ )
-        {
-           delete m_Protocols[i];
-        }
+        for ( auto it=m_Protocols.begin(); it!=m_Protocols.end(); it++)
+		{
+			(*it)->Close();
+			delete *it;
+		}
+		m_Protocols.clear();
     }
     m_Mutex.unlock();
 }
@@ -65,65 +55,105 @@ CProtocols::~CProtocols()
 
 bool CProtocols::Init(void)
 {
-    bool ok = true;
-    
     m_Mutex.lock();
     {
-        // create and initialize DEXTRA
-        delete m_Protocols[0];
-        m_Protocols[0] = new CDextraProtocol;
-        ok &= m_Protocols[0]->Init();
-        
+        auto dextra = new CDextraProtocol;
+        if (dextra->Init())
+			m_Protocols.push_back(dextra);
+		else
+		{
+			delete dextra;
+			return false;
+		}
+
+
         // create and initialize DPLUS
-        delete m_Protocols[1];
-        m_Protocols[1] = new CDplusProtocol;
-        ok &= m_Protocols[1]->Init();
-        
+        auto dplus = new CDplusProtocol;
+        if (dplus->Init())
+			m_Protocols.push_back(dplus);
+		else
+		{
+			delete dplus;
+			return false;
+		}
+
         // create and initialize DCS
-        delete m_Protocols[2];
-        m_Protocols[2] = new CDcsProtocol;
-        ok &= m_Protocols[2]->Init();
-        
+        auto dcs = new CDcsProtocol;
+        if (dcs->Init())
+			m_Protocols.push_back(dcs);
+		else
+		{
+			delete dcs;
+			return false;
+		}
+
         // create and initialize XLX - interlink
-        delete m_Protocols[3];
-        m_Protocols[3] = new CXlxProtocol;
-        ok &= m_Protocols[3]->Init();
-        
+        auto xlx = new CXlxProtocol;
+        if (xlx->Init())
+			m_Protocols.push_back(xlx);
+		else
+		{
+			delete xlx;
+			return false;
+		}
+
         // create and initialize DMRPLUS
-        delete m_Protocols[4];
-        m_Protocols[4] = new CDmrplusProtocol;
-        ok &= m_Protocols[4]->Init();
-        
+        auto dmrplus = new CDmrplusProtocol;
+        if (dmrplus->Init())
+			m_Protocols.push_back(dmrplus);
+		else
+		{
+			delete dmrplus;
+			return false;
+		}
+
         // create and initialize DMRMMDVM
-        delete m_Protocols[5];
-        m_Protocols[5] = new CDmrmmdvmProtocol;
-        ok &= m_Protocols[5]->Init();
-        
+        auto dmrmmdvm = new CDmrmmdvmProtocol;
+        if (dmrmmdvm->Init())
+			m_Protocols.push_back(dmrmmdvm);
+		else
+		{
+			delete dmrmmdvm;
+			return false;
+		}
+
         // create and initialize YSF
-        delete m_Protocols[6];
-        m_Protocols[6] = new CYsfProtocol;
-        ok &= m_Protocols[6]->Init();
+        auto ysf = new CYsfProtocol;
+        if (ysf->Init())
+			m_Protocols.push_back(ysf);
+		else
+		{
+			delete ysf;
+			return false;
+		}
 
         // create and initialize G3
-        delete m_Protocols[7];
-        m_Protocols[7] = new CG3Protocol;
-        ok &= m_Protocols[7]->Init();
+        auto g3 = new CG3Protocol;
+        if (g3->Init())
+			m_Protocols.push_back(g3);
+		else
+		{
+			delete g3;
+			return true;
+		}
 
     }
     m_Mutex.unlock();
-   
+
     // done
-    return ok;
+    return true;
 }
 
 void CProtocols::Close(void)
 {
     m_Mutex.lock();
     {
-        for ( int i = 0; i < m_Protocols.size(); i++ )
-        {
-            m_Protocols[i]->Close();
-        }
+        for ( auto it=m_Protocols.begin(); it!=m_Protocols.end(); it++)
+		{
+			(*it)->Close();
+			delete *it;
+		}
+		m_Protocols.clear();
     }
     m_Mutex.unlock();
 }

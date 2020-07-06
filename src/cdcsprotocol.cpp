@@ -35,26 +35,15 @@
 
 bool CDcsProtocol::Init(void)
 {
-    bool ok;
-
     // base class
-    ok = CProtocol::Init();
-
-    // update the reflector callsign
-    m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)"DCS", 3);
-
-    // create our socket
-    ok &= m_Socket.Open(DCS_PORT);
-    if ( !ok )
-    {
-        std::cout << "Error opening socket on port UDP" << DCS_PORT << " on ip " << g_Reflector.GetListenIp() << std::endl;
-    }
+    if (! Initialize("DCS", DCS_PORT))
+		return false;
 
     // update time
     m_LastKeepaliveTime.Now();
 
     // done
-    return ok;
+    return true;
 }
 
 
@@ -72,7 +61,7 @@ void CDcsProtocol::Task(void)
     CDvFramePacket      *Frame;
 
     // handle incoming packets
-    if ( m_Socket.Receive(Buffer, Ip, 20) )
+    if ( m_Socket6.Receive(Buffer, Ip, 10) || m_Socket4.Receive(Buffer, Ip, 10) )
     {
         // crack the packet
         if ( IsValidDvPacket(Buffer, &Header, &Frame) )
@@ -114,7 +103,7 @@ void CDcsProtocol::Task(void)
                 {
                     // acknowledge the request
                     EncodeConnectAckPacket(Callsign, ToLinkModule, &Buffer);
-                    m_Socket.Send(Buffer, Ip);
+                    Send(Buffer, Ip);
 
                     // create the client
                     CDcsClient *client = new CDcsClient(Callsign, Ip, ToLinkModule);
@@ -129,14 +118,14 @@ void CDcsProtocol::Task(void)
 
                     // deny the request
                     EncodeConnectNackPacket(Callsign, ToLinkModule, &Buffer);
-                    m_Socket.Send(Buffer, Ip);
+                    Send(Buffer, Ip);
                 }
             }
             else
             {
                 // deny the request
                 EncodeConnectNackPacket(Callsign, ToLinkModule, &Buffer);
-                m_Socket.Send(Buffer, Ip);
+                Send(Buffer, Ip);
             }
 
         }
@@ -153,7 +142,7 @@ void CDcsProtocol::Task(void)
                 clients->RemoveClient(client);
                 // and acknowledge the disconnect
                 EncodeConnectNackPacket(Callsign, ' ', &Buffer);
-                m_Socket.Send(Buffer, Ip);
+                Send(Buffer, Ip);
             }
             g_Reflector.ReleaseClients();
         }
@@ -310,7 +299,7 @@ void CDcsProtocol::HandleQueue(void)
                     if ( !client->IsAMaster() && (client->GetReflectorModule() == packet->GetModuleId()) )
                     {
                         // no, send the packet
-                        m_Socket.Send(buffer, client->GetIp());
+                        Send(buffer, client->GetIp());
 
                     }
                 }
@@ -346,8 +335,8 @@ void CDcsProtocol::HandleKeepalives(void)
         EncodeKeepAlivePacket(&keepalive2, client);
 
         // send keepalive
-        m_Socket.Send(keepalive1, client->GetIp());
-        m_Socket.Send(keepalive2, client->GetIp());
+        Send(keepalive1, client->GetIp());
+        Send(keepalive2, client->GetIp());
 
         // is this client busy ?
         if ( client->IsAMaster() )
@@ -361,7 +350,7 @@ void CDcsProtocol::HandleKeepalives(void)
             // no, disconnect
             CBuffer disconnect;
             EncodeDisconnectPacket(&disconnect, client);
-            m_Socket.Send(disconnect, client->GetIp());
+            Send(disconnect, client->GetIp());
 
             // remove it
             std::cout << "DCS client " << client->GetCallsign() << " keepalive timeout" << std::endl;

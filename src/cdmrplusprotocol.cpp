@@ -47,18 +47,11 @@ static uint8 g_DmrSyncMSData[]     = { 0x0D,0x5D,0x7F,0x77,0xFD,0x75,0x70 };
 ////////////////////////////////////////////////////////////////////////////////////////
 // operation
 
-bool CDmrplusProtocol::Init(void)
+bool CDmrplusProtocol::Init()
 {
-    bool ok;
-
     // base class
-    ok = CProtocol::Init();
-
-    // update the reflector callsign
-    //m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)"DMR", 3);
-
-    // create our socket
-    ok &= m_Socket.Open(DMRPLUS_PORT);
+    if (! Initialize(NULL, DMRPLUS_PORT))
+		return false;
 
     // update time
     m_LastKeepaliveTime.Now();
@@ -68,7 +61,7 @@ bool CDmrplusProtocol::Init(void)
     ::srand((unsigned) time(&t));
 
     // done
-    return ok;
+    return true;
 }
 
 
@@ -86,7 +79,7 @@ void CDmrplusProtocol::Task(void)
     CDvFramePacket      *Frames[3];
 
     // handle incoming packets
-    if ( m_Socket.Receive(Buffer, Ip, 20) )
+    if ( m_Socket6.Receive(Buffer, Ip, 10) && m_Socket4.Receive(Buffer, Ip, 10) )
     {
        // crack the packet
         if ( IsValidDvFramePacket(Ip, Buffer, Frames) )
@@ -135,7 +128,7 @@ void CDmrplusProtocol::Task(void)
             {
                 // acknowledge the request
                 EncodeConnectAckPacket(&Buffer);
-                m_Socket.Send(Buffer, Ip);
+                Send(Buffer, Ip);
 
                 // add client if needed
                 CClients *clients = g_Reflector.GetClients();
@@ -162,7 +155,7 @@ void CDmrplusProtocol::Task(void)
             {
                 // deny the request
                 EncodeConnectNackPacket(&Buffer);
-                m_Socket.Send(Buffer, Ip);
+                Send(Buffer, Ip);
             }
 
         }
@@ -324,7 +317,7 @@ void CDmrplusProtocol::HandleQueue(void)
                 if ( !client->IsAMaster() && (client->GetReflectorModule() == packet->GetModuleId()) )
                 {
                     // no, send the packet
-                    m_Socket.Send(buffer, client->GetIp());
+                    Send(buffer, client->GetIp());
                 }
             }
             g_Reflector.ReleaseClients();
@@ -353,7 +346,7 @@ void CDmrplusProtocol::SendBufferToClients(const CBuffer &buffer, uint8 module)
             if ( !client->IsAMaster() && (client->GetReflectorModule() == module) )
             {
                 // no, send the packet
-                m_Socket.Send(buffer, client->GetIp());
+                Send(buffer, client->GetIp());
             }
         }
         g_Reflector.ReleaseClients();
@@ -391,7 +384,7 @@ void CDmrplusProtocol::HandleKeepalives(void)
             // no, disconnect
             //CBuffer disconnect;
             //EncodeDisconnectPacket(&disconnect, client);
-            //m_Socket.Send(disconnect, client->GetIp());
+            //Send(disconnect, client->GetIp());
 
             // remove it
             std::cout << "DMRplus client " << client->GetCallsign() << " keepalive timeout" << std::endl;

@@ -56,16 +56,9 @@ static uint8 g_DmrSyncMSData[]     = { 0x0D,0x5D,0x7F,0x77,0xFD,0x75,0x70 };
 
 bool CDmrmmdvmProtocol::Init(void)
 {
-    bool ok;
-
     // base class
-    ok = CProtocol::Init();
-
-    // update the reflector callsign
-    //m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)"DMR", 3);
-
-    // create our socket
-    ok &= m_Socket.Open(DMRMMDVM_PORT);
+    if (! Initialize(NULL, DMRMMDVM_PORT))
+		return false;
 
     // update time
     m_LastKeepaliveTime.Now();
@@ -76,7 +69,7 @@ bool CDmrmmdvmProtocol::Init(void)
     m_uiAuthSeed = (uint32)rand();
 
     // done
-    return ok;
+    return true;
 }
 
 
@@ -97,7 +90,7 @@ void CDmrmmdvmProtocol::Task(void)
     CDvLastFramePacket  *LastFrame;
 
     // handle incoming packets
-    if ( m_Socket.Receive(Buffer, Ip, 20) )
+    if ( m_Socket6.Receive(Buffer, Ip, 10) || m_Socket6.Receive(Buffer, Ip, 10) )
     {
         //Buffer.DebugDump(g_Reflector.m_DebugFile);
         // crack the packet
@@ -141,13 +134,13 @@ void CDmrmmdvmProtocol::Task(void)
             {
                 // acknowledge the request
                 EncodeConnectAckPacket(&Buffer, Callsign, m_uiAuthSeed);
-                m_Socket.Send(Buffer, Ip);
+                Send(Buffer, Ip);
             }
             else
             {
                 // deny the request
                 EncodeNackPacket(&Buffer, Callsign);
-                m_Socket.Send(Buffer, Ip);
+                Send(Buffer, Ip);
             }
 
         }
@@ -160,7 +153,7 @@ void CDmrmmdvmProtocol::Task(void)
             {
                 // acknowledge the request
                 EncodeAckPacket(&Buffer, Callsign);
-                m_Socket.Send(Buffer, Ip);
+                Send(Buffer, Ip);
 
                 // add client if needed
                 CClients *clients = g_Reflector.GetClients();
@@ -187,7 +180,7 @@ void CDmrmmdvmProtocol::Task(void)
             {
                 // deny the request
                 EncodeNackPacket(&Buffer, Callsign);
-                m_Socket.Send(Buffer, Ip);
+                Send(Buffer, Ip);
             }
 
         }
@@ -210,7 +203,7 @@ void CDmrmmdvmProtocol::Task(void)
 
             // acknowledge the request
             EncodeAckPacket(&Buffer, Callsign);
-            m_Socket.Send(Buffer, Ip);
+            Send(Buffer, Ip);
         }
         else if ( IsValidKeepAlivePacket(Buffer, &Callsign) )
         {
@@ -224,7 +217,7 @@ void CDmrmmdvmProtocol::Task(void)
             {
                 // acknowledge
                 EncodeKeepAlivePacket(&Buffer, client);
-                m_Socket.Send(Buffer, Ip);
+                Send(Buffer, Ip);
 
                 // and mark as alive
                 client->Alive();
@@ -243,7 +236,7 @@ void CDmrmmdvmProtocol::Task(void)
 
             // acknowledge the request
             EncodeAckPacket(&Buffer, Callsign);
-            m_Socket.Send(Buffer, Ip);
+            Send(Buffer, Ip);
         }
         else if ( Buffer.size() != 55 )
         {
@@ -450,7 +443,7 @@ void CDmrmmdvmProtocol::HandleQueue(void)
                 if ( !client->IsAMaster() && (client->GetReflectorModule() == packet->GetModuleId()) )
                 {
                     // no, send the packet
-                    m_Socket.Send(buffer, client->GetIp());
+                    Send(buffer, client->GetIp());
 
                 }
             }
@@ -489,7 +482,7 @@ void CDmrmmdvmProtocol::HandleKeepalives(void)
         {
             // no, disconnect
             CBuffer disconnect;
-            m_Socket.Send(disconnect, client->GetIp());
+            Send(disconnect, client->GetIp());
 
             // remove it
             std::cout << "DMRmmdvm client " << client->GetCallsign() << " keepalive timeout" << std::endl;

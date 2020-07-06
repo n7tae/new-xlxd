@@ -33,11 +33,7 @@
 // constructor
 
 
-CProtocol::CProtocol()
-{
-    m_bStopThread = false;
-    m_pThread = NULL;
-}
+CProtocol::CProtocol() : m_bStopThread(false), m_pThread(NULL) {}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -53,6 +49,10 @@ CProtocol::~CProtocol()
         delete m_pThread;
     }
 
+	// Close sockets
+	m_Socket6.Close();
+	m_Socket4.Close();
+
     // empty queue
     m_Queue.Lock();
     while ( !m_Queue.empty() )
@@ -65,7 +65,7 @@ CProtocol::~CProtocol()
 ////////////////////////////////////////////////////////////////////////////////////////
 // initialization
 
-bool CProtocol::Init(void)
+bool CProtocol::Initialize(const char *type, uint16 port)
 {
     // init reflector apparent callsign
     m_ReflectorCallsign = g_Reflector.GetCallsign();
@@ -73,11 +73,47 @@ bool CProtocol::Init(void)
     // reset stop flag
     m_bStopThread = false;
 
+    // update the reflector callsign
+	if (type)
+	    m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)type, 3);
+
+    // create our sockets
+	CIp ip4(AF_INET, port, g_Reflector.GetListenIPv4());
+	if ( ip4.IsSet() )
+	{
+		if (! m_Socket4.Open(ip4))
+			return false;
+	}
+    CIp ip6(AF_INET6, port, g_Reflector.GetListenIPv6());
+    if ( ip6.IsSet() )
+    {
+        if (! m_Socket6.Open(ip6))
+		{
+			m_Socket4.Close();
+			return false;
+		}
+    }
+
     // start  thread;
-    m_pThread = new std::thread(CProtocol::Thread, this);
+	m_pThread = new std::thread(CProtocol::Thread, this);
+	if (m_pThread == NULL)
+	{
+		std::cerr << "Could not start DCS thread!" << std::endl;
+		m_Socket4.Close();
+		m_Socket6.Close();
+		return false;
+	}
 
     // done
     return true;
+}
+
+void CProtocol::Thread(CProtocol *This)
+{
+	while (! This->m_bStopThread)
+	{
+		This->Task();
+	}
 }
 
 void CProtocol::Close(void)
@@ -89,18 +125,8 @@ void CProtocol::Close(void)
         delete m_pThread;
         m_pThread = NULL;
     }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////////////
-// thread
-
-void CProtocol::Thread(CProtocol *This)
-{
-    while ( !This->m_bStopThread )
-    {
-        This->Task();
-    }
+	m_Socket4.Close();
+	m_Socket6.Close();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -262,4 +288,67 @@ char CProtocol::DmrDstIdToModule(uint32 tg) const
 uint32 CProtocol::ModuleToDmrDestId(char m) const
 {
     return (uint32)(m - 'A')+1;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+// dual stack senders
+
+void CProtocol::Send(const CBuffer &buf, const CIp &Ip) const
+{
+	switch (Ip.GetFamily()) {
+		case AF_INET:
+			m_Socket4.Send(buf, Ip);
+			break;
+		case AF_INET6:
+			m_Socket6.Send(buf, Ip);
+			break;
+		default:
+			std::cerr << "Wrong family: " << Ip.GetFamily() << std::endl;
+			break;
+	}
+}
+
+void CProtocol::Send(const char *buf, const CIp &Ip) const
+{
+	switch (Ip.GetFamily()) {
+		case AF_INET:
+			m_Socket4.Send(buf, Ip);
+			break;
+		case AF_INET6:
+			m_Socket6.Send(buf, Ip);
+			break;
+		default:
+			std::cerr << "ERROR: wrong family: " << Ip.GetFamily() << std::endl;
+			break;
+	}
+}
+
+void CProtocol::Send(const CBuffer &buf, const CIp &Ip, uint16_t port) const
+{
+	switch (Ip.GetFamily()) {
+		case AF_INET:
+			m_Socket4.Send(buf, Ip, port);
+			break;
+		case AF_INET6:
+			m_Socket6.Send(buf, Ip, port);
+			break;
+		default:
+			std::cerr << "Wrong family: " << Ip.GetFamily() << " on port " << port << std::endl;
+			break;
+	}
+}
+
+void CProtocol::Send(const char *buf, const CIp &Ip, uint16_t port) const
+{
+	switch (Ip.GetFamily()) {
+		case AF_INET:
+			m_Socket4.Send(buf, Ip, port);
+			break;
+		case AF_INET6:
+			m_Socket6.Send(buf, Ip, port);
+			break;
+		default:
+			std::cerr << "Wrong family: " << Ip.GetFamily() << " on port " << port << std::endl;
+			break;
+	}
 }

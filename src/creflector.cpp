@@ -348,27 +348,24 @@ void CReflector::RouterThread(CReflector *This, CPacketStream *streamIn)
             packet->SetModuleId(uiModuleId);
 
             // iterate on all protocols
-            for ( int i = 0; i < This->m_Protocols.Size(); i++ )
+            for ( auto it=This->m_Protocols.begin(); it!=This->m_Protocols.end(); it++ )
             {
                 // duplicate packet
                 CPacket *packetClone = packet->Duplicate();
-
-                // get protocol
-                CProtocol *protocol = This->m_Protocols.GetProtocol(i);
 
                 // if packet is header, update RPT2 according to protocol
                 if ( packetClone->IsDvHeader() )
                 {
                     // get our callsign
-                    CCallsign csRPT = protocol->GetReflectorCallsign();
+                    CCallsign csRPT = (*it)->GetReflectorCallsign();
                     csRPT.SetModule(This->GetStreamModule(streamIn));
                     ((CDvHeaderPacket *)packetClone)->SetRpt2Callsign(csRPT);
                 }
 
                 // and push it
-                CPacketQueue *queue = protocol->GetQueue();
+                CPacketQueue *queue = (*it)->GetQueue();
                 queue->push(packetClone);
-                protocol->ReleaseQueue();
+                (*it)->ReleaseQueue();
             }
             // done
             delete packet;

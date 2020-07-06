@@ -37,27 +37,16 @@
 
 bool CDextraProtocol::Init(void)
 {
-    bool ok;
-
     // base class
-    ok = CProtocol::Init();
-
-    // update the reflector callsign
-    m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)"XRF", 3);
-
-    // create our socket
-    ok &= m_Socket.Open(DEXTRA_PORT);
-    if ( !ok )
-    {
-        std::cout << "Error opening socket on port UDP" << DEXTRA_PORT << " on ip " << g_Reflector.GetListenIp() << std::endl;
-    }
+    if (! Initialize("XRF", DEXTRA_PORT))
+		return false;
 
     // update time
     m_LastKeepaliveTime.Now();
     m_LastPeersLinkTime.Now();
 
     // done
-    return ok;
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +64,7 @@ void CDextraProtocol::Task(void)
     CDvLastFramePacket  *LastFrame;
 
     // any incoming packet ?
-    if ( m_Socket.Receive(Buffer, Ip, 20) )
+    if ( m_Socket6.Receive(Buffer, Ip, 10) || m_Socket4.Receive(Buffer, Ip, 10) )
     {
         // crack the packet
         if ( (Frame = IsValidDvFramePacket(Buffer)) != NULL )
@@ -143,7 +132,7 @@ void CDextraProtocol::Task(void)
                     {
                         // acknowledge the request
                         EncodeConnectAckPacket(&Buffer, ProtRev);
-                        m_Socket.Send(Buffer, Ip);
+                        Send(Buffer, Ip);
 
                         // create the client
                         CDextraClient *client = new CDextraClient(Callsign, Ip, ToLinkModule, ProtRev);
@@ -160,14 +149,14 @@ void CDextraProtocol::Task(void)
 
                     // deny the request
                     EncodeConnectNackPacket(&Buffer);
-                    m_Socket.Send(Buffer, Ip);
+                    Send(Buffer, Ip);
                 }
             }
             else
             {
                 // deny the request
                 EncodeConnectNackPacket(&Buffer);
-                m_Socket.Send(Buffer, Ip);
+                Send(Buffer, Ip);
             }
         }
         else if ( IsValidDisconnectPacket(Buffer, &Callsign) )
@@ -183,11 +172,11 @@ void CDextraProtocol::Task(void)
                 if ( client->GetProtocolRevision() == 1 )
                 {
                     EncodeDisconnectedPacket(&Buffer);
-                    m_Socket.Send(Buffer, Ip);
+                    Send(Buffer, Ip);
                 }
                 else if ( client->GetProtocolRevision() == 2 )
                 {
-                    m_Socket.Send(Buffer, Ip);
+                    Send(Buffer, Ip);
                 }
                // and remove it
                 clients->RemoveClient(client);
@@ -271,7 +260,7 @@ void CDextraProtocol::HandleQueue(void)
                     int n = packet->IsDvHeader() ? 5 : 1;
                     for ( int i = 0; i < n; i++ )
                     {
-                        m_Socket.Send(buffer, client->GetIp());
+                        Send(buffer, client->GetIp());
                     }
                 }
             }
@@ -303,7 +292,7 @@ void CDextraProtocol::HandleKeepalives(void)
     while ( (client = clients->FindNextClient(PROTOCOL_DEXTRA, it)) != NULL )
     {
         // send keepalive
-        m_Socket.Send(keepalive, client->GetIp());
+        Send(keepalive, client->GetIp());
 
         // client busy ?
         if ( client->IsAMaster() )
@@ -325,7 +314,7 @@ void CDextraProtocol::HandleKeepalives(void)
                 // no, disconnect
                 CBuffer disconnect;
                 EncodeDisconnectPacket(&disconnect, client->GetReflectorModule());
-                m_Socket.Send(disconnect, client->GetIp());
+                Send(disconnect, client->GetIp());
 
                 // remove it
                 std::cout << "DExtra client " << client->GetCallsign() << " keepalive timeout" << std::endl;
@@ -354,7 +343,7 @@ void CDextraProtocol::HandleKeepalives(void)
             CClients *clients = g_Reflector.GetClients();
             for ( auto cit=peer->cbegin(); cit!=peer->cend(); cit++ )
             {
-                m_Socket.Send(disconnect, (*cit)->GetIp());
+                Send(disconnect, (*cit)->GetIp());
             }
             g_Reflector.ReleaseClients();
 
@@ -387,7 +376,7 @@ void CDextraProtocol::HandlePeerLinks(void)
         {
             // send disconnect packet
             EncodeDisconnectPacket(&buffer, peer->GetReflectorModules()[0]);
-            m_Socket.Send(buffer, peer->GetIp());
+            Send(buffer, peer->GetIp());
             std::cout << "Sending disconnect packet to XRF peer " << peer->GetCallsign() << std::endl;
             // remove client
             peers->RemovePeer(peer);
@@ -408,7 +397,7 @@ void CDextraProtocol::HandlePeerLinks(void)
             (*it).ResolveIp();
             // send connect packet to re-initiate peer link
             EncodeConnectPacket(&buffer, (*it).GetModules());
-            m_Socket.Send(buffer, (*it).GetIp(), DEXTRA_PORT);
+            Send(buffer, (*it).GetIp(), DEXTRA_PORT);
             std::cout << "Sending connect packet to XRF peer " << (*it).GetCallsign() << " @ " << (*it).GetIp() << " for module " << (*it).GetModules()[1] << " (module " << (*it).GetModules()[0] << ")" << std::endl;
         }
     }

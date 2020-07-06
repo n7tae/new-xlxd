@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #ifndef cdplusprotocol_h
@@ -43,8 +43,7 @@ class CDPlusStreamCacheItem
 {
 public:
     CDPlusStreamCacheItem()     { m_iSeqCounter = 0; }
-    ~CDPlusStreamCacheItem()    {}
-    
+
     CDvHeaderPacket m_dvHeader;
     uint8           m_iSeqCounter;
 };
@@ -52,12 +51,6 @@ public:
 class CDplusProtocol : public CProtocol
 {
 public:
-    // constructor
-    CDplusProtocol() {};
-    
-    // destructor
-    virtual ~CDplusProtocol() {};
-    
     // initialization
     bool Init(void);
 
@@ -68,13 +61,13 @@ protected:
     // queue helper
     void HandleQueue(void);
     void SendDvHeader(CDvHeaderPacket *, CDplusClient *);
-    
+
     // keepalive helpers
     void HandleKeepalives(void);
-    
+
     // stream helpers
     bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &);
-    
+
     // packet decoding helpers
     bool                IsValidConnectPacket(const CBuffer &);
     bool                IsValidLoginPacket(const CBuffer &, CCallsign *);
@@ -83,7 +76,7 @@ protected:
     CDvHeaderPacket     *IsValidDvHeaderPacket(const CBuffer &);
     CDvFramePacket      *IsValidDvFramePacket(const CBuffer &);
     CDvLastFramePacket  *IsValidDvLastFramePacket(const CBuffer &);
-    
+
     // packet encoding helpers
     void                EncodeKeepAlivePacket(CBuffer *);
     void                EncodeLoginAckPacket(CBuffer *);
@@ -93,11 +86,11 @@ protected:
     bool                EncodeDvFramePacket(const CDvFramePacket &, CBuffer *) const;
     bool                EncodeDvLastFramePacket(const CDvLastFramePacket &, CBuffer *) const;
 
-    
+
 protected:
     // for keep alive
     CTimePoint          m_LastKeepaliveTime;
-    
+
     // for queue header caches
     std::array<CDPlusStreamCacheItem, NB_OF_MODULES>    m_StreamsCache;
 };

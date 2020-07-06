@@ -54,11 +54,11 @@ class CDmrmmdvmStreamCacheItem
 public:
     CDmrmmdvmStreamCacheItem()     {}
     ~CDmrmmdvmStreamCacheItem()    {}
-    
+
     CDvHeaderPacket m_dvHeader;
     CDvFramePacket  m_dvFrame0;
     CDvFramePacket  m_dvFrame1;
-    
+
     uint8  m_uiSeqId;
 };
 
@@ -66,28 +66,22 @@ public:
 class CDmrmmdvmProtocol : public CProtocol
 {
 public:
-    // constructor
-    CDmrmmdvmProtocol() {};
-    
-    // destructor
-    virtual ~CDmrmmdvmProtocol() {};
-    
     // initialization
     bool Init(void);
-    
+
     // task
     void Task(void);
-    
+
 protected:
     // queue helper
     void HandleQueue(void);
-    
+
     // keepalive helpers
     void HandleKeepalives(void);
-    
+
     // stream helpers
     bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &, uint8, uint8);
-    
+
     // packet decoding helpers
     bool IsValidConnectPacket(const CBuffer &, CCallsign *, const CIp &);
     bool IsValidAuthenticationPacket(const CBuffer &, CCallsign *, const CIp &);
@@ -99,7 +93,7 @@ protected:
     bool IsValidDvHeaderPacket(const CBuffer &, CDvHeaderPacket **, uint8 *, uint8 *);
     bool IsValidDvFramePacket(const CBuffer &, CDvFramePacket **);
     bool IsValidDvLastFramePacket(const CBuffer &, CDvLastFramePacket **);
-    
+
     // packet encoding helpers
     void EncodeKeepAlivePacket(CBuffer *, CClient *);
     void EncodeAckPacket(CBuffer *, const CCallsign &);
@@ -109,11 +103,11 @@ protected:
     bool EncodeDvHeaderPacket(const CDvHeaderPacket &, uint8, CBuffer *) const;
     void EncodeDvPacket(const CDvHeaderPacket &, const CDvFramePacket &, const CDvFramePacket &, const CDvFramePacket &, uint8, CBuffer *) const;
     void EncodeDvLastPacket(const CDvHeaderPacket &, uint8, CBuffer *) const;
-  
+
     // dmr DstId to Module helper
     char DmrDstIdToModule(uint32) const;
     uint32 ModuleToDmrDestId(char) const;
-    
+
     // Buffer & LC helpers
     void AppendVoiceLCToBuffer(CBuffer *, uint32) const;
     void AppendTerminatorLCToBuffer(CBuffer *, uint32) const;
@@ -125,13 +119,13 @@ protected:
 protected:
     // for keep alive
     CTimePoint          m_LastKeepaliveTime;
-    
+
     // for stream id
     uint16              m_uiStreamId;
-    
+
     // for queue header caches
     std::array<CDmrmmdvmStreamCacheItem, NB_OF_MODULES>    m_StreamsCache;
-    
+
     // for authentication
     uint32              m_uiAuthSeed;
 };

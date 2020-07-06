@@ -47,29 +47,19 @@ CYsfProtocol::CYsfProtocol()
 
 bool CYsfProtocol::Init(void)
 {
-    bool ok;
-
     // base class
-    ok = CProtocol::Init();
-
-    // update the reflector callsign
-    m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)"YSF", 3);
-
-    // create our socket
-    ok &= m_Socket.Open(YSF_PORT);
-    if ( !ok )
-    {
-        std::cout << "Error opening socket on port UDP" << YSF_PORT << " on ip " << g_Reflector.GetListenIp() << std::endl;
-    }
+    if (! Initialize("YSF", YSF_PORT))
+		return false;
 
     // init the wiresx cmd handler
-    ok &= m_WiresxCmdHandler.Init();
+    if (! m_WiresxCmdHandler.Init())
+		return false;
 
     // update time
     m_LastKeepaliveTime.Now();
 
     // done
-    return ok;
+    return true;
 }
 
 void CYsfProtocol::Close(void)
@@ -105,13 +95,13 @@ void CYsfProtocol::Task(void)
         {
             CWiresxPacket packet = queue->front();
             queue->pop();
-            m_Socket.Send(packet.GetBuffer(), packet.GetIp());
+            Send(packet.GetBuffer(), packet.GetIp());
         }
         m_WiresxCmdHandler.ReleasePacketQueue();
     }
 
     // handle incoming packets
-    if ( m_Socket.Receive(Buffer, Ip, 20) )
+    if ( m_Socket6.Receive(Buffer, Ip, 10) || m_Socket4.Receive(Buffer, Ip, 10) )
     {
         // crack the packet
         if ( IsValidDvPacket(Buffer, &Fich) )
@@ -164,7 +154,7 @@ void CYsfProtocol::Task(void)
             {
                 // acknowledge the request
                 EncodeConnectAckPacket(&Buffer);
-                m_Socket.Send(Buffer, Ip);
+                Send(Buffer, Ip);
 
                 // add client if needed
                 CClients *clients = g_Reflector.GetClients();
@@ -207,7 +197,7 @@ void CYsfProtocol::Task(void)
             std::cout << "YSF server status enquiry from " << Ip   << std::endl;
             // reply
             EncodeServerStatusPacket(&Buffer);
-            m_Socket.Send(Buffer, Ip);
+            Send(Buffer, Ip);
         }
         else
         {
@@ -359,7 +349,7 @@ void CYsfProtocol::HandleQueue(void)
                 if ( !client->IsAMaster() && (client->GetReflectorModule() == packet->GetModuleId()) )
                 {
                     // no, send the packet
-                    m_Socket.Send(buffer, client->GetIp());
+                    Send(buffer, client->GetIp());
 
                 }
             }
