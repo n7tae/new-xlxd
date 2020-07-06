@@ -42,13 +42,6 @@ CVersion::CVersion(int iMajor, int iMinor, int iRevision)
     m_iRevision = iRevision;
 }
 
-CVersion::CVersion(const CVersion &Version)
-{
-    m_iMajor = Version.m_iMajor;
-    m_iMinor = Version.m_iMinor;
-    m_iRevision = Version.m_iRevision;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////
 // comparaison
 
@@ -84,4 +77,3 @@ bool CVersion::operator ==(const CVersion &Version) const
              (Version.m_iMinor == m_iMinor) &&
              (Version.m_iRevision == m_iRevision )) ;
 }
-

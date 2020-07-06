@@ -36,11 +36,7 @@ public:
     // constructor
     CVersion();
     CVersion(int, int, int);
-    CVersion(const CVersion &);
-    
-    // destructor
-    virtual ~CVersion() {}
-    
+
     // get
     int GetMajor(void) const        { return m_iMajor; }
     int GetMinor(void) const        { return m_iMinor; }
@@ -48,7 +44,7 @@ public:
 
     // comparaison
     bool IsEqualOrHigherTo(const CVersion &) const;
-    
+
     // operator
     bool operator ==(const CVersion &) const;
 

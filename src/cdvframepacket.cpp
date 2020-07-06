@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 
@@ -84,17 +84,6 @@ CDvFramePacket::CDvFramePacket
     ::memcpy(m_uiDvData, dstardvdata, sizeof(m_uiDvData));
     ::memcpy(m_uiAmbePlus, dmrambe, sizeof(m_uiAmbePlus));
     ::memcpy(m_uiDvSync, dmrsync, sizeof(m_uiDvSync));
-}
-
-// copy constructor
-
-CDvFramePacket::CDvFramePacket(const CDvFramePacket &DvFrame)
-    : CPacket(DvFrame)
-{
-    ::memcpy(m_uiAmbe, DvFrame.m_uiAmbe, sizeof(m_uiAmbe));
-    ::memcpy(m_uiDvData, DvFrame.m_uiDvData, sizeof(m_uiDvData));
-    ::memcpy(m_uiAmbePlus, DvFrame.m_uiAmbePlus, sizeof(m_uiAmbePlus));
-    ::memcpy(m_uiDvSync, DvFrame.m_uiDvSync, sizeof(m_uiDvSync));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

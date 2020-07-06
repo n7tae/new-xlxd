@@ -53,14 +53,14 @@ CUsb3xxxInterface::CUsb3xxxInterface(uint32 uiVid, uint32 uiPid, const char *szD
 CUsb3xxxInterface::~CUsb3xxxInterface()
 {
     // delete m_SpeechQueues
-    for ( int i = 0; i < m_SpeechQueues.size(); i++ )
+    for ( unsigned i = 0; i < m_SpeechQueues.size(); i++ )
     {
         delete m_SpeechQueues[i];
     }
     m_SpeechQueues.clear();
-    
+
     // delete m_ChannelQueues
-    for ( int i = 0; i < m_ChannelQueues.size(); i++ )
+    for ( unsigned i = 0; i < m_ChannelQueues.size(); i++ )
     {
         delete m_ChannelQueues[i];
     }
@@ -73,7 +73,7 @@ CUsb3xxxInterface::~CUsb3xxxInterface()
 bool CUsb3xxxInterface::Init(void)
 {
     bool ok = true;
-    
+
     // open USB device
     std::cout << "Opening " << m_szDeviceName << ":" << m_szDeviceSerial << " device" << std::endl;
     if ( ok &= OpenDevice() )
@@ -94,20 +94,20 @@ bool CUsb3xxxInterface::Init(void)
         }
     }
     std::cout << std::endl;
-  
+
     // create our queues
     for ( int i = 0; i < GetNbChannels(); i++ )
     {
         m_SpeechQueues.push_back(new CPacketQueue);
         m_ChannelQueues.push_back(new CPacketQueue);
     }
-    
+
     // base class
     if ( ok )
     {
         ok &= CVocodecInterface::Init();
     }
-    
+
     // done
     return ok;
 }
@@ -125,12 +125,12 @@ void CUsb3xxxInterface::Task(void)
     CAmbePacket     AmbePacket;
     CVoicePacket    VoicePacket;
     bool            done;
-    
+
     // TODO :
     //      preserve packets PIDs, so the transcoded CAmbePacket returned
     //      to CStream client is garantied to have the same PID
     //      than the corresponding incoming packet
-    
+
     // process the device incoming packet
     // get all packets from device and push them
     // to the relevant clients queues
@@ -142,7 +142,7 @@ void CUsb3xxxInterface::Task(void)
             // as we get a speech packet, it means that the device
             // channel fifo input decreased by 1
             m_iChannelFifolLevel = MAX(0, m_iChannelFifolLevel-1);
-            
+
             // push back to relevant channel voice queue
             // our incoming channel packet has now been through the decoder
             // find the coupled channel encoder and push to it's queue
@@ -177,18 +177,18 @@ void CUsb3xxxInterface::Task(void)
             }
         }
     }
-    
+
     // process the streams (channels) incoming queue
     // make sure that packets from different channels
     // are interlaced so to keep the device fifo busy
     do
     {
         done = true;
-        for ( int i = 0; i < m_Channels.size(); i++)
+        for ( unsigned i = 0; i < m_Channels.size(); i++)
         {
             // get channel
             Channel = m_Channels[i];
-            
+
             // any packet in voice queue ?
             if ( Channel->IsInterfaceOut(this) )
             {
@@ -209,7 +209,7 @@ void CUsb3xxxInterface::Task(void)
                 }
                 Channel->ReleaseVoiceQueue();
             }
-            
+
             // any packet in ambe queue for us ?
             if ( Channel->IsInterfaceIn(this) )
             {
@@ -232,7 +232,7 @@ void CUsb3xxxInterface::Task(void)
             }
         }
     } while (!done);
-    
+
     // process device incoming queues (aka to device)
     // interlace speech and channels packets
     // and post to final device queue
@@ -264,9 +264,9 @@ void CUsb3xxxInterface::Task(void)
                 // done = false;
             }
         }
-        
+
     } while (!done);
-    
+
     // process device queue to feed hardware
     // make sure that device fifo is fed all the time
     int fifoSize = GetDeviceFifoSize();
@@ -276,7 +276,7 @@ void CUsb3xxxInterface::Task(void)
         // if device fifo level is zero (device idle)
         // wait that at least 3 packets are in incoming
         // queue before restarting
-        if ( ((m_iSpeechFifolLevel+m_iChannelFifolLevel) > 0) || (m_DeviceQueue.size() >= (fifoSize+1)) )
+        if ( ((m_iSpeechFifolLevel+m_iChannelFifolLevel) > 0) || (m_DeviceQueue.size() >= unsigned(fifoSize+1)) )
         {
             // any packet to send ?
             if ( m_DeviceQueue.size() > 0 )
@@ -321,7 +321,7 @@ void CUsb3xxxInterface::Task(void)
             }
         }
     } while (!done);
-    
+
     // and wait a bit
     CTimePoint::TaskSleepFor(2);
 }
@@ -411,13 +411,13 @@ bool CUsb3xxxInterface::ConfigureChannel(uint8 pkt_ch, const uint8 *pkt_ratep, i
         PKT_GAIN,   0x00,0x00,
         PKT_INIT,   0x03
     };
-    
+
     // update packet content
     txpacket[4] = pkt_ch;
     :: memcpy(&(txpacket[14]), pkt_ratep, 12);
     txpacket[33] = (uint8)(signed char)in_gain;
     txpacket[34] = (uint8)(signed char)out_gain;
-    
+
     // write packet
     if ( FTDI_write_packet(m_FtdiHandle, txpacket, sizeof(txpacket)) )
     {
@@ -426,7 +426,7 @@ bool CUsb3xxxInterface::ConfigureChannel(uint8 pkt_ch, const uint8 *pkt_ratep, i
         ok = ((len == 18) && (rxpacket[20] == PKT_INIT) &&(rxpacket[21] == 0x00) );
     }
     return ok;
-    
+
 }
 
 
@@ -437,7 +437,7 @@ bool CUsb3xxxInterface::ReadBuffer(CBuffer *buffer)
 {
     bool ok = false;
     int n;
-   
+
     // any byte in tx queue ?
     if  ( FT_GetQueueStatus(m_FtdiHandle, (LPDWORD)&n) == FT_OK )
     {
@@ -462,7 +462,7 @@ bool CUsb3xxxInterface::WriteBuffer(const CBuffer &buffer)
 int CUsb3xxxInterface::FTDI_read_packet(FT_HANDLE ftHandle, char *pkt, int maxlen)
 {
     int plen;
-    
+
     // first read 4 bytes header
     if ( FTDI_read_bytes(ftHandle, pkt, 4) )
     {
@@ -491,14 +491,14 @@ bool CUsb3xxxInterface::FTDI_read_bytes(FT_HANDLE ftHandle, char *buffer, int le
     // this relies on FT_SetTimouts() mechanism
     int n;
     bool ok = false;
-    
+
     ok = (FT_Read(ftHandle, (LPVOID)buffer, len, (LPDWORD)&n) == FT_OK) && (n == len);
     if ( !ok )
     {
         //FT_Purge(ftHandle, FT_PURGE_RX);
         std::cout << "FTDI_read_bytes(" << len << ") failed : " << n << std::endl;
     }
-    
+
     return ok;
 }
 
@@ -507,7 +507,7 @@ bool CUsb3xxxInterface::FTDI_write_packet(FT_HANDLE ft_handle, const char *pkt, 
     FT_STATUS ftStatus;
     bool  ok = true;
     int   nwritten;
-    
+
     if ( len > 0 )
     {
         ftStatus = FT_Write(m_FtdiHandle, (LPVOID *)pkt, (DWORD)len, (LPDWORD)&nwritten);

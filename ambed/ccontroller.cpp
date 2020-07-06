@@ -76,9 +76,9 @@ bool CController::Init(void)
     m_bStopThread = false;
 
     // create our socket
-	CIp ip(strchr(straddress, ':') ? AF_INET6 : AF_INET, TRANSCODER_PORT, straddress);
+	CIp ip(strchr(m_addr, ':') ? AF_INET6 : AF_INET, TRANSCODER_PORT, m_addr);
 	if (! ip.IsSet()) {
-		std::cerr << "IP initialization failed for " << straddress << std::endl;
+		std::cerr << "IP initialization failed for " << m_addr << std::endl;
 		return false;
 	}
     if (! m_Socket.Open(ip))
@@ -128,7 +128,7 @@ void CController::Task(void)
     CStream     *Stream;
 
     // anything coming in from codec client ?
-    if ( m_Socket.Receive(Buffer, Ip, 20) != -1 )
+    if ( m_Socket.Receive(Buffer, Ip, 20) )
     {
         // crack packet
         if ( IsValidOpenstreamPacket(Buffer, &Callsign, &CodecIn, &CodecOut) )

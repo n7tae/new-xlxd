@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #include "main.h"
@@ -85,23 +85,6 @@ CDvHeaderPacket::CDvHeaderPacket(const CCallsign &my, const CCallsign &ur, const
     m_csMY = my;
 }
 
-
-// copy constructor
-
-CDvHeaderPacket::CDvHeaderPacket(const CDvHeaderPacket &Header)
-: CPacket(Header)
-{
-    m_uiFlag1 = Header.m_uiFlag1;
-    m_uiFlag2 = Header.m_uiFlag2;
-    m_uiFlag3 = Header.m_uiFlag3;
-    m_csUR = Header.m_csUR;
-    m_csRPT1 = Header.m_csRPT1;
-    m_csRPT2 = Header.m_csRPT2;
-    m_csMY = Header.m_csMY;
-    m_uiCrc = Header.m_uiCrc;
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////////////
 // virtual duplication
 
@@ -134,11 +117,11 @@ void CDvHeaderPacket::ConvertToDstarStruct(struct dstar_header *buffer) const
 bool CDvHeaderPacket::IsValid(void) const
 {
     bool valid = CPacket::IsValid();
-    
+
     valid &= m_csRPT1.IsValid();
     valid &= m_csRPT2.IsValid();
     valid &= m_csMY.IsValid();
-    
+
     return valid;
 }
 
@@ -168,7 +151,7 @@ CDvHeaderPacket::operator const char *() const
         (const char *)m_csRPT1,
         (const char *)m_csRPT2,
         (const char *)m_csMY);
-        
+
     return m_sz;
 }
 #endif

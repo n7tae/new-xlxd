@@ -43,12 +43,3 @@ CWiresxCmd::CWiresxCmd(const CIp &Ip, const CCallsign &Callsign, int iCmd, int i
     m_iArg = iArg;
     m_Time.Now();
 }
-
-CWiresxCmd::CWiresxCmd(const CWiresxCmd &Cmd)
-{
-    m_Ip = Cmd.m_Ip;
-    m_Callsign = Cmd.m_Callsign;
-    m_iCmd = Cmd.m_iCmd;
-    m_iArg = Cmd.m_iArg;
-    m_Time = Cmd.m_Time;
-}

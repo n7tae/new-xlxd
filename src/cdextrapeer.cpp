@@ -44,7 +44,7 @@ CDextraPeer::CDextraPeer(const CCallsign &callsign, const CIp &ip, const char *m
     std::cout << "Adding DExtra peer" << std::endl;
 
     // and construct the DExtra clients
-    for ( int i = 0; i < ::strlen(modules); i++ )
+    for ( unsigned i = 0; i < ::strlen(modules); i++ )
     {
         // create
         CDextraClient *client = new CDextraClient(callsign, ip, modules[i], version.GetMajor());

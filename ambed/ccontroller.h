@@ -50,10 +50,10 @@ public:
     void Unlock(void)                   { m_Mutex.unlock(); }
 
     // get
-    const CIp &GetListenIp(void) const  { return straddress; }
+    const char *GetListenIp(void) const { return m_addr; }
 
     // set
-    void SetListenIp(const char *str)     { straddress = str; }
+    void SetListenIp(const char *str)   { memset(m_addr, 0, INET6_ADDRSTRLEN); strncpy(m_addr, str, INET6_ADDRSTRLEN-1); }
 
     // streams management
     CStream *OpenStream(const CCallsign &, const CIp &, uint8, uint8);
@@ -81,8 +81,8 @@ protected:
 
 protected:
     // control socket
-	const char *straddress;
-    CUdpSocket  m_Socket;
+	char m_addr[INET6_ADDRSTRLEN];
+    CUdpSocket m_Socket;
 
     // streams
     uint16               m_uiLastStreamId;

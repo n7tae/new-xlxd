@@ -43,7 +43,7 @@ CBmPeer::CBmPeer(const CCallsign &callsign, const CIp &ip, const char *modules, 
     std::cout << "Adding BM peer" << std::endl;
 
     // and construct all xlx clients
-    for ( int i = 0; i < ::strlen(modules); i++ )
+    for ( unsigned i = 0; i < ::strlen(modules); i++ )
     {
         // create
         CBmClient *client = new CBmClient(callsign, ip, modules[i]);

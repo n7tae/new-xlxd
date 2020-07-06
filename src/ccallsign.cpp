@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #include "main.h"
@@ -48,7 +48,7 @@ CCallsign::CCallsign(const char *sz, uint32 dmrid)
     ::memset(m_Suffix, ' ', sizeof(m_Suffix));
     m_Module = ' ';
     m_uiDmrid = dmrid;
-    
+
     // and populate
     if ( ::strlen(sz) > 0 )
     {
@@ -82,14 +82,6 @@ CCallsign::CCallsign(const char *sz, uint32 dmrid)
     }
 }
 
-CCallsign::CCallsign(const CCallsign &callsign)
-{
-    ::memcpy(m_Callsign, callsign.m_Callsign, sizeof(m_Callsign));
-    ::memcpy(m_Suffix, callsign.m_Suffix, sizeof(m_Suffix));
-    m_Module = callsign.m_Module;
-    m_uiDmrid = callsign.m_uiDmrid;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////
 // status
 
@@ -97,7 +89,7 @@ bool CCallsign::IsValid(void) const
 {
     bool valid = true;
     int i;
-    
+
     // callsign
     // first 3 chars are letter or number but cannot be all number
     int iNum = 0;
@@ -115,21 +107,21 @@ bool CCallsign::IsValid(void) const
     {
         valid &= IsLetter(m_Callsign[i]) || IsNumber(m_Callsign[i]) || IsSpace(m_Callsign[i]);
     }
-    
+
     // prefix
     // all chars are number, uppercase or space
     for ( i = 0; i < CALLSUFFIX_LEN; i++ )
     {
         valid &= IsLetter(m_Suffix[i]) || IsNumber(m_Suffix[i]) || IsSpace(m_Suffix[i]);
     }
-    
+
     // module
     // is an letter or space
     valid &= IsLetter(m_Module) || IsSpace(m_Module);
-    
+
     // dmrid is not tested, as it can be NULL
     // if station does is not dmr registered
-    
+
     // done
     return valid;
 }
@@ -174,14 +166,14 @@ void CCallsign::SetCallsign(const uint8 *buffer, int len, bool UpdateDmrid)
     ::memset(m_Callsign, ' ', sizeof(m_Callsign));
     m_Module = ' ';
     ::memcpy(m_Callsign, buffer, MIN(len, sizeof(m_Callsign)-1));
-    for ( int i = 0; i < sizeof(m_Callsign); i++ )
+    for ( unsigned i = 0; i < sizeof(m_Callsign); i++ )
     {
         if ( m_Callsign[i] == 0 )
         {
             m_Callsign[i] = ' ';
         }
     }
-    if ( (len >= sizeof(m_Callsign)) && ((char)buffer[sizeof(m_Callsign)-1] != 0) )
+    if ( (len >= (int)sizeof(m_Callsign)) && ((char)buffer[sizeof(m_Callsign)-1] != 0) )
     {
         m_Module = (char)buffer[sizeof(m_Callsign)-1];
     }
@@ -244,7 +236,7 @@ void CCallsign::SetSuffix(const uint8 *buffer, int len)
 
 void CCallsign::PatchCallsign(int off, const uint8 *patch, int len)
 {
-    if ( off < sizeof(m_Callsign) )
+    if ( off < CALLSIGN_LEN )
     {
         ::memcpy(m_Callsign, patch, MIN(len, sizeof(m_Callsign) - off));
     }
@@ -265,7 +257,7 @@ void CCallsign::GetCallsign(uint8 *buffer) const
 
 void CCallsign::GetCallsignString(char *sz) const
 {
-    int i;
+    unsigned i;
     for ( i = 0; (i < sizeof(m_Callsign)) && (m_Callsign[i] != ' '); i++ )
     {
         sz[i] = m_Callsign[i];
@@ -290,8 +282,8 @@ bool CCallsign::HasSameCallsignWithWildcard(const CCallsign &callsign) const
 {
     bool same = true;
     bool done = false;
-    
-    for ( int i = 0; (i < sizeof(m_Callsign)) && same && !done; i++ )
+
+    for ( unsigned i = 0; (i < sizeof(m_Callsign)) && same && !done; i++ )
     {
         if ( !(done = ((m_Callsign[i] == '*') || (callsign[i] == '*'))) )
         {
@@ -326,9 +318,9 @@ bool CCallsign::operator ==(const CCallsign &callsign) const
 CCallsign::operator const char *() const
 {
 	char *sz = (char *)(const char *)m_sz;
-	
+
 	// empty
-	::memset(sz, 0, sizeof(m_sz));	
+	::memset(sz, 0, sizeof(m_sz));
     // callsign
     sz[CALLSIGN_LEN] = 0;
     ::memcpy(sz, m_Callsign, sizeof(m_Callsign));
@@ -342,8 +334,8 @@ CCallsign::operator const char *() const
     {
         ::strcat(sz, " / ");
         ::strncat(sz, m_Suffix, sizeof(m_Suffix));
-    }  
-      
+    }
+
     // done
     return m_sz;
 }

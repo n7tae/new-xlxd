@@ -34,12 +34,6 @@ CNotification::CNotification()
     m_iId = NOTIFICATION_NONE;
 }
 
-CNotification::CNotification(const CNotification &Notification)
-{
-    m_iId = Notification.m_iId;
-    m_Callsign = Notification.m_Callsign;
-}
-
 CNotification::CNotification(int iId)
 {
     m_iId = iId;

@@ -36,9 +36,9 @@ DATADIR=/var/lib/xlxd
 CC=g++
 
 ifdef DEBUG
-CFLAGS=-ggdb3 -c -std=c++11 -MMD -MD -c
+CFLAGS=-ggdb3 -W -c -std=c++11 -MMD -MD -c
 else
-CFLAGS=-c -std=c++11 -MMD -MD -c
+CFLAGS=-c -W -std=c++11 -MMD -MD -c
 endif
 ifdef NOXLX
 CFLAGS += -DNO_XLX

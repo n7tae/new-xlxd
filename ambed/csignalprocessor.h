@@ -42,7 +42,7 @@ public:
     void Process(uint8* voice, int length);
 
 private:
-    std::vector<CSampleBlockProcessor *> m_sampleProcessors;
+    std::list<CSampleBlockProcessor *> m_sampleProcessors;
 };
 
 #endif /* csignalprocessor_h */

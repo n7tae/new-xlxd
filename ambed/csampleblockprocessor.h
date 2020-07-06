@@ -31,6 +31,7 @@
 class CSampleBlockProcessor
 {
 public:
+	virtual ~CSampleBlockProcessor() {}
     //processing
     virtual void ProcessSampleBlock(uint8* voice, int length) = 0;
 };

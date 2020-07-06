@@ -324,7 +324,7 @@ void CYsfProtocol::HandleQueue(void)
         {
             // update local stream cache or send triplet when needed
             uint8 sid = packet->GetYsfPacketSubId();
-            if ( (sid >= 0) && (sid <= 4) )
+            if (sid <= 4)
             {
                 //std::cout << (int)sid;
                 m_StreamsCache[iModId].m_dvFrames[sid] = CDvFramePacket((const CDvFramePacket &)*packet);
