@@ -56,6 +56,7 @@ CWiresxCmdHandler::~CWiresxCmdHandler()
     {
         m_pThread->join();
         delete m_pThread;
+		m_pThread = NULL;
     }
 
     // empty queue

@@ -66,6 +66,7 @@ CCodecStream::~CCodecStream()
     {
         m_pThread->join();
         delete m_pThread;
+		m_pThread = NULL;
     }
 }
 
