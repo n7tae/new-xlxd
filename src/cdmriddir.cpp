@@ -85,8 +85,9 @@ void CDmridDir::Thread(CDmridDir *This)
 {
     while (This->keep_running)
     {
-        // Wait 30 seconds
-        CTimePoint::TaskSleepFor(DMRIDDB_REFRESH_RATE * 60000);
+        // Wait DMRIDDB_REFRESH_RATE minutes
+		for (int i=0; i<30*DMRIDDB_REFRESH_RATE && This->keep_running; i++)
+        	CTimePoint::TaskSleepFor(2000);
 
         // have lists files changed ?
         if ( This->NeedReload() )

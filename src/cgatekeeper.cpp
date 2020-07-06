@@ -51,6 +51,7 @@ CGateKeeper::~CGateKeeper()
     {
         m_pThread->join();
         delete m_pThread;
+		m_pThread = NULL;
     }
 }
 
@@ -180,7 +181,8 @@ void CGateKeeper::Thread(CGateKeeper *This)
     while (This->keep_running)
     {
         // Wait 30 seconds
-        CTimePoint::TaskSleepFor(30000);
+		for (int i=0; i<15 && This->keep_running; i++)
+        	CTimePoint::TaskSleepFor(2000);
 
         // have lists files changed ?
         if ( This->m_NodeWhiteList.NeedReload() )

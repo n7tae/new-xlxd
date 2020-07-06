@@ -405,7 +405,8 @@ void CReflector::XmlReportThread(CReflector *This)
 #endif
 
         // and wait a bit
-        CTimePoint::TaskSleepFor(XML_UPDATE_PERIOD * 1000);
+		for (int i=0; i< XML_UPDATE_PERIOD && This->keep_running; i++)
+        	CTimePoint::TaskSleepFor(1000);
     }
 }
 

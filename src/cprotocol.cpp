@@ -118,7 +118,7 @@ void CProtocol::Thread(CProtocol *This)
 
 void CProtocol::Close(void)
 {
-    keep_running = true;
+    keep_running = false;
     if ( m_pThread != NULL )
     {
         m_pThread->join();
