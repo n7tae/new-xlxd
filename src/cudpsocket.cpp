@@ -25,7 +25,6 @@
 
 #include <string.h>
 #include "main.h"
-#include "creflector.h"
 #include "cudpsocket.h"
 
 

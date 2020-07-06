@@ -4,6 +4,7 @@
 //
 //  Created by Jean-Luc Deltombe (LX3JL) on 15/04/2017.
 //  Copyright © 2015 Jean-Luc Deltombe (LX3JL). All rights reserved.
+//  Copyright © 2020 Thomas A. Early, N7TAE
 //
 // ----------------------------------------------------------------------------
 //    This file is part of ambed.
@@ -35,7 +36,6 @@ CController::CController()
 {
     m_bStopThread = false;
     m_pThread = NULL;
-    m_Ip = CIp("127.0.0.1");
     m_uiLastStreamId = 0;
 }
 
@@ -46,18 +46,18 @@ CController::~CController()
 {
     // close socket
     m_Socket.Close();
-    
+
     // close all streams
     m_Mutex.lock();
     {
-        for ( int i = 0; i < m_Streams.size(); i++ )
+        for ( auto it=m_Streams.begin(); it!=m_Streams.end(); it++ )
         {
-            delete m_Streams[i];
+            delete *it;
         }
         m_Streams.clear();
-        
+
     }
-    
+
     m_Mutex.unlock();
     m_bStopThread = true;
     if ( m_pThread != NULL )
@@ -72,24 +72,23 @@ CController::~CController()
 
 bool CController::Init(void)
 {
-    bool ok;
-    
     // reset stop flag
     m_bStopThread = false;
-    
+
     // create our socket
-    ok = m_Socket.Open(m_Ip, TRANSCODER_PORT);
-    if ( ok )
+	CIp ip(strchr(straddress, ':') ? AF_INET6 : AF_INET, TRANSCODER_PORT, straddress);
+	if (! ip.IsSet()) {
+		std::cerr << "IP initialization failed for " << straddress << std::endl;
+		return false;
+	}
+    if (! m_Socket.Open(ip))
     {
-        // start  thread;
-        m_pThread = new std::thread(CController::Thread, this);
+        std::cout << "Error opening socket on port UDP" << TRANSCODER_PORT << " on ip " << ip.GetAddress() << std::endl;
+		return false;
     }
-    else
-    {
-        std::cout << "Error opening socket on port UDP" << TRANSCODER_PORT << " on ip " << m_Ip << std::endl;
-    }
-    
-    // done
+    // start  thread;
+    m_pThread = new std::thread(CController::Thread, this);
+
     return true;
 }
 
@@ -127,18 +126,18 @@ void CController::Task(void)
     uint8       CodecOut;
     uint16      StreamId;
     CStream     *Stream;
-    
+
     // anything coming in from codec client ?
-    if ( m_Socket.Receive(&Buffer, &Ip, 20) != -1 )
+    if ( m_Socket.Receive(Buffer, Ip, 20) != -1 )
     {
         // crack packet
         if ( IsValidOpenstreamPacket(Buffer, &Callsign, &CodecIn, &CodecOut) )
         {
             std::cout << "Stream Open from " << Callsign << std::endl;
-            
+
             // try create the stream
             Stream = OpenStream(Callsign, Ip, CodecIn, CodecOut);
-            
+
             // send back details
             if ( Stream != NULL )
             {
@@ -154,8 +153,8 @@ void CController::Task(void)
         {
             // close the stream
             CloseStream(StreamId);
-            
-            std::cout << "Stream " << (int)StreamId << " closed" << std::endl;            
+
+            std::cout << "Stream " << (int)StreamId << " closed" << std::endl;
         }
         else if ( IsValidKeepAlivePacket(Buffer, &Callsign) )
         {
@@ -165,38 +164,24 @@ void CController::Task(void)
             m_Socket.Send(Buffer, Ip);
         }
     }
-    
-    
-    // HandleTimout/keepalive
-    bool timeout;
-    do
-    {
-        // init loop stuffs
-        timeout = false;
-        CStream *stream = NULL;
-        
-        // any inactive streams?
-        Lock();
-        {
-            for ( int i = 0; (i < m_Streams.size()) && !timeout; i++ )
-            {
-                if ( !(m_Streams[i]->IsActive()) )
-                {
-                    timeout = true;
-                    stream = m_Streams[i];
-                    std::cout << "Stream " << (int)m_Streams[i]->GetId() << " activity timeout " << std::endl;
-                }
-            }
-        }
-        Unlock();
-        
-        // if any streams timeout, close it
-        // this cannot be done in above loop as it suppress it from array
-        if ( timeout )
-        {
-            CloseStream(stream);
-        }
-    } while (timeout);
+
+	// any inactive streams?
+	Lock();
+	for ( auto it=m_Streams.begin(); it!=m_Streams.end(); )
+	{
+		if ( !(*it)->IsActive() )
+		{
+			std::cout << "Stream " << (*it)->GetId() << " activity timeout " << std::endl;
+			(*it)->Close();
+			delete *it;
+			it = m_Streams.erase(it);
+		}
+		else
+		{
+			it++;
+		}
+	}
+	Unlock();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -205,7 +190,7 @@ void CController::Task(void)
 CStream *CController::OpenStream(const CCallsign &Callsign, const CIp &Ip, uint8 CodecIn, uint8 CodecOut)
 {
     CStream *stream = NULL;
-    
+
     // create a new stream
     m_uiLastStreamId = (m_uiLastStreamId + 1);
     m_uiLastStreamId = (m_uiLastStreamId == NB_MAX_STREAMS+1) ? 1 : m_uiLastStreamId;
@@ -223,56 +208,50 @@ CStream *CController::OpenStream(const CCallsign &Callsign, const CIp &Ip, uint8
         delete stream;
         stream = NULL;
     }
-    
+
     // done
     return stream;
 }
 
 void CController::CloseStream(CStream *stream)
 {
-    Lock();
-    {
-        // look for the stream
-        bool found = false;
-        for ( int i = 0; (i < m_Streams.size()) && !found; i++ )
-        {
-            // compare object pointers
-            if ( (m_Streams[i]) ==  stream )
-            {
-                // close it
-                m_Streams[i]->Close();
-                // remove it
-                //std::cout << "Stream " << m_Streams[i]->GetId() << " removed" << std::endl;
-                delete m_Streams[i];
-                m_Streams.erase(m_Streams.begin()+i);
-                found = true;
-            }
-        }
-    }
-    Unlock();
+	Lock();
+	// look for the stream
+	for ( auto it=m_Streams.begin(); it!=m_Streams.end(); it++ )
+	{
+		// compare object pointers
+		if ( *it == stream )
+		{
+			// close it
+			(*it)->Close();
+			// remove it
+			//std::cout << "Stream " << m_Streams[i]->GetId() << " removed" << std::endl;
+			delete *it;
+			m_Streams.erase(it);
+			break;
+		}
+	}
+	Unlock();
 }
 
 void CController::CloseStream(uint16 StreamId)
 {
     Lock();
-    {
-        // look for the stream
-        bool found = false;
-        for ( int i = 0; (i < m_Streams.size()) && !found; i++ )
-        {
-            // compare object pointers
-            if ( (m_Streams[i]->GetId()) ==  StreamId )
-            {
-                // close it
-                m_Streams[i]->Close();
-                // remove it
-                //std::cout << "Stream " << m_Streams[i]->GetId() << " removed" << std::endl;
-                delete m_Streams[i];
-                m_Streams.erase(m_Streams.begin()+i);
-                found = true;
-            }
-        }
-    }
+    // look for the stream
+	for ( auto it=m_Streams.begin(); it!=m_Streams.end(); it++ )
+	{
+		// compare object pointers
+		if ( (*it)->GetId() ==  StreamId )
+		{
+			// close it
+			(*it)->Close();
+			// remove it
+			//std::cout << "Stream " << m_Streams[i]->GetId() << " removed" << std::endl;
+			delete *it;
+			m_Streams.erase(it);
+			break;
+		}
+	}
     Unlock();
 }
 
@@ -282,7 +261,7 @@ void CController::CloseStream(uint16 StreamId)
 bool CController::IsValidKeepAlivePacket(const CBuffer &Buffer, CCallsign *Callsign)
 {
     uint8 tag[] = { 'A','M','B','E','D','P','I','N','G' };
-    
+
     bool valid = false;
     if ( (Buffer.size() == 17) && (Buffer.Compare(tag, sizeof(tag)) == 0) )
     {
@@ -296,7 +275,7 @@ bool CController::IsValidKeepAlivePacket(const CBuffer &Buffer, CCallsign *Calls
 bool CController::IsValidOpenstreamPacket(const CBuffer &Buffer, CCallsign *Callsign, uint8 *CodecIn, uint8 *CodecOut)
 {
     uint8 tag[] = { 'A','M','B','E','D','O','S' };
-    
+
     bool valid = false;
     if ( (Buffer.size() == 17) && (Buffer.Compare(tag, sizeof(tag)) == 0) )
     {
@@ -304,7 +283,7 @@ bool CController::IsValidOpenstreamPacket(const CBuffer &Buffer, CCallsign *Call
         Callsign->SetCallsign(&(Buffer.data()[7]), 8);
         *CodecIn = Buffer.data()[15];
         *CodecOut = Buffer.data()[16];
-        
+
         // valid ?
         valid = Callsign->IsValid() && IsValidCodecIn(*CodecIn) && IsValidCodecOut(*CodecOut);
     }
@@ -314,7 +293,7 @@ bool CController::IsValidOpenstreamPacket(const CBuffer &Buffer, CCallsign *Call
 bool CController::IsValidClosestreamPacket(const CBuffer &Buffer, uint16 *StreamId)
 {
     uint8 tag[] = { 'A','M','B','E','D','C','S' };
-    
+
     bool valid = false;
     if ( /*(Buffer.size() == 16) &&*/ (Buffer.Compare(tag, sizeof(tag)) == 0) )
     {
@@ -331,14 +310,14 @@ bool CController::IsValidClosestreamPacket(const CBuffer &Buffer, uint16 *Stream
 void CController::EncodeKeepAlivePacket(CBuffer *Buffer)
 {
     uint8 tag[] = { 'A','M','B','E','D','P','O','N','G' };
-    
+
     Buffer->Set(tag, sizeof(tag));
 }
 
 void CController::EncodeStreamDescrPacket(CBuffer *Buffer, const CStream &Stream)
 {
     uint8 tag[] = { 'A','M','B','E','D','S','T','D' };
-    
+
     Buffer->Set(tag, sizeof(tag));
     // id
     Buffer->Append((uint16)Stream.GetId());
@@ -353,7 +332,7 @@ void CController::EncodeStreamDescrPacket(CBuffer *Buffer, const CStream &Stream
 void CController::EncodeNoStreamAvailablePacket(CBuffer *Buffer)
 {
     uint8 tag[] = { 'A','M','B','E','D','B','U','S','Y' };
-    
+
     Buffer->Set(tag, sizeof(tag));
 }
 
@@ -370,4 +349,3 @@ bool CController::IsValidCodecOut(uint8 codec)
 {
     return ((codec == CODEC_AMBEPLUS) || (codec == CODEC_AMBE2PLUS) );
 }
-

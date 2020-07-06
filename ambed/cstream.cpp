@@ -4,6 +4,7 @@
 //
 //  Created by Jean-Luc Deltombe (LX3JL) on 15/04/2017.
 //  Copyright © 2015 Jean-Luc Deltombe (LX3JL). All rights reserved.
+//  Copyright © 2020 Thomas A. Early, N7TAE
 //
 // ----------------------------------------------------------------------------
 //    This file is part of ambed.
@@ -79,7 +80,7 @@ CStream::~CStream()
         delete m_pThread;
         m_pThread = NULL;
     }
-    
+
     // then close everything
     m_Socket.Close();
     if ( m_VocodecChannel != NULL )
@@ -93,45 +94,48 @@ CStream::~CStream()
 
 bool CStream::Init(uint16 uiPort)
 {
-    bool ok;
-    
     // reset stop flag
     m_bStopThread = false;
-    
+
     // create our socket
-    ok = m_Socket.Open(g_AmbeServer.GetListenIp(), uiPort);
-    if ( ok )
-    {
-        // open the vocodecchannel
-        ok &= ((m_VocodecChannel = g_Vocodecs.OpenChannel(m_uiCodecIn, m_uiCodecOut)) != NULL);
-        
-        if ( ok )
-        {
-            // store port
-            m_uiPort = uiPort;
-            
-            // start  thread;
-            m_pThread = new std::thread(CStream::Thread, this);
-            
-            // init timeout system
-            m_LastActivity.Now();
-            m_iTotalPackets = 0;
-            m_iLostPackets = 0;
-            
-        }
-        else
-        {
-            std::cout << "Error opening stream : no suitable channel available" << std::endl;
-        }
-    }
-    else
-    {
-        std::cout << "Error opening socket on port UDP" << uiPort << " on ip " << m_Ip << std::endl;
-    }
-    
+	auto s = g_AmbeServer.GetListenIp();
+	CIp ip(strchr(s, ':') ? AF_INET6 : AF_INET, uiPort, s);
+	if (! ip.IsSet())
+	{
+		std::cerr << "Could not initialize ip address " << s << std::endl;
+		return false;
+	}
+
+    if (! m_Socket.Open(ip))
+	{
+		std::cout << "Error opening stream stream socket on " << ip << std::endl;
+		return false;
+	}
+
+	// open the vocodecchannel
+	m_VocodecChannel = g_Vocodecs.OpenChannel(m_uiCodecIn, m_uiCodecOut);
+	if (NULL == m_VocodecChannel)
+	{
+		std::cerr << "Could not open Vocodec Channel" << std::endl;
+		m_Socket.Close();
+		return false;
+	}
+
+	// store port
+	m_uiPort = uiPort;
+
+	// start  thread;
+	m_pThread = new std::thread(CStream::Thread, this);
+
+	// init timeout system
+	m_LastActivity.Now();
+	m_iTotalPackets = 0;
+	m_iLostPackets = 0;
+
+
     // done
-    return ok;
-    
+    return true;
+
 }
 
 void CStream::Close(void)
@@ -151,8 +155,8 @@ void CStream::Close(void)
     {
         m_VocodecChannel->Close();
     }
-    
-    
+
+
     // report
     std::cout << m_iLostPackets << " of " << m_iTotalPackets << " packets lost" << std::endl;
 }
@@ -179,9 +183,9 @@ void CStream::Task(void)
     uint8       Ambe[AMBE_FRAME_SIZE];
     CAmbePacket *packet;
     CPacketQueue *queue;
-    
+
     // anything coming in from codec client ?
-    if ( m_Socket.Receive(&Buffer, &Ip, 1) != -1 )
+    if ( m_Socket.Receive(Buffer, Ip, 1) )
     {
         // crack packet
         if ( IsValidDvFramePacket(Buffer, &uiPid, Ambe) )
@@ -189,7 +193,7 @@ void CStream::Task(void)
             // transcode AMBE here
             m_LastActivity.Now();
             m_iTotalPackets++;
-            
+
             // post packet to VocoderChannel
             packet = new CAmbePacket(uiPid, m_uiCodecIn, Ambe);
             queue = m_VocodecChannel->GetPacketQueueIn();
@@ -197,7 +201,7 @@ void CStream::Task(void)
             m_VocodecChannel->ReleasePacketQueueIn();
         }
     }
-    
+
     // anything in our queue ?
     queue = m_VocodecChannel->GetPacketQueueOut();
     while ( !queue->empty() )
@@ -220,7 +224,7 @@ void CStream::Task(void)
 bool CStream::IsValidDvFramePacket(const CBuffer &Buffer, uint8 *pid, uint8 *ambe)
 {
     bool valid = false;
-    
+
     if ( Buffer.size() == 11 )
     {
         uint8 codec = Buffer.data()[0];
@@ -228,7 +232,7 @@ bool CStream::IsValidDvFramePacket(const CBuffer &Buffer, uint8 *pid, uint8 *amb
         ::memcpy(ambe, &(Buffer.data()[2]), 9);
         valid = (codec == GetCodecIn());
     }
-    
+
     return valid;
 }
 
@@ -242,4 +246,3 @@ void CStream::EncodeDvFramePacket(CBuffer *Buffer, uint8 Pid, uint8 *Ambe)
     Buffer->Append((uint8)Pid);
     Buffer->Append(Ambe, 9);
 }
-

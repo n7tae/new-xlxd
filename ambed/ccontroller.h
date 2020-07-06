@@ -4,6 +4,7 @@
 //
 //  Created by Jean-Luc Deltombe (LX3JL) on 15/04/2017.
 //  Copyright © 2015 Jean-Luc Deltombe (LX3JL). All rights reserved.
+//  Copyright © 2020 Thomas A. Early, N7TAE
 //
 // ----------------------------------------------------------------------------
 //    This file is part of ambed.
@@ -36,10 +37,10 @@ class CController
 public:
     // constructors
     CController();
-    
+
     // destructor
     virtual ~CController();
-    
+
     // initialization
     bool Init(void);
     void Close(void);
@@ -47,28 +48,28 @@ public:
     // locks
     void Lock(void)                     { m_Mutex.lock(); }
     void Unlock(void)                   { m_Mutex.unlock(); }
-    
+
     // get
-    const CIp &GetListenIp(void) const  { return (const CIp &)m_Ip; }
+    const CIp &GetListenIp(void) const  { return straddress; }
 
     // set
-    void SetListenIp(const CIp &ip)     { m_Ip = ip; }
+    void SetListenIp(const char *str)     { straddress = str; }
 
     // streams management
     CStream *OpenStream(const CCallsign &, const CIp &, uint8, uint8);
     void CloseStream(CStream *);
     void CloseStream(uint16);
-    
+
     // task
     static void Thread(CController *);
     void Task(void);
 
 protected:
-    // packet decoding helpers    
+    // packet decoding helpers
     bool IsValidKeepAlivePacket(const CBuffer &, CCallsign *);
     bool IsValidOpenstreamPacket(const CBuffer &, CCallsign *, uint8 *, uint8 *);
     bool IsValidClosestreamPacket(const CBuffer &, uint16 *);
-    
+
     // packet encoding helpers
     void EncodeKeepAlivePacket(CBuffer *);
     void EncodeStreamDescrPacket(CBuffer *, const CStream &);
@@ -77,21 +78,21 @@ protected:
     // codec helpers
     bool IsValidCodecIn(uint8);
     bool IsValidCodecOut(uint8);
-    
+
 protected:
     // control socket
-    CIp             m_Ip;
-    CUdpSocket      m_Socket;
-    
+	const char *straddress;
+    CUdpSocket  m_Socket;
+
     // streams
-    uint16                 m_uiLastStreamId;
-    std::mutex             m_Mutex;
-    std::vector<CStream *> m_Streams;
+    uint16               m_uiLastStreamId;
+    std::mutex           m_Mutex;
+    std::list<CStream *> m_Streams;
 
     // thread
-    bool            m_bStopThread;
-    std::thread     *m_pThread;
-    
+    bool         m_bStopThread;
+    std::thread *m_pThread;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

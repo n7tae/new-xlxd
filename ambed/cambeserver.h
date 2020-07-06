@@ -4,6 +4,7 @@
 //
 //  Created by Jean-Luc Deltombe (LX3JL) on 13/04/2017.
 //  Copyright © 2015 Jean-Luc Deltombe (LX3JL). All rights reserved.
+//  Copyright © 2020 Thomas A. Early, N7TAE
 //
 // ----------------------------------------------------------------------------
 //    This file is part of ambed.
@@ -33,39 +34,25 @@
 class CAmbeServer
 {
 public:
-    // constructors
-    CAmbeServer();
-    
-    // destructor
-    virtual ~CAmbeServer();
-    
+
     // operation
     bool Start(void);
     void Stop(void);
-    
+
     // task
     static void Thread(CAmbeServer *);
     void Task(void);
-    
+
     // get
-    const CIp &GetListenIp(void) const   { return m_Controller.GetListenIp(); }
-    
+    const char *GetListenIp(void) const   { return m_Controller.GetListenIp(); }
+
     // set
-    void SetListenIp(const CIp &ip)      { m_Controller.SetListenIp(ip); }
-    
-    
-    // operator
-    //bool operator ==(const CIp &) const;
-    //operator const char *() const;
-    
+    void SetListenIp(const char *ip)      { m_Controller.SetListenIp(ip); }
+
 protected:
     // objects
     CController     m_Controller;
-    
-    // threads
-    bool            m_bStopThreads;
-    std::thread    *m_pThread;
-    
+
 public:
 #ifdef DEBUG_DUMPFILE
     std::ofstream        m_DebugFile;

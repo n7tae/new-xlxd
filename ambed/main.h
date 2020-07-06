@@ -27,6 +27,7 @@
 
 #include <vector>
 #include <array>
+#include <list>
 #include <map>
 #include <queue>
 #include <chrono>
@@ -102,7 +103,7 @@ typedef unsigned int            uint;
 #define HIWORD(dw)				((uint16)((((uint32)(dw)) >> 16) & 0xFFFF))
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// FIR Filter coefficients computed to be the closest to the recommended filter in 
+// FIR Filter coefficients computed to be the closest to the recommended filter in
 // Documentation
 //
 // Following GNU Octave script was used
@@ -143,6 +144,6 @@ extern CAmbeServer  g_AmbeServer;
 class CVocodecs;
 extern CVocodecs    g_Vocodecs;
 
- 
+
 ////////////////////////////////////////////////////////////////////////////////////////
 #endif /* main_h */
