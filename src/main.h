@@ -55,7 +55,6 @@
 
 // global ------------------------------------------------------
 
-#define RUN_AS_DAEMON
 //#define JSON_MONITOR
 
 // debug -------------------------------------------------------
@@ -157,13 +156,13 @@
 // DMRid database -----------------------------------------------
 
 #define DMRIDDB_USE_RLX_SERVER          1                                   // 1 = use http, 0 = use local file
-#define DMRIDDB_PATH                    "/xlxd/dmrid.dat"                   // local file path
+#define DMRIDDB_PATH                    "/usr/local/etc/dmrid.dat"          // local file path
 #define DMRIDDB_REFRESH_RATE            180                                 // in minutes
 
 // Wires-X node database ----------------------------------------
 
 #define YSFNODEDB_USE_RLX_SERVER        1                                   // 1 = use http, 0 = use local file
-#define YSFNODEDB_PATH                  "/xlxd/ysfnode.dat"                 // local file path
+#define YSFNODEDB_PATH                  "/usr/local/etc/ysfnode.dat"        // local file path
 #define YSFNODEDB_REFRESH_RATE          180                                 // in minutes
 
 // xml & json reporting -----------------------------------------
@@ -176,10 +175,10 @@
 // system paths -------------------------------------------------
 
 #define XML_PATH                        "/var/log/xlxd.xml"
-#define WHITELIST_PATH                  "/xlxd/xlxd.whitelist"
-#define BLACKLIST_PATH                  "/xlxd/xlxd.blacklist"
-#define INTERLINKLIST_PATH              "/xlxd/xlxd.interlink"
-#define TERMINALOPTIONS_PATH            "/xlxd/xlxd.terminal"
+#define WHITELIST_PATH                  "/usr/local/etc/xlxd.whitelist"
+#define BLACKLIST_PATH                  "/usr/local/etc/xlxd.blacklist"
+#define INTERLINKLIST_PATH              "/usr/local/etc/xlxd.interlink"
+#define TERMINALOPTIONS_PATH            "/usr/local/etc/xlxd.terminal"
 #define DEBUGDUMP_PATH                  "/var/log/xlxd.debug"
 
 ////////////////////////////////////////////////////////////////////////////////////////

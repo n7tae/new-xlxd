@@ -76,7 +76,7 @@ bool CTranscoder::Init(void)
 	// does the user not want to use a transcoder?
 	if (0 == strncasecmp(s, "none", 4))
 	{
-		std::cout << "Transcoder will not be enabled beacuse the transcoder IP addess is 'none'" << std::endl;
+		std::cout << "Transcoder will not be enabled because the transcoder IP addess is 'none'" << std::endl;
 		return true;
 	}
 

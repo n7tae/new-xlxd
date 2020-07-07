@@ -1,6 +1,10 @@
 *.o
 *.d
 .vscode
+*.blacklist
+*.whitelist
+*.interlink
+*.terminal
+*.service
 xlxd
 xrfd
-main.h
