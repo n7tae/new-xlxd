@@ -49,19 +49,6 @@ sudo apt install g++
 git clone https://github.com/n7tae/tae-xlxd.git
 ```
 
-### Create and edit the xlxd `main.h` file
-
-Go to the xlxd/src directory and:
-
-```bash
-cd xlxd/src
-cp main.example.h main.h
-```
-
-Use your favorite editor to modify `main.h`. Adjust the number of modules. The defalt is 10, and the maximum is 26. If you are building an XLX reflector, by default, the DMR ID file is downloaded from XLX950 every three hours. If you want to provide your own source, build a cron-based script that will download a suitable file. You also need to modify the `DMRIDDB_USE_RLX_SERVER` and `DMRIDDB_PATH` variables.
-
-You will also want to set NB_OF_MODULES to the number of modules you need. The max is 26. If you want to use module Z you need to set `NB_OF_MODULES` to 26.
-
 ### Create and edit your blacklist, whitelist and linking files and systemd file
 
 If you are building an XLX reflector:
