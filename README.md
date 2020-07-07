@@ -92,13 +92,13 @@ make -j<N>
 sudo make install
 ```
 
-### No for the reflector
+### Compile, install and start the reflector
+
+Now for the reflector:
 
 ```bash
 cd ../xlxd
 ```
-
-### Compile, install and start the reflector
 
 There are several options in reflector Makefile, by default, you will not have debugging support, you will build an XLX (not an XRF) reflector and you will support Icom's G3 routing. If you want to change any of these, you need to modify you Makefile:
 
@@ -167,5 +167,5 @@ It has nothing to do with the regular YSFReflector network, hence you don’t ne
 
 ## Copyright
 
-© 2016 Jean-Luc Deltombe LX3JL and Luc Engelmann LX1IQ
-© 2020 Thomas A. Early N7TAE
+- Copyright © 2016 Jean-Luc Deltombe LX3JL and Luc Engelmann LX1IQ
+- Copyright © 2020 Thomas A. Early N7TAE
