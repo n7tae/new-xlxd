@@ -69,14 +69,16 @@ CTranscoder::~CTranscoder()
 
 bool CTranscoder::Init(void)
 {
-    bool ok;
-
-    // reset stop flag
-    keep_running = true;
-
     // create server's IP
     auto s = g_Reflector.GetTranscoderIp();
 	m_Ip.Initialize(strchr(s, ':') ? AF_INET6 : AF_INET, TRANSCODER_PORT, s);
+
+	// does the user not want to use a transcoder?
+	if (0 == strncasecmp(s, "none", 4))
+	{
+		std::cout << "Transcoder will not be enabled beacuse the transcoder IP addess is 'none'" << std::endl;
+		return true;
+	}
 
     // create our socket
 	if (m_Ip.IsSet())
@@ -88,11 +90,13 @@ bool CTranscoder::Init(void)
 	}
 	else
 	{
-		std::cerr << "Could not initialize transcoder socket on " << m_Ip << std::endl;
+		// something bad was specified for the transcoder IP?
+		std::cerr << "Could not initialize transcoder socket on '" << s << "'" << std::endl;
 		return false;
 	}
 
-    // start  thread;
+    // start  thread
+    keep_running = true;
     m_pThread = new std::thread(CTranscoder::Thread, this);
 
     return true;

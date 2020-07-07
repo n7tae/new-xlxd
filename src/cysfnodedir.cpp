@@ -58,7 +58,7 @@ bool CYsfNodeDir::Init(void)
     // load content
     Reload();
 
-    // reset stop flag
+    // reset run flag
     keep_running = true;
 
     // start  thread;

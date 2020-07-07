@@ -67,7 +67,7 @@ bool CGateKeeper::Init(void)
     m_NodeBlackList.LoadFromFile(BLACKLIST_PATH);
     m_PeerList.LoadFromFile(INTERLINKLIST_PATH);
 
-    // reset stop flag
+    // reset run flag
     keep_running = true;
 
     // start  thread;

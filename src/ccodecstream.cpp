@@ -90,30 +90,34 @@ CCodecStream::~CCodecStream()
 
 bool CCodecStream::Init(uint16 uiPort)
 {
-    // reset stop flag
-    m_bConnected = keep_running = true;
+	m_bConnected = keep_running = false;	// prepare for the worst
 
     // create server's IP
     m_uiPort = uiPort;
 	auto s = g_Reflector.GetTranscoderIp();
 	m_Ip.Initialize(strchr(s, ':') ? AF_INET6 : AF_INET, m_uiPort, s);
 
+	if (0 == strncasecmp(s, "none", 4))
+	{
+		return true;	// the user has disabled the transcoder
+	}
+
     // create our socket
     if (m_Ip.IsSet())
 	{
 		if (! m_Socket.Open(m_Ip)) {
-			std::cerr << "Error opening socket on port UDP" << uiPort << " on ip " << m_Ip << std::endl;
+			std::cerr << "Error opening socket on IP address " << m_Ip << std::endl;
 			return false;
 		}
 	}
 	else
 	{
-		std::cerr << "Could not initialize Codec Stream on " << m_Ip << std::endl;
+		std::cerr << "Could not initialize Codec Stream on " << s << std::endl;
 		return false;
 	}
 
+	keep_running = m_bConnected = true;
 	m_pThread = new std::thread(CCodecStream::Thread, this);
-    m_bConnected = true;
 
     return true;
 }
@@ -121,11 +125,10 @@ bool CCodecStream::Init(uint16 uiPort)
 void CCodecStream::Close(void)
 {
     // close socket
-    m_bConnected = false;
+    keep_running = m_bConnected = false;
     m_Socket.Close();
 
     // kill threads
-    keep_running = false;
     if ( m_pThread != NULL )
     {
         m_pThread->join();

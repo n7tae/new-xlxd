@@ -97,48 +97,42 @@ CReflector::~CReflector()
 
 bool CReflector::Start(void)
 {
-    bool ok = true;
-
-    // reset stop flag
+    // let's go!
     keep_running = true;
 
-    // init gate keeper
-    ok &= g_GateKeeper.Init();
+    // init gate keeper. It can only return true!
+    g_GateKeeper.Init();
 
-    // init dmrid directory
+    // init dmrid directory. No need to check the return value.
     g_DmridDir.Init();
 
-    // init wiresx node directory
+    // init wiresx node directory. Likewise with the return vale.
     g_YsfNodeDir.Init();
 
     // init the transcoder
-    g_Transcoder.Init();
+    if (! g_Transcoder.Init())
+		return false;
 
     // create protocols
-    ok &= m_Protocols.Init();
+    if (! m_Protocols.Init())
+	{
+		m_Protocols.Close();
+		return false;
+	}
 
-    // if ok, start threads
-    if ( ok )
-    {
-        // start one thread per reflector module
-        for ( int i = 0; i < NB_OF_MODULES; i++ )
-        {
-            m_RouterThreads[i] = new std::thread(CReflector::RouterThread, this, &(m_Streams[i]));
-        }
+	// start one thread per reflector module
+	for ( int i = 0; i < NB_OF_MODULES; i++ )
+	{
+		m_RouterThreads[i] = new std::thread(CReflector::RouterThread, this, &(m_Streams[i]));
+	}
 
-        // start the reporting threads
-        m_XmlReportThread = new std::thread(CReflector::XmlReportThread, this);
+	// start the reporting threads
+	m_XmlReportThread = new std::thread(CReflector::XmlReportThread, this);
 #ifdef JSON_MONITOR
-        m_JsonReportThread = new std::thread(CReflector::JsonReportThread, this);
+    m_JsonReportThread = new std::thread(CReflector::JsonReportThread, this);
 #endif
-    }
-    else
-    {
-        m_Protocols.Close();
-    }
 
-    // done
-    return ok;
+    return true;
 }
 
 void CReflector::Stop(void)
