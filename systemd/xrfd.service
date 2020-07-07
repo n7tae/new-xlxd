@@ -1,0 +1,12 @@
+[Unit]
+Description=xrfd
+Requires=network.target
+After=systemd-user-session.service network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/xrfd CHANGEME any any
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
