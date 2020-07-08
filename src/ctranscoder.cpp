@@ -69,7 +69,7 @@ CTranscoder::~CTranscoder()
 
 bool CTranscoder::Init(void)
 {
-    // create server's IP
+    // create port to the transcoder
     auto s = g_Reflector.GetTranscoderIp();
 	m_Ip.Initialize(strchr(s, ':') ? AF_INET6 : AF_INET, TRANSCODER_PORT, s);
 
@@ -80,10 +80,14 @@ bool CTranscoder::Init(void)
 		return true;
 	}
 
+	// now open the transcoder port
+	s = (AF_INET == m_Ip.GetFamily()) ? g_Reflector.GetListenIPv4() : g_Reflector.GetListenIPv6();
+	CIp tc(m_Ip.GetFamily(), TRANSCODER_PORT, s);
+
     // create our socket
-	if (m_Ip.IsSet())
+	if (tc.IsSet())
 	{
-    	if (! m_Socket.Open(m_Ip)) {
+    	if (! m_Socket.Open(tc)) {
 			std::cerr << "Error opening socket on port UDP" << TRANSCODER_PORT << " on ip " << m_Ip << std::endl;
 			return false;
 		}
@@ -91,7 +95,7 @@ bool CTranscoder::Init(void)
 	else
 	{
 		// something bad was specified for the transcoder IP?
-		std::cerr << "Could not initialize transcoder socket on '" << s << "'" << std::endl;
+		std::cerr << "Error initializing transcoder port using " << ((AF_INET == m_Ip.GetFamily()) ? "IPv4" : "IPv6") << " on " << s << std::endl;
 		return false;
 	}
 

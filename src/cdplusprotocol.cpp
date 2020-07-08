@@ -37,7 +37,7 @@
 bool CDplusProtocol::Init(void)
 {
     // base class
-    if (Initialize("REF", DPLUS_PORT))
+    if (! Initialize("REF", DPLUS_PORT))
 		return false;
 
     // update time
