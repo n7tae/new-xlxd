@@ -79,7 +79,7 @@ int main(int argc, const char * argv[])
 		std::cout << g_Reflector.GetListenIPv4();
 		if (! is6none)
 		{
-			std::cout << " and " << g_Reflector.GetListenIPv4() << std::endl;
+			std::cout << " and " << g_Reflector.GetListenIPv6() << std::endl;
 		}
 	}
 	else
