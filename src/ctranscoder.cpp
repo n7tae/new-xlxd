@@ -83,7 +83,7 @@ bool CTranscoder::Init(void)
     // create our socket
 	if (m_Ip.IsSet())
 	{
-    	if (! m_Socket.Open(TRANSCODER_PORT)) {
+    	if (! m_Socket.Open(m_Ip)) {
 			std::cerr << "Error opening socket on port UDP" << TRANSCODER_PORT << " on ip " << m_Ip << std::endl;
 			return false;
 		}
