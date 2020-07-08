@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cd ambed
+make uninstall
+
+cd ../src
+make uninstall
+
+cd ..
