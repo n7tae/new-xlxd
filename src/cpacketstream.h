@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #ifndef cpacketstream_h
@@ -43,19 +43,19 @@ class CPacketStream : public CPacketQueue
 public:
     // constructor
     CPacketStream();
-    
+
     // destructor
-    virtual ~CPacketStream() {};
+    virtual ~CPacketStream() {}
 
     // open / close
     bool Open(const CDvHeaderPacket &, CClient *);
     void Close(void);
-    
+
     // push & pop
     void Push(CPacket *);
     void Tickle(void)                               { m_LastPacketTime.Now(); }
     bool IsEmpty(void) const;
-    
+
     // get
     CClient         *GetOwnerClient(void)           { return m_OwnerClient; }
     const CIp       *GetOwnerIp(void);

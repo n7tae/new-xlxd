@@ -80,11 +80,15 @@
 #define PROTOCOL_DEXTRA                 1
 #define PROTOCOL_DPLUS                  2
 #define PROTOCOL_DCS                    3
+#ifndef NO_XLX
 #define PROTOCOL_XLX                    4
 #define PROTOCOL_DMRPLUS                5
 #define PROTOCOL_DMRMMDVM               6
 #define PROTOCOL_YSF                    7
+#endif
+#ifndef NO_G3
 #define PROTOCOL_G3                     8
+#endif
 
 // DExtra
 #define DEXTRA_PORT                     30001                               // UDP port
@@ -102,6 +106,7 @@
 #define DCS_KEEPALIVE_PERIOD            1                                   // in seconds
 #define DCS_KEEPALIVE_TIMEOUT           (DCS_KEEPALIVE_PERIOD*30)           // in seconds
 
+#ifndef NO_XLX
 // XLX
 #define XLX_PORT                        10002                               // UDP port
 #define XLX_KEEPALIVE_PERIOD            1                                   // in seconds
@@ -130,26 +135,31 @@
 #define YSF_DEFAULT_NODE_RX_FREQ        437000000                           // in Hz
 #define YSF_AUTOLINK_ENABLE             0                                   // 1 = enable, 0 = disable auto-link
 #define YSF_AUTOLINK_MODULE             'B'                                 // module for client to auto-link to
+#endif
 
+#ifndef NO_G3
 // G3 Terminal
 #define G3_PRESENCE_PORT                12346                               // UDP port
 #define G3_CONFIG_PORT                  12345                               // UDP port
 #define G3_DV_PORT                      40000                               // UDP port
 #define G3_KEEPALIVE_PERIOD             10                                  // in seconds
 #define G3_KEEPALIVE_TIMEOUT            3600                                // in seconds, 1 hour
+#endif
 
-
+#ifndef NO_XLX
 // Transcoder server --------------------------------------------
 
 #define TRANSCODER_PORT                 10100                               // UDP port
 #define TRANSCODER_KEEPALIVE_PERIOD     5                                   // in seconds
 #define TRANSCODER_KEEPALIVE_TIMEOUT    30                                  // in seconds
 #define TRANSCODER_AMBEPACKET_TIMEOUT   400                                 // in ms
+#endif
 
 // codec --------------------------------------------------------
 
 #define CODEC_NONE                      0
 #define CODEC_AMBEPLUS                  1                                   // DStar
+#ifndef NO_XLX
 #define CODEC_AMBE2PLUS                 2                                   // DMR
 
 
@@ -164,6 +174,7 @@
 #define YSFNODEDB_USE_RLX_SERVER        1                                   // 1 = use http, 0 = use local file
 #define YSFNODEDB_PATH                  "/usr/local/etc/ysfnode.dat"        // local file path
 #define YSFNODEDB_REFRESH_RATE          180                                 // in minutes
+#endif
 
 // xml & json reporting -----------------------------------------
 
@@ -211,6 +222,7 @@ extern CReflector  g_Reflector;
 class CGateKeeper;
 extern CGateKeeper g_GateKeeper;
 
+#ifndef NO_XLX
 #if (DMRIDDB_USE_RLX_SERVER == 1)
     class CDmridDirHttp;
     extern CDmridDirHttp   g_DmridDir;
@@ -229,6 +241,7 @@ extern CGateKeeper g_GateKeeper;
 
 class CTranscoder;
 extern CTranscoder g_Transcoder;
+#endif
 
 
 ////////////////////////////////////////////////////////////////////////////////////////

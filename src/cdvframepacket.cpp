@@ -35,8 +35,10 @@ CDvFramePacket::CDvFramePacket()
 {
     ::memset(m_uiAmbe, 0, sizeof(m_uiAmbe));
     ::memset(m_uiDvData, 0, sizeof(m_uiDvData));
+#ifndef NO_XLX
     ::memset(m_uiAmbePlus, 0, sizeof(m_uiAmbePlus));
     ::memset(m_uiDvSync, 0, sizeof(m_uiDvSync));
+#endif
 };
 
 // dstar constructor
@@ -46,10 +48,13 @@ CDvFramePacket::CDvFramePacket(const struct dstar_dvframe *dvframe, uint16 sid, 
 {
     ::memcpy(m_uiAmbe, dvframe->AMBE, sizeof(m_uiAmbe));
     ::memcpy(m_uiDvData, dvframe->DVDATA, sizeof(m_uiDvData));
+#ifndef NO_XLX
     ::memset(m_uiAmbePlus, 0, sizeof(m_uiAmbePlus));
     ::memset(m_uiDvSync, 0, sizeof(m_uiDvSync));
+#endif
 }
 
+#ifndef NO_XLX
 // dmr constructor
 
 CDvFramePacket::CDvFramePacket(const uint8 *ambe, const uint8 *sync, uint16 sid, uint8 pid, uint8 spid)
@@ -85,6 +90,7 @@ CDvFramePacket::CDvFramePacket
     ::memcpy(m_uiAmbePlus, dmrambe, sizeof(m_uiAmbePlus));
     ::memcpy(m_uiDvSync, dmrsync, sizeof(m_uiDvSync));
 }
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // virtual duplication
@@ -102,7 +108,9 @@ const uint8 *CDvFramePacket::GetAmbe(uint8 uiCodec) const
     switch (uiCodec)
     {
         case CODEC_AMBEPLUS:    return m_uiAmbe;
+#ifndef NO_XLX
         case CODEC_AMBE2PLUS:   return m_uiAmbePlus;
+#endif
         default:                return NULL;
     }
 }
@@ -122,9 +130,11 @@ void CDvFramePacket::SetAmbe(uint8 uiCodec, uint8 *Ambe)
         case CODEC_AMBEPLUS:
             ::memcpy(m_uiAmbe, Ambe, sizeof(m_uiAmbe));
             break;
+#ifndef NO_XLX
         case CODEC_AMBE2PLUS:
             ::memcpy(m_uiAmbePlus, Ambe, sizeof(m_uiAmbe));
             break;
+#endif
     }
 }
 
@@ -134,8 +144,11 @@ void CDvFramePacket::SetAmbe(uint8 uiCodec, uint8 *Ambe)
 
 bool CDvFramePacket::operator ==(const CDvFramePacket &DvFrame) const
 {
-    return ( (::memcmp(m_uiAmbe, DvFrame.m_uiAmbe, sizeof(m_uiAmbe)) == 0) &&
-             (::memcmp(m_uiDvData, DvFrame.m_uiDvData, sizeof(m_uiDvData)) == 0) &&
-             (::memcmp(m_uiAmbePlus, DvFrame.m_uiAmbePlus, sizeof(m_uiAmbePlus)) == 0) &&
-             (::memcmp(m_uiDvSync, DvFrame.m_uiDvSync, sizeof(m_uiDvSync)) == 0) );
+    return ( (::memcmp(m_uiAmbe, DvFrame.m_uiAmbe, sizeof(m_uiAmbe)) == 0)
+		&& (::memcmp(m_uiDvData, DvFrame.m_uiDvData, sizeof(m_uiDvData)) == 0)
+#ifndef NO_XLX
+		&& (::memcmp(m_uiAmbePlus, DvFrame.m_uiAmbePlus, sizeof(m_uiAmbePlus)) == 0)
+		&& (::memcmp(m_uiDvSync, DvFrame.m_uiDvSync, sizeof(m_uiDvSync)) == 0)
+#endif
+		);
 }

@@ -103,6 +103,7 @@ bool CReflector::Start(void)
     // init gate keeper. It can only return true!
     g_GateKeeper.Init();
 
+#ifndef NO_XLX
     // init dmrid directory. No need to check the return value.
     g_DmridDir.Init();
 
@@ -112,6 +113,7 @@ bool CReflector::Start(void)
     // init the transcoder
     if (! g_Transcoder.Init())
 		return false;
+#endif
 
     // create protocols
     if (! m_Protocols.Init())
@@ -168,16 +170,17 @@ void CReflector::Stop(void)
     // close protocols
     m_Protocols.Close();
 
-    // close transcoder
-    g_Transcoder.Close();
-
     // close gatekeeper
     g_GateKeeper.Close();
+
+#ifndef NO_XLX
+    // close transcoder
+    g_Transcoder.Close();
 
     // close databases
     g_DmridDir.Close();
     g_YsfNodeDir.Close();
-
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

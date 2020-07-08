@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #include "main.h"
@@ -40,6 +40,7 @@ CDvLastFramePacket::CDvLastFramePacket(const struct dstar_dvframe *DvFrame, uint
 {
 }
 
+#ifndef NO_XLX
 // dmr constructor
 
 CDvLastFramePacket::CDvLastFramePacket(const uint8 *ambe, const uint8 *sync, uint16 sid, uint8 pid, uint8 spid)
@@ -63,10 +64,11 @@ CDvLastFramePacket::CDvLastFramePacket(const uint8 *ambe, uint16 sid, uint8 pid,
     : CDvFramePacket(ambe, sid, pid, spid, fid)
 {
 }
+#endif
 
 
 // copy constructor
-    
+
 CDvLastFramePacket::CDvLastFramePacket(const CDvLastFramePacket &DvFrame)
     : CDvFramePacket(DvFrame)
 {
@@ -79,4 +81,3 @@ CPacket *CDvLastFramePacket::Duplicate(void) const
 {
     return new CDvLastFramePacket(*this);
 }
-

@@ -42,12 +42,21 @@ int main(int argc, const char * argv[])
 {
 
     // check arguments
+#ifndef NO_XLX
     if ( argc != 5 )
     {
         std::cout << "Usage: " << argv[0] << " callsign ipv4 ipv6 ambedip" << std::endl;
         std::cout << "example: " << argv[0] << " XLX999 192.168.178.212 2001:400:534::675b 127.0.0.1" << std::endl;
         return EXIT_FAILURE;
     }
+#else
+    if ( argc != 4 )
+    {
+        std::cout << "Usage: " << argv[0] << " callsign ipv4 ipv6" << std::endl;
+        std::cout << "example: " << argv[0] << " XLX999 192.168.178.212 2001:400:534::675b" << std::endl;
+        return EXIT_FAILURE;
+    }
+#endif
 
 	bool is4none = 0 == strncasecmp(argv[2], "none", 4);
 	bool is6none = 0 == strncasecmp(argv[3], "none", 4);
@@ -63,7 +72,9 @@ int main(int argc, const char * argv[])
     g_Reflector.SetCallsign(argv[1]);
     g_Reflector.SetListenIPv4(argv[2], INET_ADDRSTRLEN);
     g_Reflector.SetListenIPv6(argv[3], INET6_ADDRSTRLEN);
+#ifndef NO_XLX
     g_Reflector.SetTranscoderIp(argv[4], INET6_ADDRSTRLEN);
+#endif
 
 
     // and let it run
@@ -76,15 +87,15 @@ int main(int argc, const char * argv[])
     std::cout << "Reflector " << g_Reflector.GetCallsign()  << "started and listening on ";
 	if (! is4none)
 	{
-		std::cout << g_Reflector.GetListenIPv4();
+		std::cout << g_Reflector.GetListenIPv4() << " for IPv4";
 		if (! is6none)
 		{
-			std::cout << " and " << g_Reflector.GetListenIPv6() << std::endl;
+			std::cout << " and " << g_Reflector.GetListenIPv6() << " for IPv6" << std::endl;
 		}
 	}
 	else
 	{
-		std::cout << g_Reflector.GetListenIPv6() << std::endl;
+		std::cout << g_Reflector.GetListenIPv6() << " for IPv6" << std::endl;
 	}
 
 	pause(); // wait for any signal

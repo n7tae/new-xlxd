@@ -88,6 +88,7 @@ bool CProtocols::Init(void)
 			return false;
 		}
 
+#ifndef NO_XLX
         // create and initialize XLX - interlink
         auto xlx = new CXlxProtocol;
         if (xlx->Init())
@@ -127,7 +128,9 @@ bool CProtocols::Init(void)
 			delete ysf;
 			return false;
 		}
+#endif
 
+#ifndef NO_G3
         // create and initialize G3
         auto g3 = new CG3Protocol;
         if (g3->Init())
@@ -137,6 +140,7 @@ bool CProtocols::Init(void)
 			delete g3;
 			return true;
 		}
+#endif
 
     }
     m_Mutex.unlock();

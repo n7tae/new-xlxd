@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #include "main.h"
@@ -43,7 +43,7 @@ CPacketStream::CPacketStream()
 bool CPacketStream::Open(const CDvHeaderPacket &DvHeader, CClient *client)
 {
     bool ok = false;
-    
+
     // not already open?
     if ( !m_bOpen )
     {
@@ -54,7 +54,9 @@ bool CPacketStream::Open(const CDvHeaderPacket &DvHeader, CClient *client)
         m_DvHeader = DvHeader;
         m_OwnerClient = client;
         m_LastPacketTime.Now();
+#ifndef NO_XLX
         m_CodecStream = g_Transcoder.GetStream(this, client->GetCodec());
+#endif
         ok = true;
     }
     return ok;
@@ -66,7 +68,9 @@ void CPacketStream::Close(void)
     m_bOpen = false;
     m_uiStreamId = 0;
     m_OwnerClient = NULL;
+#ifndef NO_XLX
     g_Transcoder.ReleaseStream(m_CodecStream);
+#endif
     m_CodecStream = NULL;
 }
 
@@ -109,16 +113,19 @@ void CPacketStream::Push(CPacket *Packet)
 
 bool CPacketStream::IsEmpty(void) const
 {
+#ifndef NO_XLX
     bool bEmpty = empty();
-    
     // also check no packets still in Codec stream's queue
     if ( bEmpty && (m_CodecStream != NULL) )
     {
-        bEmpty &= m_CodecStream->IsEmpty();
+        bEmpty = m_CodecStream->IsEmpty();
     }
 
     // done
     return bEmpty;
+#else
+	return empty();
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -132,4 +139,3 @@ const CIp *CPacketStream::GetOwnerIp(void)
     }
     return NULL;
 }
-
