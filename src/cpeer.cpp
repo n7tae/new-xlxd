@@ -132,7 +132,7 @@ void CPeer::WriteXml(std::ofstream &xmlFile)
 {
     xmlFile << "<PEER>" << std::endl;
     xmlFile << "\t<Callsign>" << m_Callsign << "</Callsign>" << std::endl;
-    xmlFile << "\t<IP>" << m_Ip << "</IP>" << std::endl;
+    xmlFile << "\t<IP>" << m_Ip.GetAddress() << "</IP>" << std::endl;
     xmlFile << "\t<LinkedModule>" << m_ReflectorModules << "</LinkedModule>" << std::endl;
     xmlFile << "\t<Protocol>" << GetProtocolName() << "</Protocol>" << std::endl;
     char mbstr[100];

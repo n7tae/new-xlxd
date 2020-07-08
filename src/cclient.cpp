@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #include "main.h"
@@ -87,11 +87,11 @@ void CClient::WriteXml(std::ofstream &xmlFile)
 {
     xmlFile << "<NODE>" << std::endl;
     xmlFile << "\t<Callsign>" << m_Callsign << "</Callsign>" << std::endl;
-    xmlFile << "\t<IP>" << m_Ip << "</IP>" << std::endl;
+    xmlFile << "\t<IP>" << m_Ip.GetAddress() << "</IP>" << std::endl;
     xmlFile << "\t<LinkedModule>" << m_ReflectorModule << "</LinkedModule>" << std::endl;
     xmlFile << "\t<Protocol>" << GetProtocolName() << "</Protocol>" << std::endl;
     char mbstr[100];
-    if (std::strftime(mbstr, sizeof(mbstr), "%A %c", std::localtime(&m_ConnectTime))) 
+    if (std::strftime(mbstr, sizeof(mbstr), "%A %c", std::localtime(&m_ConnectTime)))
     {
         xmlFile << "\t<ConnectTime>" << mbstr << "</ConnectTime>" << std::endl;
     }
@@ -107,11 +107,11 @@ void CClient::GetJsonObject(char *Buffer)
     char sz[512];
     char mbstr[100];
     char cs[16];
-    
+
     if (std::strftime(mbstr, sizeof(mbstr), "%A %c", std::localtime(&m_LastHeardTime)))
     {
         m_Callsign.GetCallsignString(cs);
-        
+
         ::sprintf(sz, "{\"callsign\":\"%s\",\"module\":\"%c\",\"linkedto\":\"%c\",\"time\":\"%s\"}",
                   cs,
                   m_Callsign.GetModule(),
