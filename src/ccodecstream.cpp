@@ -92,20 +92,24 @@ bool CCodecStream::Init(uint16 uiPort)
 {
 	m_bConnected = keep_running = false;	// prepare for the worst
 
-    // create server's IP
+    // create the send to address
     m_uiPort = uiPort;
 	auto s = g_Reflector.GetTranscoderIp();
 	m_Ip.Initialize(strchr(s, ':') ? AF_INET6 : AF_INET, m_uiPort, s);
 
 	if (0 == strncasecmp(s, "none", 4))
 	{
-		return true;	// the user has disabled the transcoder
+		return false;	// the user has disabled the transcoder
 	}
 
+	// create socket address, family based on transcoder listen address
+	s = (AF_INET == m_Ip.GetFamily()) ? g_Reflector.GetListenIPv4() : g_Reflector.GetListenIPv6();
+	CIp ip(m_Ip.GetFamily(), m_uiPort, s);
+
     // create our socket
-    if (m_Ip.IsSet())
+    if (ip.IsSet())
 	{
-		if (! m_Socket.Open(m_Ip)) {
+		if (! m_Socket.Open(ip)) {
 			std::cerr << "Error opening socket on IP address " << m_Ip << std::endl;
 			return false;
 		}
