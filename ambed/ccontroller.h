@@ -55,16 +55,15 @@ public:
     // set
     void SetListenIp(const char *str)   { memset(m_addr, 0, INET6_ADDRSTRLEN); strncpy(m_addr, str, INET6_ADDRSTRLEN-1); }
 
-    // streams management
-    CStream *OpenStream(const CCallsign &, const CIp &, uint8, uint8);
-    void CloseStream(CStream *);
-    void CloseStream(uint16);
-
     // task
     static void Thread(CController *);
     void Task(void);
 
 protected:
+    // streams management
+    CStream *OpenStream(const CCallsign &, const CIp &, uint8, uint8);
+    void CloseStream(uint16);
+
     // packet decoding helpers
     bool IsValidKeepAlivePacket(const CBuffer &, CCallsign *);
     bool IsValidOpenstreamPacket(const CBuffer &, CCallsign *, uint8 *, uint8 *);
@@ -79,7 +78,6 @@ protected:
     bool IsValidCodecIn(uint8);
     bool IsValidCodecOut(uint8);
 
-protected:
     // control socket
 	char m_addr[INET6_ADDRSTRLEN];
     CUdpSocket m_Socket;

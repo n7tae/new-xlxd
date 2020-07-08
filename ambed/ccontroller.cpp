@@ -213,27 +213,6 @@ CStream *CController::OpenStream(const CCallsign &Callsign, const CIp &Ip, uint8
     return stream;
 }
 
-void CController::CloseStream(CStream *stream)
-{
-	Lock();
-	// look for the stream
-	for ( auto it=m_Streams.begin(); it!=m_Streams.end(); it++ )
-	{
-		// compare object pointers
-		if ( *it == stream )
-		{
-			// close it
-			(*it)->Close();
-			// remove it
-			//std::cout << "Stream " << m_Streams[i]->GetId() << " removed" << std::endl;
-			delete *it;
-			m_Streams.erase(it);
-			break;
-		}
-	}
-	Unlock();
-}
-
 void CController::CloseStream(uint16 StreamId)
 {
     Lock();
