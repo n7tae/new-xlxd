@@ -5,7 +5,7 @@ After=systemd-user-session.service network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/xlxd CHANGE_ME any any local
+ExecStart=/usr/local/bin/xlxd
 Restart=always
 
 [Install]

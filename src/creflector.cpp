@@ -110,9 +110,11 @@ bool CReflector::Start(void)
     // init wiresx node directory. Likewise with the return vale.
     g_YsfNodeDir.Init();
 
+#ifdef TRANSCODER_IP
     // init the transcoder
     if (! g_Transcoder.Init())
 		return false;
+#endif
 #endif
 
     // create protocols
@@ -173,10 +175,12 @@ void CReflector::Stop(void)
     // close gatekeeper
     g_GateKeeper.Close();
 
-#ifndef NO_XLX
+#ifdef TRANSCODER_IP
     // close transcoder
     g_Transcoder.Close();
+#endif
 
+#ifndef NO_XLX
     // close databases
     g_DmridDir.Close();
     g_YsfNodeDir.Close();
@@ -407,6 +411,7 @@ void CReflector::XmlReportThread(CReflector *This)
     }
 }
 
+#ifdef JSON_MONITOR
 void CReflector::JsonReportThread(CReflector *This)
 {
     CUdpSocket Socket;
@@ -498,6 +503,7 @@ void CReflector::JsonReportThread(CReflector *This)
         std::cout << "Error creating monitor socket" << std::endl;
     }
 }
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // notifications
@@ -651,6 +657,8 @@ void CReflector::WriteXmlFile(std::ofstream &xmlFile)
     xmlFile << "</" << m_Callsign << "heard users>" << std::endl;
 }
 
+
+#ifdef JSON_MONITOR
 ////////////////////////////////////////////////////////////////////////////////////////
 // json helpers
 
@@ -764,3 +772,4 @@ void CReflector::SendJsonOffairObject(CUdpSocket &Socket, CIp &Ip, const CCallsi
     //std::cout << Buffer << std::endl;
     Socket.Send(Buffer, Ip);
 }
+#endif

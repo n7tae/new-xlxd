@@ -72,7 +72,9 @@ protected:
     CClient             *m_OwnerClient;
     CTimePoint          m_LastPacketTime;
     CDvHeaderPacket     m_DvHeader;
+#ifdef TRANSCODER_IP
     CCodecStream        *m_CodecStream;
+#endif
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

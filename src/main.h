@@ -47,6 +47,33 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // defines
 
+// this is just for any "smart" editor, so everything will be "on"
+#if ! defined(LISTEN_IPV4) && ! defined(LISTEN_IPV6) && ! defined(CALLSIGN)
+#define CALLSIGN "XLX797"
+#define LISTEN_IPV4 "10.1.10.61"
+#define LISTEN_IPV6 "any"
+#define TRANSCODER_IP "127.0.0.1"
+#endif
+
+#ifndef TRANSCODED_MODULES
+#define TRANSCODED_MODULES "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+#endif
+
+//// Module configuration
+#ifdef LISTEN_IPV4
+#define DSTAR_IPV4
+#define DMR_IPV4
+#define YSF_IPV4
+#define XLX_IPV4
+#endif
+
+#ifdef LISTEN_IPV6
+#define DSTAR_IPV6
+//#define DMR_IPV6	// these are off beacuse there are none available for IPv6
+//#define YSF_IPV6
+//#define XLX_IPV6
+#endif
+
 // version -----------------------------------------------------
 
 #define VERSION_MAJOR                   2
@@ -64,12 +91,14 @@
 
 // system constants ---------------------------------------------
 
-#define NB_MODULES_MAX                  26
-
-// reflector ---------------------------------------------------
-
-//#define NB_OF_MODULES                   10
-#define NB_OF_MODULES                   NB_MODULES_MAX
+#ifndef NB_OF_MOUDLES
+#define NB_OF_MODULES 26
+#endif
+#if NB_OF_MODULES < 1
+#define NB_OF_MODULES 1
+#elif NB_OF_MODULES > 26
+#define NB_OF_MODULES 26
+#endif
 
 // protocols ---------------------------------------------------
 
@@ -146,7 +175,7 @@
 #define G3_KEEPALIVE_TIMEOUT            3600                                // in seconds, 1 hour
 #endif
 
-#ifndef NO_XLX
+#ifdef TRANSCODER_IP
 // Transcoder server --------------------------------------------
 
 #define TRANSCODER_PORT                 10100                               // UDP port
@@ -180,8 +209,10 @@
 
 #define LASTHEARD_USERS_MAX_SIZE        100
 #define XML_UPDATE_PERIOD               10                              // in seconds
+#ifdef JSON_MONITOR
 #define JSON_UPDATE_PERIOD              10                              // in seconds
 #define JSON_PORT                       10001
+#endif
 
 // system paths -------------------------------------------------
 

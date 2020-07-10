@@ -18,56 +18,107 @@
 # if you change these locations, make sure the sgs.service file is updated!
 # you will also break hard coded paths in the dashboard file, index.php.
 
+################## This is the part you can safely edit #######################
+
+#### Callsign
+# For an xlxd reflector, use XLX???, where ??? is an unused number.
+# For an xrfd reflector, use XRF???, where ??? is an unused number.
+callsign = XLX797
+
+# set it to false for a DStar-only xrf reflector (instead of xlx)
+is_xlx = true
+
+# how many modules?
+nb_of_modules=26
+
+#### IP Bindings
+# IPv4 - comment out the next line for no IPV4 support
+listen_ipv4 = 10.1.10.61
+
+# IPv6 - comment out the next line for no IPv6 support
+listen_ipv6 = any
+
+ifeq ($(is_xlx), true)
+# We are only concerned with the transcoder if we are building an XLX
+# Comment out the next line if there is no transcoder on an XLX build
+#transcoder_ip = 127.0.0.1
+
+ifdef transcoder_ip
+# Which modules will be transcoded? (A through Z)
+tc_mods = ABCDEFGHIJKLMNOPQRSTUVWXYZ
+endif
+
+endif
+
+# Set it to false for no G3 support
+use_g3 = true
+
+# Set it to true for debugging support
+debug = false
+
+###############################################################################
+
 # if you make changed in these two variable, you'll need to change things
 # in the main.h file as well as the systemd service file.
 BINDIR=/usr/local/bin
 CFGDIR=/usr/local/etc
 DATADIR=/var/lib/xlxd
 
-################## This is the part you can safely edit #######################
-# uncomment the next line for debugging support
-#DEBUG=true
-# uncomment the next line for a DStar only xrf reflector (instead of xlx)
-#NOXLX=true
-# uncomment the next line for no G3 support
-#NOG3=true
-###############################################################################
-
 CC=g++
 
-ifdef DEBUG
-CFLAGS=-ggdb3 -W -c -std=c++11 -MMD -MD -c
+ifeq ($(debug), true)
+CFLAGS = -ggdb3 -W -c -std=c++11 -MMD -MD -c -DNB_OF_MODULES=$(nb_of_modules) -DCALLSIGN=\"$(callsign)\"
 else
-CFLAGS=-c -W -std=c++11 -MMD -MD -c
+CFLAGS = -c -W -std=c++11 -MMD -MD -c -DNB_OF_MODULES=$(nb_of_modules) -DCALLSIGN=\"$(callsign)\"
 endif
-ifdef NOXLX
+
+ifdef listen_ipv4
+CFLAGS += -DLISTEN_IPV4=\"$(listen_ipv4)\"
+endif
+
+ifdef listen_ipv6
+CFLAGS += -DLISTEN_IPV6=\"$(listen_ipv6)\"
+endif
+
+ifdef transcoder_ip
+CFLAGS += -DTRANSCODER_IP=\"$(transcoder_ip)\" -DTRANSCODED_MODULES=\"$(tc_mods)\"
+endif
+
+ifneq ($(is_xlx), true)
 CFLAGS += -DNO_XLX
 endif
-ifdef NOG3
+
+ifneq ($(use_g3), true)
 CFLAGS += -DNO_G3
 endif
 
 LDFLAGS=-pthread
 
 XRFSRCS = cbuffer.cpp ccallsign.cpp ccallsignlist.cpp ccallsignlistitem.cpp cclient.cpp cclients.cpp cdcsclient.cpp cdcsprotocol.cpp cdextraclient.cpp cdextrapeer.cpp cdextraprotocol.cpp cdplusclient.cpp cdplusprotocol.cpp cdvframepacket.cpp cdvheaderpacket.cpp cdvlastframepacket.cpp cgatekeeper.cpp cip.cpp cnotification.cpp cpacket.cpp cpacketstream.cpp cpeercallsignlist.cpp cpeer.cpp cpeers.cpp cprotocol.cpp cprotocols.cpp creflector.cpp ctimepoint.cpp cudpsocket.cpp cuser.cpp cusers.cpp cversion.cpp main.cpp
-XLXSRCS = cbmclient.cpp cbmpeer.cpp cbptc19696.cpp ccodecstream.cpp ccrc.cpp cdmriddir.cpp cdmriddirfile.cpp cdmriddirhttp.cpp cdmrmmdvmclient.cpp cdmrmmdvmprotocol.cpp cdmrplusclient.cpp cdmrplusprotocol.cpp cgolay2087.cpp cgolay24128.cpp chamming.cpp cqr1676.cpp crs129.cpp csemaphore.cpp ctranscoder.cpp cutils.cpp cwiresxcmd.cpp cwiresxcmdhandler.cpp cwiresxinfo.cpp cxlxclient.cpp cxlxprotocol.cpp cxlxpeer.cpp cysfclient.cpp cysfconvolution.cpp cysffich.cpp cysfnode.cpp cysfnodedir.cpp cysfnodedirfile.cpp cysfnodedirhttp.cpp cysfpayload.cpp cysfprotocol.cpp cysfutils.cpp
+XLXSRCS = cbmclient.cpp cbmpeer.cpp cbptc19696.cpp ccrc.cpp cdmriddir.cpp cdmriddirfile.cpp cdmriddirhttp.cpp cdmrmmdvmclient.cpp cdmrmmdvmprotocol.cpp cdmrplusclient.cpp cdmrplusprotocol.cpp cgolay2087.cpp cgolay24128.cpp chamming.cpp cqr1676.cpp crs129.cpp csemaphore.cpp cutils.cpp cwiresxcmd.cpp cwiresxcmdhandler.cpp cwiresxinfo.cpp cxlxclient.cpp cxlxprotocol.cpp cxlxpeer.cpp cysfclient.cpp cysfconvolution.cpp cysffich.cpp cysfnode.cpp cysfnodedir.cpp cysfnodedirfile.cpp cysfnodedirhttp.cpp cysfpayload.cpp cysfprotocol.cpp cysfutils.cpp
 G3SRCS = cg3client.cpp cg3protocol.cpp crawsocket.cpp cudpmsgsocket.cpp
 
 SRCS = $(XRFSRCS)
-ifndef NOXLX
+
+ifeq ($(is_xlx), true)
 SRCS += $(XLXSRCS)
 endif
-ifndef NOG3
+
+ifdef transcoder_ip
+SRCS += ctranscoder.cpp ccodecstream.cpp
+endif
+
+ifeq ($(use_g3), true)
 SRCS += $(G3SRCS)
 endif
 
 OBJS = $(SRCS:.cpp=.o)
 DEPS = $(SRCS:.cpp=.d)
 
-ifdef NOXLX
-EXE=xrfd
-else
+ifeq ($(is_xlx), true)
 EXE=xlxd
+else
+EXE=xrfd
 endif
 
 all : $(EXE)
@@ -90,7 +141,7 @@ install : $(EXE).blacklist $(EXE).whitelist $(EXE).interlink $(EXE).terminal $(E
 ifndef NOG3
 	ln -s $(shell pwd)/$(EXE).terminal  $(CFGDIR)/$(EXE).terminal
 endif
-	cp -f $(EXE).service /etc/systemd/system/
+	cp -f ../systemd/$(EXE).service /etc/systemd/system/
 	cp -f $(EXE) $(BINDIR)
 	mkdir -p $(DATADIR)
 	systemctl enable $(EXE).service

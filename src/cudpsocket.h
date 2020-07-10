@@ -65,6 +65,7 @@ public:
 
 	// read
 	bool Receive(CBuffer &, CIp &, int);
+	bool ReceiveFrom(CBuffer &buf, CIp &ip);
 
 	// write
 	void Send(const CBuffer &, const CIp &) const;

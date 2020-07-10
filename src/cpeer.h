@@ -88,7 +88,7 @@ protected:
     // data
     CCallsign             m_Callsign;
     CIp                   m_Ip;
-    char                  m_ReflectorModules[NB_MODULES_MAX+1];
+    char                  m_ReflectorModules[27];
     CVersion              m_Version;
     std::list<CClient *>  m_Clients;
 

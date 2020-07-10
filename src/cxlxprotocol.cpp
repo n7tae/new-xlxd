@@ -56,14 +56,22 @@ void CXlxProtocol::Task(void)
     CBuffer             Buffer;
     CIp                 Ip;
     CCallsign           Callsign;
-    char                Modules[NB_MODULES_MAX+1];
+    char                Modules[27];
     CVersion            Version;
     CDvHeaderPacket     *Header;
     CDvFramePacket      *Frame;
     CDvLastFramePacket  *LastFrame;
 
     // any incoming packet ?
-    if ( m_Socket4.Receive(Buffer, Ip, 10) || m_Socket6.Receive(Buffer, Ip, 10) )
+#ifdef XLX_IPV6
+#ifdef XLX_IPV4
+	if ( ReceiveDS(Buffer, Ip, 20) )
+#else
+	if ( Receive6(Buffer, Ip, 20) )
+#endif
+#else
+	if ( Receive4(Buffer, Ip, 20) )
+#endif
     {
         // crack the packet
         if ( (Frame = IsValidDvFramePacket(Buffer)) != NULL )
@@ -276,11 +284,13 @@ void CXlxProtocol::HandleQueue(void)
                                 break;
                             case XLX_PROTOCOL_REVISION_2:
                             default:
+#ifdef TRANSCODER_IP
                                 if ( g_Transcoder.IsConnected() )
                                 {
                                     Send(buffer, client->GetIp());
                                 }
                                 else
+#endif
                                 {
                                     Send(bufferLegacy, client->GetIp());
                                 }

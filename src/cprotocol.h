@@ -122,13 +122,28 @@ protected:
     virtual char DmrDstIdToModule(uint32) const;
     virtual uint32 ModuleToDmrDestId(char) const;
 
+#ifdef LISTEN_IPV6
+	bool Receive6(CBuffer &buf, CIp &Ip, int time_ms);
+#endif
+#ifdef LISTEN_IPV4
+	bool Receive4(CBuffer &buf, CIp &Ip, int time_ms);
+#endif
+#if defined(LISTEN_IPV4) && defined(LISTEN_IPV6)
+	bool ReceiveDS(CBuffer &buf, CIp &Ip, int time_ms);
+#endif
+
 	void Send(const CBuffer &buf, const CIp &Ip) const;
 	void Send(const char    *buf, const CIp &Ip) const;
 	void Send(const CBuffer &buf, const CIp &Ip, uint16 port) const;
 	void Send(const char    *buf, const CIp &Ip, uint16 port) const;
 
     // socket
-    CUdpSocket      m_Socket4, m_Socket6;
+#ifdef LISTEN_IPV4
+    CUdpSocket m_Socket4;
+#endif
+#ifdef LISTEN_IPV6
+	CUdpSocket m_Socket6;
+#endif
 
     // streams
     std::list<CPacketStream *> m_Streams;

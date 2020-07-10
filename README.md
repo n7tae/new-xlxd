@@ -8,9 +8,7 @@ This will build **either** a new kind of XLX reflector **or** a tri-mode XRF ref
 
 This is an improved version of the multi-protocol Reflector. Nearly all std::vector containers have been replaced with std::list containers. This is a far better choice for any collection where it is common to delete elements that are not at the end of the collection. Also in this package, no classes are derived from any standard containers. Because standard containers don't have a virtual destructor, derriving from them is highly ill-advised and while the origin XLX server worked using such derivations, it represents a possible serious problem when considering future development. Also, the clean-up routines designed to be executed when shutting down were unreachable as designed and this has been fixed. In addtion, long sleep times in certain threads were preventing a polite systemd shutdown and this has been fixed. Please note that it can still take several seconds to complete the shutdown while some execution threads complete their i/o cycle. The C++ warning flag, -W has been turned on and a significant number of warning have been fixed.
 
-The Makefiles have been improved to provide automatically generated dependencies. This significantly speeds up updating time and eliminates build errors. Be sure to do a `make clean` before you switch your build type between XLX and XRF. There are several switches in the Makefile for controlling what is to be made. By default, "make" will build an XLXD system with support for G3. The first switch will add gdb debugging support. The second switch will make a DStar-only xrfd reflector. The third switch will drop support for G3. This switch should be turned on if you are planning to have a DStar routing application also run on the server. If you want to turn on any of these switches, you should copy `Makefile` to `makefile` and then modify the `makefile`.
-
-These reflectors no longer has a daemon-mode. It is unnecessary for systemd. Only systemd-based operating systems are supported. Debian or Ubuntu is recommended. If you want to install this on a non-systemd based OS, you are on your own. Also, by default, ambed and xlxd or xrfd are built without gdb support. If you want to add it, modify the `Makefile` in each build directory. Finally, this repository is designed so that you don't have to modify any file in the repository when you build your system. Any file you need to modify to properly configure your reflector will be a file you copy from you locally cloned repo. This makes it easier to update the source code when this repository is updated. Follow the instructions below to build your transcoding XLX reflector or tri-mode XRF reflector.
+Only systemd-based operating systems are supported. Debian or Ubuntu is recommended. If you want to install this on a non-systemd based OS, you are on your own. Also, by default, ambed and xlxd or xrfd are built without gdb support. If you want to add it, modify the `Makefile` in each build directory. Finally, this repository is designed so that you don't have to modify any file in the repository when you build your system. Any file you need to modify to properly configure your reflector will be a file you copy from you locally cloned repo. This makes it easier to update the source code when this repository is updated. Follow the instructions below to build your transcoding XLX reflector or tri-mode XRF reflector.
 
 - 73 de n7tae
 
@@ -46,8 +44,42 @@ sudo apt install g++
 ### Download the sources
 
 ```bash
-git clone https://github.com/n7tae/tae-xlxd.git
+git clone https://github.com/n7tae/new-xlxd.git
 ```
+
+### move to the ambed directory
+
+```bash
+cd ambed
+```
+
+### Edit the makefile
+
+You only need to do this if you are not going to use 127.0.0.1 for the ambed IP address:
+
+```bash
+cp Makefile makefile
+```
+
+The only thing to change here is your new IP address.
+
+### Compile, install and start the ambed program
+
+```bash
+make -j<N>
+sudo make install
+```
+
+### Configure your reflector software
+
+All of the software configuration is done in the makefile, so first, copy it:
+
+```bash
+cd ../src
+cp Makefile makefile
+```
+
+Everything you need to change is in one section near the top of the `makefile`. Specify a reflector callsign that is not currently being used. Make sure you check carefully to be sure your callsign choice is not already in use. You need to also set the IPv4 and IPv6 addresses to be used for binding. This should be static IP address that uses only a dotted number for IPv4 or a coloned hexidecimal number for IPv6. You can comment out either the IPv4 or the IPv6 address to create an IPv4-only or an IPv6-only reflector. Define both to build a dual stack (IPv4 *and* IPv6) reflector. Of course if you build a reflector with only IPv6, you should disable G3 support, because it's the one protocol that only operates on IPv4. In fact, currently, it would be silly to build an IPv6-only XLX reflector because there are currently no DMR or YSF system that could use it. For and XLX reflector, you can also supply a binding address for the transcoder. If you comment out this definition, you will build an XLX reflector without transcoding support. You can also control whether you reflector will support linking from Icom's G3 routing transceivers. This lining is IPv4 only! Finally you can build your reflector software with debugging support.
 
 ### Create and edit your blacklist, whitelist and linking files and systemd file
 
@@ -58,7 +90,6 @@ cp ../config/xlxd.blacklist .
 cp ../config/xlxd.whitelist .
 cp ../config/xlxd.interlink .
 cp ../config/xlxd.terminal .
-cp ../systemd/xlxd.service .
 ```
 
 If you are building an XRF reflector (please note the name changes, especially for the interlink file):
@@ -68,31 +99,11 @@ cp ../config/xlxd.blacklist xrfd.blacklist
 cp ../config/xlxd.whitelist xrfd.whitelist
 cp ../config/xlxd.interlink xrfd.interlink
 cp ../config/xlxd.terminal xrfd.terminal
-cp ../systemd/xrfd.service .
 ```
 
 If you are not going to support G3 links, you don't need to copy the .terminal file. Use your favorite editor to modify each of these files. If you want a totally open network, the blacklist and whitelist files are ready to go. The blacklist determine which callsigns can't use the reflector. The whitelist determines which callsigns can use the reflector and the interlink or linklist file sets up the XLX<--->XLX linking and/or out-going XRF linking. When building your network, remember that XLX only supports a single hop, so each XLX reflector needs to be interlinked with all the reflectors for that module's network. Along with multi-protocol support, this is the outstanding feature of the XLX design! The down-side is that a Brand Meister link is of the same Peer group as XLX, so if you want to set up a big XLX cluster that supports transcoding, you need a transcoder for all nodes!
 
-This limitation was the main driving force to develop this new XLX and XRF system: Transcoder hardware can be attached to an isolated XLX reflector and then linked to a larger network via XRF reflectors.
-
-In the service file, change the `CHANGEME` to your reflector callsign, `XLX???` or `XRF???`, where `???` is a three digit number not already in use. The next two parameters are the IPv4 and IPv6 addresses to be used for binding. This should be static IP address that uses only a dotted number for IPv4 or a coloned hexidecimal number for IPv6. For either the IPv4 or the IPv6 address, you can also supply `none` and that means the module will not support that protocol. So you can configure an IPv4-only reflector, an IPv6-only reflector, or a dual stack (IPv4 *and* IPv6) reflector. Of course if you build a reflector with only IPv6, you should disable G3 support, because it's the one protocol that only operates on IPv4. For the xlxd.service file, a final parameter is the binding address for the transcoder. This can also be set to `none` and the transcoder thread will not start. If you have configured an IPv6-only reflector, you should be using an IPv6 address for the transcoder. (If it's a locally installed transcoder, use "::1".)
-
-### Copy and edit the ambed.service file
-
-```bash
-cp ../systemd/ambed.service .
-```
-
-Make sure you are supplying the proper IP address to start ambed.
-
-### Compile, install and start the ambed program
-
-```bash
-make -j<N>
-sudo make install
-```
-
-### Compile, install and start the reflector
+### Start the reflector
 
 Now for the reflector:
 
@@ -132,7 +143,7 @@ There are two supplied, one for XRF systems and one for XLX systems.
 sudo cp -r ~/xlxd/dashboard.xlx /var/www/db     # or dashboard.xrf
 ```
 
-Please note that your www root directory might be some place else. There are one file that needs configuration. Edit the copied files, not the ones from the repository:
+Please note that your www root directory might be some place else. There is one file that needs configuration. Edit the copied files, not the ones from the repository:
 
 - **pgs/config.inc.php** - At a minimum set your email address, country and comment. **Do not** enable the calling home feature if you built an XRF reflector. This feature is for **XLX systems only**.
 

@@ -58,12 +58,21 @@ public:
     // settings
     void SetCallsign(const CCallsign &callsign)      { m_Callsign = callsign; }
     const CCallsign &GetCallsign(void) const         { return m_Callsign; }
+
+#ifdef LISTEN_IPV4
     void SetListenIPv4(const char *a, const int n)   { memset(m_IPv4, 0, n);    strncpy(m_IPv4, a, n-1); }
-    void SetListenIPv6(const char *a, const int n)   { memset(m_IPv6, 0, n);    strncpy(m_IPv6, a, n-1); }
-    void SetTranscoderIp(const char *a, const int n) { memset(m_AmbedIp, 0, n); strncpy(m_AmbedIp, a, n-1); }
     const char *GetListenIPv4(void) const            { return m_IPv4; }
+#endif
+
+#ifdef LISTEN_IPV6
+    void SetListenIPv6(const char *a, const int n)   { memset(m_IPv6, 0, n);    strncpy(m_IPv6, a, n-1); }
     const char *GetListenIPv6(void) const            { return m_IPv6; }
+#endif
+
+#ifdef TRANSCODER_IP
+    void SetTranscoderIp(const char *a, const int n) { memset(m_AmbedIp, 0, n); strncpy(m_AmbedIp, a, n-1); }
     const char *GetTranscoderIp(void) const          { return m_AmbedIp; }
+#endif
 
     // operation
     bool Start(void);
@@ -102,7 +111,9 @@ protected:
     // threads
     static void RouterThread(CReflector *, CPacketStream *);
     static void XmlReportThread(CReflector *);
+#ifdef JSON_MONITOR
     static void JsonReportThread(CReflector *);
+#endif
 
     // streams
     CPacketStream *GetStream(char);
@@ -112,19 +123,27 @@ protected:
     // xml helpers
     void WriteXmlFile(std::ofstream &);
 
+#ifdef JSON_MONITOR
     // json helpers
     void SendJsonReflectorObject(CUdpSocket &, CIp &);
     void SendJsonNodesObject(CUdpSocket &, CIp &);
     void SendJsonStationsObject(CUdpSocket &, CIp &);
     void SendJsonOnairObject(CUdpSocket &, CIp &, const CCallsign &);
     void SendJsonOffairObject(CUdpSocket &, CIp &, const CCallsign &);
+#endif
 
 protected:
     // identity
     CCallsign m_Callsign;
+#ifdef LISTEN_IPV4
     char      m_IPv4[INET_ADDRSTRLEN];
+#endif
+#ifdef LISTEN_IPV6
 	char      m_IPv6[INET6_ADDRSTRLEN];
+#endif
+#ifdef TRANSCODER_IP
 	char      m_AmbedIp[INET6_ADDRSTRLEN];
+#endif
 
     // objects
     CUsers          m_Users;            // sorted list of lastheard stations

@@ -129,7 +129,7 @@ bool CCallsignListItem::CheckListedModules(char *Modules) const
     if ( Modules != NULL )
     {
         // build a list of common modules
-        char list[NB_MODULES_MAX+1];
+        char list[27];
         list[0] = 0;
         //
         for ( unsigned i = 0; i < ::strlen(Modules); i++ )

@@ -79,9 +79,9 @@ for ($i=0;$i<$Reflector->NodeCount();$i++) {
 			if ($count > 1) {
 				if (1 == substr_count($ipstr, "::")) { $ipstr = str_replace("::", str_repeat(":", 9 - $count), $ipstr); }
 				if (7 == substr_count($ipstr, ":")) {
-					echo $MC.':'.$MC.':'.$MC.':'.$MC;
+					echo $MC.':'.$MC.':'.$MC.':'.$MC.':'.$MC.':'.$MC;
 					$Bytes = explode(":", $ipstr);
-					for( $k=4; $k<8; $k++) { echo (0==strlen($Bytes[$k])) ? ':0' : ':'.$Bytes[$k]; }
+					for( $k=6; $k<8; $k++) { echo (0==strlen($Bytes[$k])) ? ':0' : ':'.$Bytes[$k]; }
 				}
 			}
 		}

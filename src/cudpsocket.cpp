@@ -130,27 +130,29 @@ bool CUdpSocket::Receive(CBuffer &Buffer, CIp &Ip, int timeout)
 	struct timeval tv;
 	tv.tv_sec = timeout / 1000;
 	tv.tv_usec = (timeout % 1000) * 1000;
-	auto rval = select(m_fd + 1, &FdSet, 0, 0, &tv);
-	if (0 > rval)
-	{
-		std::cerr << "select error on UPD port " << m_addr << ": " << strerror(errno) << std::endl;
-		return false;
-	}
-	else if (0 == rval)
-		return false;
 
+	auto rval = select(m_fd + 1, &FdSet, 0, 0, &tv);
+	if (rval > 0)
+		return ReceiveFrom(Buffer, Ip);
+
+	if (rval < 0)
+		std::cerr << "select error on UPD port " << m_addr << ": " << strerror(errno) << std::endl;
+
+	return false;
+}
+
+bool CUdpSocket::ReceiveFrom(CBuffer &Buffer, CIp &ip)
+{
 	// read
 	uint8_t buf[UDP_BUFFER_LENMAX];
 	unsigned int fromsize = sizeof(struct sockaddr_storage);
-	auto iRecvLen = recvfrom(m_fd, buf, UDP_BUFFER_LENMAX, 0, Ip.GetPointer(), &fromsize);
+	auto iRecvLen = recvfrom(m_fd, buf, UDP_BUFFER_LENMAX, 0, ip.GetPointer(), &fromsize);
 
-	// handle
 	if (0 >= iRecvLen)
 		return false;
 
 	Buffer.Set(buf, iRecvLen);
 
-	// done
 	return true;
 }
 

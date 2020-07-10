@@ -64,7 +64,15 @@ void CDextraProtocol::Task(void)
     CDvLastFramePacket  *LastFrame;
 
     // any incoming packet ?
-    if ( m_Socket6.Receive(Buffer, Ip, 10) || m_Socket4.Receive(Buffer, Ip, 10) )
+#ifdef DSTAR_IPV6
+#ifdef DSTAR_IPV4
+	if ( ReceiveDS(Buffer, Ip, 20) )
+#else
+	if ( Receive6(Buffer, Ip, 20) )
+#endif
+#else
+	if ( Receive4(Buffer, Ip, 20) )
+#endif
     {
         // crack the packet
         if ( (Frame = IsValidDvFramePacket(Buffer)) != NULL )

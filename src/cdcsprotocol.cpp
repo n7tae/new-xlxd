@@ -61,7 +61,15 @@ void CDcsProtocol::Task(void)
     CDvFramePacket      *Frame;
 
     // handle incoming packets
-    if ( m_Socket6.Receive(Buffer, Ip, 10) || m_Socket4.Receive(Buffer, Ip, 10) )
+#ifdef DSTAR_IPV6
+#ifdef DSTAR_IPV4
+	if ( ReceiveDS(Buffer, Ip, 20) )
+#else
+	if ( Receive6(Buffer, Ip, 20) )
+#endif
+#else
+	if ( Receive4(Buffer, Ip, 20) )
+#endif
     {
         // crack the packet
         if ( IsValidDvPacket(Buffer, &Header, &Frame) )
