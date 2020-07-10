@@ -29,21 +29,21 @@ callsign = XLX797
 is_xlx = true
 
 # how many modules?
-nb_of_modules=26
+nb_of_modules = 26
 
 #### IP Bindings
 # IPv4 - comment out the next line for no IPV4 support
-listen_ipv4 = 10.1.10.61
+ipv4 = 10.1.10.61
 
 # IPv6 - comment out the next line for no IPv6 support
-listen_ipv6 = any
+ipv6 = any
 
 ifeq ($(is_xlx), true)
 # We are only concerned with the transcoder if we are building an XLX
 # Comment out the next line if there is no transcoder on an XLX build
-#transcoder_ip = 127.0.0.1
+tc_ip = 127.0.0.1
 
-ifdef transcoder_ip
+ifdef tc_ip
 # Which modules will be transcoded? (A through Z)
 tc_mods = ABCDEFGHIJKLMNOPQRSTUVWXYZ
 endif
@@ -60,11 +60,11 @@ debug = false
 
 # if you make changed in these two variable, you'll need to change things
 # in the main.h file as well as the systemd service file.
-BINDIR=/usr/local/bin
-CFGDIR=/usr/local/etc
-DATADIR=/var/lib/xlxd
+BINDIR = /usr/local/bin
+CFGDIR = /usr/local/etc
+DATADIR = /var/lib/xlxd
 
-CC=g++
+CC = g++
 
 ifeq ($(debug), true)
 CFLAGS = -ggdb3 -W -c -std=c++11 -MMD -MD -c -DNB_OF_MODULES=$(nb_of_modules) -DCALLSIGN=\"$(callsign)\"
@@ -72,16 +72,16 @@ else
 CFLAGS = -c -W -std=c++11 -MMD -MD -c -DNB_OF_MODULES=$(nb_of_modules) -DCALLSIGN=\"$(callsign)\"
 endif
 
-ifdef listen_ipv4
-CFLAGS += -DLISTEN_IPV4=\"$(listen_ipv4)\"
+ifdef ipv4
+CFLAGS += -DLISTEN_IPV4=\"$(ipv4)\"
 endif
 
-ifdef listen_ipv6
-CFLAGS += -DLISTEN_IPV6=\"$(listen_ipv6)\"
+ifdef ipv6
+CFLAGS += -DLISTEN_IPV6=\"$(ipv6)\"
 endif
 
-ifdef transcoder_ip
-CFLAGS += -DTRANSCODER_IP=\"$(transcoder_ip)\" -DTRANSCODED_MODULES=\"$(tc_mods)\"
+ifdef tc_ip
+CFLAGS += -DTRANSCODER_IP=\"$(tc_ip)\" -DTRANSCODED_MODULES=\"$(tc_mods)\"
 endif
 
 ifneq ($(is_xlx), true)
@@ -104,7 +104,7 @@ ifeq ($(is_xlx), true)
 SRCS += $(XLXSRCS)
 endif
 
-ifdef transcoder_ip
+ifdef tc_ip
 SRCS += ctranscoder.cpp ccodecstream.cpp
 endif
 
@@ -138,7 +138,7 @@ install : $(EXE).blacklist $(EXE).whitelist $(EXE).interlink $(EXE).terminal $(E
 	ln -s $(shell pwd)/$(EXE).blacklist $(CFGDIR)/$(EXE).blacklist
 	ln -s $(shell pwd)/$(EXE).whitelist $(CFGDIR)/$(EXE).whitelist
 	ln -s $(shell pwd)/$(EXE).interlink $(CFGDIR)/$(EXE).interlink
-ifndef NOG3
+ifeq ($(use_g3), true)
 	ln -s $(shell pwd)/$(EXE).terminal  $(CFGDIR)/$(EXE).terminal
 endif
 	cp -f ../systemd/$(EXE).service /etc/systemd/system/
@@ -153,6 +153,7 @@ uninstall :
 	rm -f $(CFGDIR)/$(EXE).whitelist
 	rm -f $(CFGDIR)/$(EXE).interlink
 	rm -f $(CFGDIR)/$(EXE).terminal
+	rm -r xlxd xrfd
 	systemctl stop $(EXE).service
 	rm -f $(CFGDIR)/dmrid.dat
 	systemctl disable $(EXE).service

@@ -215,13 +215,21 @@
 #endif
 
 // system paths -------------------------------------------------
-
+#ifdef NO_XLX
+#define XML_PATH                        "/var/log/xrfd.xml"
+#define WHITELIST_PATH                  "/usr/local/etc/xrfd.whitelist"
+#define BLACKLIST_PATH                  "/usr/local/etc/xrfd.blacklist"
+#define INTERLINKLIST_PATH              "/usr/local/etc/xrfd.interlink"
+#define TERMINALOPTIONS_PATH            "/usr/local/etc/xrfd.terminal"
+#define DEBUGDUMP_PATH                  "/var/log/xrfd.debug"
+#else
 #define XML_PATH                        "/var/log/xlxd.xml"
 #define WHITELIST_PATH                  "/usr/local/etc/xlxd.whitelist"
 #define BLACKLIST_PATH                  "/usr/local/etc/xlxd.blacklist"
 #define INTERLINKLIST_PATH              "/usr/local/etc/xlxd.interlink"
 #define TERMINALOPTIONS_PATH            "/usr/local/etc/xlxd.terminal"
 #define DEBUGDUMP_PATH                  "/var/log/xlxd.debug"
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // typedefs
