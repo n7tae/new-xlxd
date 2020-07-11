@@ -32,20 +32,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // function declaration
 
+#ifndef IP_ADDR
+#define IP_ADDR "127.0.0.1"
+#endif
 
-int main(int argc, const char * argv[])
+int main()
 {
-
-    // check arguments
-    if ( argc != 2 )
-    {
-        std::cout << "Usage: ambed ip" << std::endl;
-        std::cout << "example: ambed 192.168.178.212" << std::endl;
-        return 1;
-    }
-
     // initialize ambeserver
-    g_AmbeServer.SetListenIp(argv[1]);
+    g_AmbeServer.SetListenIp(IP_ADDR);
 
     // and let it run
     std::cout << "Starting AMBEd " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_REVISION << std::endl << std::endl;

@@ -134,7 +134,7 @@ clean :
 
 -include $(DEPS)
 
-install : $(EXE).blacklist $(EXE).whitelist $(EXE).interlink $(EXE).terminal $(EXE).service $(EXE)
+install :
 	ln -s $(shell pwd)/$(EXE).blacklist $(CFGDIR)/$(EXE).blacklist
 	ln -s $(shell pwd)/$(EXE).whitelist $(CFGDIR)/$(EXE).whitelist
 	ln -s $(shell pwd)/$(EXE).interlink $(CFGDIR)/$(EXE).interlink
@@ -153,7 +153,7 @@ uninstall :
 	rm -f $(CFGDIR)/$(EXE).whitelist
 	rm -f $(CFGDIR)/$(EXE).interlink
 	rm -f $(CFGDIR)/$(EXE).terminal
-	rm -r xlxd xrfd
+	rm -rf xlxd xrfd
 	systemctl stop $(EXE).service
 	rm -f $(CFGDIR)/dmrid.dat
 	systemctl disable $(EXE).service
