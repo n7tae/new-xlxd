@@ -79,7 +79,7 @@ bool CProtocol::Initialize(const char *type, uint16 port)
 	    m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)type, 3);
 
     // create our sockets
-#ifdef LISSTEN_IPV4
+#ifdef LISTEN_IPV4
 	CIp ip4(AF_INET, port, g_Reflector.GetListenIPv4());
 	if ( ip4.IsSet() )
 	{
@@ -108,7 +108,7 @@ bool CProtocol::Initialize(const char *type, uint16 port)
 #ifdef LISTEN_IPV4
 		m_Socket4.Close();
 #endif
-#ifdef LISTEN_IV6
+#ifdef LISTEN_IPV6
 		m_Socket6.Close();
 #endif
 		return false;
