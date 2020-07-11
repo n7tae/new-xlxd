@@ -57,7 +57,7 @@ static uint8 g_DmrSyncMSData[]     = { 0x0D,0x5D,0x7F,0x77,0xFD,0x75,0x70 };
 bool CDmrmmdvmProtocol::Init(void)
 {
     // base class
-    if (! Initialize(NULL, DMRMMDVM_PORT))
+    if (! Initialize(NULL, DMRMMDVM_PORT, DMR_IPV4, DMR_IPV6))
 		return false;
 
     // update time
@@ -90,8 +90,8 @@ void CDmrmmdvmProtocol::Task(void)
     CDvLastFramePacket  *LastFrame;
 
     // handle incoming packets
-#ifdef DMR_IPV6
-#ifdef DMR_IPV4
+#if DMR_IPV6==true
+#if DMR_IPV4==true
 	if ( ReceiveDS(Buffer, Ip, 20) )
 #else
 	if ( Receive6(Buffer, Ip, 20) )

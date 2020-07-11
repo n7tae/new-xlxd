@@ -51,7 +51,7 @@
 #if ! defined(LISTEN_IPV4) && ! defined(LISTEN_IPV6) && ! defined(CALLSIGN)
 #define CALLSIGN "XLX797"
 #define LISTEN_IPV4 "10.1.10.61"
-#define LISTEN_IPV6 "any"
+#define LISTEN_IPV6 "::"
 #define TRANSCODER_IP "127.0.0.1"
 #endif
 
@@ -60,19 +60,15 @@
 #endif
 
 //// Module configuration
-#ifdef LISTEN_IPV4
-#define DSTAR_IPV4
-#define DMR_IPV4
-#define YSF_IPV4
-#define XLX_IPV4
-#endif
+#define DSTAR_IPV4 true
+#define DMR_IPV4 true
+#define YSF_IPV4 true
+#define XLX_IPV4 true
 
-#ifdef LISTEN_IPV6
-#define DSTAR_IPV6
-//#define DMR_IPV6	// these are off beacuse there are none available for IPv6
-//#define YSF_IPV6
-//#define XLX_IPV6
-#endif
+#define DSTAR_IPV6 true
+#define DMR_IPV6 false
+#define YSF_IPV6 false
+#define XLX_IPV6 false
 
 // version -----------------------------------------------------
 

@@ -66,7 +66,7 @@ CProtocol::~CProtocol()
 ////////////////////////////////////////////////////////////////////////////////////////
 // initialization
 
-bool CProtocol::Initialize(const char *type, uint16 port)
+bool CProtocol::Initialize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6)
 {
     // init reflector apparent callsign
     m_ReflectorCallsign = g_Reflector.GetCallsign();
@@ -80,24 +80,30 @@ bool CProtocol::Initialize(const char *type, uint16 port)
 
     // create our sockets
 #ifdef LISTEN_IPV4
-	CIp ip4(AF_INET, port, g_Reflector.GetListenIPv4());
-	if ( ip4.IsSet() )
+	if (has_ipv4)
 	{
-		if (! m_Socket4.Open(ip4))
-			return false;
+		CIp ip4(AF_INET, port, g_Reflector.GetListenIPv4());
+		if ( ip4.IsSet() )
+		{
+			if (! m_Socket4.Open(ip4))
+				return false;
+		}
 	}
 #endif
 
 #ifdef LISTEN_IPV6
-    CIp ip6(AF_INET6, port, g_Reflector.GetListenIPv6());
-    if ( ip6.IsSet() )
-    {
-        if (! m_Socket6.Open(ip6))
+	if (has_ipv6)
+	{
+		CIp ip6(AF_INET6, port, g_Reflector.GetListenIPv6());
+		if ( ip6.IsSet() )
 		{
-			m_Socket4.Close();
-			return false;
+			if (! m_Socket6.Open(ip6))
+			{
+				m_Socket4.Close();
+				return false;
+			}
 		}
-    }
+	}
 #endif
 
     // start  thread;
@@ -105,12 +111,8 @@ bool CProtocol::Initialize(const char *type, uint16 port)
 	if (m_pThread == NULL)
 	{
 		std::cerr << "Could not start DCS thread!" << std::endl;
-#ifdef LISTEN_IPV4
 		m_Socket4.Close();
-#endif
-#ifdef LISTEN_IPV6
 		m_Socket6.Close();
-#endif
 		return false;
 	}
 
@@ -135,12 +137,8 @@ void CProtocol::Close(void)
         delete m_pThread;
         m_pThread = NULL;
     }
-#ifdef LISTEN_IPV4
 	m_Socket4.Close();
-#endif
-#ifdef LISTEN_IPV6
 	m_Socket6.Close();
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -307,21 +305,16 @@ uint32 CProtocol::ModuleToDmrDestId(char m) const
 ////////////////////////////////////////////////////////////////////////////////////////
 // Receivers
 
-#ifdef LISTEN_IPV6
 bool CProtocol::Receive6(CBuffer &buf, CIp &ip, int time_ms)
 {
 	return m_Socket6.Receive(buf, ip, time_ms);
 }
-#endif
 
-#ifdef LISTEN_IPV4
 bool CProtocol::Receive4(CBuffer &buf, CIp &ip, int time_ms)
 {
 	return m_Socket4.Receive(buf, ip, time_ms);
 }
-#endif
 
-#if defined(LISTEN_IPV4) && defined(LISTEN_IPV6)
 bool CProtocol::ReceiveDS(CBuffer &buf, CIp &ip, int time_ms)
 {
 	auto fd4 = m_Socket4.GetSocket();
@@ -358,7 +351,6 @@ bool CProtocol::ReceiveDS(CBuffer &buf, CIp &ip, int time_ms)
 	else
 		return m_Socket6.ReceiveFrom(buf, ip);
 }
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // dual stack senders
@@ -366,16 +358,12 @@ bool CProtocol::ReceiveDS(CBuffer &buf, CIp &ip, int time_ms)
 void CProtocol::Send(const CBuffer &buf, const CIp &Ip) const
 {
 	switch (Ip.GetFamily()) {
-#ifdef LISTEN_IPV4
 		case AF_INET:
 			m_Socket4.Send(buf, Ip);
 			break;
-#endif
-#ifdef LISTEN_IPV6
 		case AF_INET6:
 			m_Socket6.Send(buf, Ip);
 			break;
-#endif
 		default:
 			std::cerr << "Wrong family: " << Ip.GetFamily() << std::endl;
 			break;
@@ -385,16 +373,12 @@ void CProtocol::Send(const CBuffer &buf, const CIp &Ip) const
 void CProtocol::Send(const char *buf, const CIp &Ip) const
 {
 	switch (Ip.GetFamily()) {
-#ifdef LISTEN_IPV4
 		case AF_INET:
 			m_Socket4.Send(buf, Ip);
 			break;
-#endif
-#ifdef LISTEN_IPV6
 		case AF_INET6:
 			m_Socket6.Send(buf, Ip);
 			break;
-#endif
 		default:
 			std::cerr << "ERROR: wrong family: " << Ip.GetFamily() << std::endl;
 			break;
@@ -404,16 +388,12 @@ void CProtocol::Send(const char *buf, const CIp &Ip) const
 void CProtocol::Send(const CBuffer &buf, const CIp &Ip, uint16_t port) const
 {
 	switch (Ip.GetFamily()) {
-#ifdef LISTEN_IPV4
 		case AF_INET:
 			m_Socket4.Send(buf, Ip, port);
 			break;
-#endif
-#ifdef LISTEN_IPV6
 		case AF_INET6:
 			m_Socket6.Send(buf, Ip, port);
 			break;
-#endif
 		default:
 			std::cerr << "Wrong family: " << Ip.GetFamily() << " on port " << port << std::endl;
 			break;
@@ -423,16 +403,12 @@ void CProtocol::Send(const CBuffer &buf, const CIp &Ip, uint16_t port) const
 void CProtocol::Send(const char *buf, const CIp &Ip, uint16_t port) const
 {
 	switch (Ip.GetFamily()) {
-#ifdef LISTEN_IPV4
 		case AF_INET:
 			m_Socket4.Send(buf, Ip, port);
 			break;
-#endif
-#ifdef LISTEN_IPV6
 		case AF_INET6:
 			m_Socket6.Send(buf, Ip, port);
 			break;
-#endif
 		default:
 			std::cerr << "Wrong family: " << Ip.GetFamily() << " on port " << port << std::endl;
 			break;

@@ -37,7 +37,7 @@
 
 bool CXlxProtocol::Init(void)
 {
-    if (! Initialize("XLX", XLX_PORT))
+    if (! Initialize("XLX", XLX_PORT, XLX_IPV4, XLX_IPV6))
 		return false;
 
     // update time
@@ -63,8 +63,8 @@ void CXlxProtocol::Task(void)
     CDvLastFramePacket  *LastFrame;
 
     // any incoming packet ?
-#ifdef XLX_IPV6
-#ifdef XLX_IPV4
+#if XLX_IPV6==true
+#if XLX_IPV4==true
 	if ( ReceiveDS(Buffer, Ip, 20) )
 #else
 	if ( Receive6(Buffer, Ip, 20) )

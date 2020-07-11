@@ -38,7 +38,7 @@
 bool CDextraProtocol::Init(void)
 {
     // base class
-    if (! Initialize("XRF", DEXTRA_PORT))
+    if (! Initialize("XRF", DEXTRA_PORT, DSTAR_IPV4, DSTAR_IPV6))
 		return false;
 
     // update time
@@ -64,8 +64,8 @@ void CDextraProtocol::Task(void)
     CDvLastFramePacket  *LastFrame;
 
     // any incoming packet ?
-#ifdef DSTAR_IPV6
-#ifdef DSTAR_IPV4
+#if DSTAR_IPV6==true
+#if DSTAR_IPV4==true
 	if ( ReceiveDS(Buffer, Ip, 20) )
 #else
 	if ( Receive6(Buffer, Ip, 20) )

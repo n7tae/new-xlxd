@@ -48,7 +48,7 @@ CYsfProtocol::CYsfProtocol()
 bool CYsfProtocol::Init(void)
 {
     // base class
-    if (! Initialize("YSF", YSF_PORT))
+    if (! Initialize("YSF", YSF_PORT, YSF_IPV4, YSF_IPV6))
 		return false;
 
     // init the wiresx cmd handler
@@ -101,8 +101,8 @@ void CYsfProtocol::Task(void)
     }
 
     // handle incoming packets
-#ifdef YSF_IPV6
-#ifdef YSF_IPV4
+#if YSF_IPV6==true
+#if YSF_IPV4==true
 	if ( ReceiveDS(Buffer, Ip, 20) )
 #else
 	if ( Receive6(Buffer, Ip, 20) )

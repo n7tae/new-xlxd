@@ -36,7 +36,7 @@
 bool CDcsProtocol::Init(void)
 {
     // base class
-    if (! Initialize("DCS", DCS_PORT))
+    if (! Initialize("DCS", DCS_PORT, DSTAR_IPV4, DSTAR_IPV6))
 		return false;
 
     // update time
@@ -61,8 +61,8 @@ void CDcsProtocol::Task(void)
     CDvFramePacket      *Frame;
 
     // handle incoming packets
-#ifdef DSTAR_IPV6
-#ifdef DSTAR_IPV4
+#if DSTAR_IPV6==true
+#if DSTAR_IPV4==true
 	if ( ReceiveDS(Buffer, Ip, 20) )
 #else
 	if ( Receive6(Buffer, Ip, 20) )

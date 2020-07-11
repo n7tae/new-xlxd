@@ -77,7 +77,7 @@ public:
     virtual ~CProtocol();
 
     // initialization
-    bool Initialize(const char *, uint16);
+    bool Initialize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6);
     virtual void Close(void);
 
     // queue
@@ -122,15 +122,9 @@ protected:
     virtual char DmrDstIdToModule(uint32) const;
     virtual uint32 ModuleToDmrDestId(char) const;
 
-#ifdef LISTEN_IPV6
 	bool Receive6(CBuffer &buf, CIp &Ip, int time_ms);
-#endif
-#ifdef LISTEN_IPV4
 	bool Receive4(CBuffer &buf, CIp &Ip, int time_ms);
-#endif
-#if defined(LISTEN_IPV4) && defined(LISTEN_IPV6)
 	bool ReceiveDS(CBuffer &buf, CIp &Ip, int time_ms);
-#endif
 
 	void Send(const CBuffer &buf, const CIp &Ip) const;
 	void Send(const char    *buf, const CIp &Ip) const;
@@ -138,12 +132,8 @@ protected:
 	void Send(const char    *buf, const CIp &Ip, uint16 port) const;
 
     // socket
-#ifdef LISTEN_IPV4
     CUdpSocket m_Socket4;
-#endif
-#ifdef LISTEN_IPV6
 	CUdpSocket m_Socket6;
-#endif
 
     // streams
     std::list<CPacketStream *> m_Streams;

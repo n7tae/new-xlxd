@@ -103,7 +103,15 @@ bool CCodecStream::Init(uint16 uiPort)
 	}
 
 	// create socket address, family based on transcoder listen address
+#ifdef LISTEN_IPV4
+#ifdef LISTEN_IPV6
 	s = (AF_INET == m_Ip.GetFamily()) ? g_Reflector.GetListenIPv4() : g_Reflector.GetListenIPv6();
+#else
+	s = g_Reflector.GetListenIPv4();
+#endif
+#else
+	s = g_Reflector.GetListenIPv6();
+#endif
 	CIp ip(m_Ip.GetFamily(), m_uiPort, s);
 
     // create our socket

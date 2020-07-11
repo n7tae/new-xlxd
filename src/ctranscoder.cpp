@@ -69,7 +69,7 @@ CTranscoder::~CTranscoder()
 
 bool CTranscoder::Init(void)
 {
-    // create port to the transcoder
+    // create address to the transcoder
     auto s = g_Reflector.GetTranscoderIp();
 	m_Ip.Initialize(strchr(s, ':') ? AF_INET6 : AF_INET, TRANSCODER_PORT, s);
 
@@ -81,7 +81,15 @@ bool CTranscoder::Init(void)
 	}
 
 	// now open the transcoder port
+#ifdef LISTEN_IPV4
+#ifdef LISTEN_IPV6
 	s = (AF_INET == m_Ip.GetFamily()) ? g_Reflector.GetListenIPv4() : g_Reflector.GetListenIPv6();
+#else
+	s = g_Reflector.GetListenIPv4();
+#endif
+#else
+	s = g_Reflector.GetListenIPv6();
+#endif
 	CIp tc(m_Ip.GetFamily(), TRANSCODER_PORT, s);
 
     // create our socket
