@@ -1,0 +1,183 @@
+#!/bin/bash
+#
+# Copyright (c) 2020 by Thomas A. Early N7TAE
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+UninstallReflector () {
+	if [ -e $xlxserv ] || [ -e $xrfserv ]; then
+		cd src
+		sudo make uninstall
+		cd ..
+	fi
+	if [ -e /etc/systemd/system/ambed ]; then
+		cd ambed
+		sudo make uninstall
+		cd ..
+	fi
+}
+
+InstallReflector () {
+	if [ "$tcaddress" != none ]; then
+		cd ambed
+		sudo make install
+		cd ..
+	fi
+	cd src
+	if [[ "$callsign" == XLX* ]]; then
+		if [ ! -e xlxd.whitelist ]; then
+			echo "Making default whitelist"
+			cp ../config/xlxd.whitelist .
+		fi
+		if [ ! -e xlxd.blacklist ]; then
+			echo "Making default blacklist"
+			cp ../config/xlxd.blacklist .
+		fi
+		if [ ! -e xlxd.interlink ]; then
+			echo "Making default interlink"
+			cp ../config/xlxd.whitelist .
+		fi
+		if [[ ${g3support:-$g3support_d} == true ]] && [ ! -e xlxd.terminal ]; then
+			echo "Making default g3 terminal"
+			cp ../config/xlxd.terminal .
+		fi
+	else
+		if [ ! -e xrfd.whitelist ]; then
+			echo "Making default whitelist"
+			cp ../config/xlxd.whitelist xrfd.whitelist
+		fi
+		if [ ! -e xrfd.blacklist ]; then
+			echo "Making default blacklist"
+			cp ../config/xlxd.blacklist xrfd.blacklist
+		fi
+		if [ ! -e xrfd.interlink ]; then
+			echo "Making default interlink"
+			cp ../config/xlxd.whitelist xrfd.interlink
+		fi
+		if [[ ${g3support:-$g3support_d} == true ]] && [ ! -e xrfd.terminal ]; then
+			echo "Making default g3 terminal"
+			cp ../config/xlxd.terminal xrfd.terminal
+		fi
+	fi
+	sudo make install
+	cd ..
+}
+
+Clean () {
+	cd src
+	make clean
+	cd ../ambed
+	make clean
+	cd ..
+}
+
+Compile () {
+	local np
+	WriteCFGFiles
+	np=`cat /proc/cpuinfo | grep "model name" | wc -l`
+	cd src
+	make -j$np
+	cd ..
+	if [[ "$callsign" == XLX* ]] && [[ "$tcaddress" != none ]]; then
+		cd ambed
+		make -j$np
+		cd ..
+	fi
+}
+
+# Execution starts here!
+
+# file locations
+rcfg='reflector.cfg'
+srch='src/configure.h'
+srcm='src/configure.mk'
+ambh='ambed/configure.h'
+ambm='ambed/configure.mk'
+xlxserv='/etc/systemd/system/xlxd.service'
+xrfserv='/etc/systemd/system/xrfd.service'
+
+# default values
+callsign='CHNGME'
+nummod=26
+ip4addr='none'
+ip6addr='none'
+tcaddress='none'
+tcmodules='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+g3support=true
+dbsupport=false
+
+if [ -e reflector.cfg ]; then
+	source reflector.cfg
+else
+	echo 'No configuration file found...'
+	exit 1
+fi
+key='x'
+# main loop
+while [[ "$key" != q* ]]
+do
+	clear
+	echo
+	echo "        Reflector Administration, Version #200712"
+	echo
+	echo "ls : List configuration file"
+	if [ -e $xlxserv ] || [ -e $xrfserv ]; then
+		if [ -e $xlxserv ] && [ -e $xrfserv ]; then
+			echo "ERROR: both xlxd and xrfd seem to be installed!"
+			exit 1
+		elif [ -e $xlxserv ]; then
+			echo "us : Uninstall XLX reflector"
+		elif [ -e $xrfserv ]; then
+			echo "us : Uninstall XRF reflector"
+		fi
+		echo "rr : Restart reflector"
+		echo "rt : Restart transcoder"
+	else
+		echo "cl : Clean objects and executables"
+		echo "co : Compile executable(s)"
+		if [[ "$callsign" == XRF* ]] || [[ "$callsign" == XLX* ]]; then
+			if [[ "$callsign" == XRF* ]] && [ -e src/xrfd ]; then
+				echo "is : Install XRF reflector"
+			elif [[ "$callsign" == XLX* ]] && [ -e src/xlxd ]; then
+				if [[ "$tcaddress" == none ]]; then
+					echo "is : Install XLX reflector without transcoder"
+				else
+					if [ -e ambed/ambed ]; then
+						echo "is : Install XLX reflector and transcoder"
+					fi
+				fi
+			fi
+		fi
+	fi
+	echo
+	echo    "q  : Quit"
+	echo    "u <key> : Unset the value of <key> (revert to the default value)."
+	read -p "Please input <key> <value> - omit value to toggle a true/false : " key value
+
+	if   [[ "$key" == ls* ]]; then
+		cat reflector.cfg;
+		read -p "Enter to return: " ans
+	elif [[ "$key" == us* ]]; then UninstallReflector
+	elif [[ "$key" == is* ]]; then InstallReflector
+	elif [[ "$key" == rr* ]]; then
+		if [[ "$callsign" == XLX* ]]
+		then sudo systemctl restart xlxd
+		else sudo systemctl restart xrfd
+		fi
+	elif [[ "$key" == rt* ]]; then sudo systemctl restart ambed
+	elif [[ "$key" == cl* ]]; then Clean
+	elif [[ "$key" == co* ]]; then Compile
+	fi
+done
+exit 0

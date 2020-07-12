@@ -1,11 +1,6 @@
 #copyright(C) 2020 by Thomas A. Early, N7TAE
 
-#################################################################
-#       Here is the only things you might need to change
-ip = 127.0.0.1
-# set to true for debugging support
-debug = false
-#################################################################
+include configure.mk
 
 # If you are going to change this path, you will
 # need to update the systemd service script
@@ -16,18 +11,16 @@ GCC = g++
 # uncomment the next line to enable gdb debugging help
 #DEBUG=true
 
-CFLAGS = -W -MMD -MD -std=c++11
 
 ifeq ($(debug), true)
-CFLAGS+=-ggdb3
+CFLAGS = -ggdb3 -W -MMD -MD -std=c++11
+else
+CFLAGS = -W -MMD -MD -std=c++11
 endif
-
-CFLAGS += -DIP_ADDR=\"$(ip)\"
 
 LDFLAGS = -pthread
 
-SRCS = cagc.cpp cbuffer.cpp cfirfilter.cpp cip.cpp csignalprocessor.cpp cusb3003hrinterface.cpp  cvocodecchannel.cpp cvoicepacket.cpp cambepacket.cpp  ccallsign.cpp cfixedgain.cpp cpacket.cpp cstream.cpp cusb3000interface.cpp cusb3003interface.cpp cvocodecinterface.cpp main.cpp cambeserver.cpp ccontroller.cpp cftdidevicedescr.cpp cpacketqueue.cpp ctimepoint.cpp cusb3003df2etinterface.cpp cusb3xxxinterface.cpp cvocodecs.cpp cudpsocket.cpp
-
+SRCS = $(wildcard *.cpp)
 OBJS = $(SRCS:.cpp=.o)
 DEPS = $(SRCS:.cpp=.d)
 EXE = ambed

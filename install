@@ -1,9 +1,0 @@
-#!/bin/bash
-
-cd ambed
-make install
-
-cd ../src
-make install
-
-cd ..

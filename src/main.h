@@ -44,20 +44,10 @@
 #include <algorithm>
 #include <arpa/inet.h>
 
+#include "configure.h"
+
 ////////////////////////////////////////////////////////////////////////////////////////
 // defines
-
-// this is just for any "smart" editor, so everything will be "on"
-#if ! defined(LISTEN_IPV4) && ! defined(LISTEN_IPV6) && ! defined(CALLSIGN)
-#define CALLSIGN "XLX797"
-#define LISTEN_IPV4 "10.1.10.61"
-#define LISTEN_IPV6 "::"
-#define TRANSCODER_IP "127.0.0.1"
-#endif
-
-#ifndef TRANSCODED_MODULES
-#define TRANSCODED_MODULES "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-#endif
 
 //// Module configuration
 #define DSTAR_IPV4 true
@@ -84,17 +74,6 @@
 
 //#define DEBUG_NO_ERROR_ON_XML_OPEN_FAIL
 //#define DEBUG_DUMPFILE
-
-// system constants ---------------------------------------------
-
-#ifndef NB_OF_MOUDLES
-#define NB_OF_MODULES 26
-#endif
-#if NB_OF_MODULES < 1
-#define NB_OF_MODULES 1
-#elif NB_OF_MODULES > 26
-#define NB_OF_MODULES 26
-#endif
 
 // protocols ---------------------------------------------------
 

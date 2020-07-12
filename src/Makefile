@@ -18,45 +18,7 @@
 # if you change these locations, make sure the sgs.service file is updated!
 # you will also break hard coded paths in the dashboard file, index.php.
 
-################## This is the part you can safely edit #######################
-
-#### Callsign
-# For an xlxd reflector, use XLX???, where ??? is an unused number.
-# For an xrfd reflector, use XRF???, where ??? is an unused number.
-callsign = XLX797
-
-# set it to false for a DStar-only xrf reflector (instead of xlx)
-is_xlx = true
-
-# how many modules?
-nb_of_modules = 26
-
-#### IP Bindings
-# IPv4 - comment out the next line for no IPV4 support
-ipv4 = 10.1.10.61
-
-# IPv6 - comment out the next line for no IPv6 support
-ipv6 = any
-
-ifeq ($(is_xlx), true)
-# We are only concerned with the transcoder if we are building an XLX
-# Comment out the next line if there is no transcoder on an XLX build
-tc_ip = 127.0.0.1
-
-ifdef tc_ip
-# Which modules will be transcoded? (A through Z)
-tc_mods = ABCDEFGHIJKLMNOPQRSTUVWXYZ
-endif
-
-endif
-
-# Set it to false for no G3 support
-use_g3 = true
-
-# Set it to true for debugging support
-debug = false
-
-###############################################################################
+include configure.mk
 
 # if you make changed in these two variable, you'll need to change things
 # in the main.h file as well as the systemd service file.
@@ -67,29 +29,9 @@ DATADIR = /var/lib/xlxd
 CC = g++
 
 ifeq ($(debug), true)
-CFLAGS = -ggdb3 -W -c -std=c++11 -MMD -MD -c -DNB_OF_MODULES=$(nb_of_modules) -DCALLSIGN=\"$(callsign)\"
+CFLAGS = -ggdb3 -W -c -std=c++11 -MMD -MD -c
 else
-CFLAGS = -c -W -std=c++11 -MMD -MD -c -DNB_OF_MODULES=$(nb_of_modules) -DCALLSIGN=\"$(callsign)\"
-endif
-
-ifdef ipv4
-CFLAGS += -DLISTEN_IPV4=\"$(ipv4)\"
-endif
-
-ifdef ipv6
-CFLAGS += -DLISTEN_IPV6=\"$(ipv6)\"
-endif
-
-ifdef tc_ip
-CFLAGS += -DTRANSCODER_IP=\"$(tc_ip)\" -DTRANSCODED_MODULES=\"$(tc_mods)\"
-endif
-
-ifneq ($(is_xlx), true)
-CFLAGS += -DNO_XLX
-endif
-
-ifneq ($(use_g3), true)
-CFLAGS += -DNO_G3
+CFLAGS = -c -W -std=c++11 -MMD -MD -c
 endif
 
 LDFLAGS=-pthread

@@ -1,0 +1,257 @@
+#!/bin/bash
+#
+# Copyright (c) 2020 by Thomas A. Early N7TAE
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+SetBooleanValue () {
+	local dvname
+	local cv
+	if [ -z $2 ]; then
+		if [ -z ${!1+x} ]; then
+			if [[ "$1" == module_[abc]_* ]]; then
+				echo matches
+				dvname=${1//_[abc]_/_x_}
+			else
+				echo does not match
+				dvname=${1}_d
+			fi
+			cv=${!dvname}
+		else
+			cv=${!1}
+		fi
+		if [[ $cv == [tT]* ]]; then
+			eval ${1}=false
+		else
+			eval ${1}=true
+		fi
+	elif [[ "$2" == [tT]* ]]; then
+		eval ${1}=true
+	else
+		eval ${1}=false
+	fi
+}
+
+EvaluateVar () {
+	if [ -z ${!1+x} ]; then
+		if [ -z "${!2}" ]; then
+			echo "'' <DEFAULT>"
+		else
+			echo "${!2} <DEFAULT>"
+		fi
+	else
+		if [ -z "${!1}" ]; then
+			echo "''"
+		else
+			echo "${!1}"
+		fi
+	fi
+}
+
+WriteMemFile () {
+	local file
+	file="$rcfg"
+	echo "# created on `date`" > $file
+	[ -z ${callsign+x}  ] || echo  "callsign='$callsign'"  >> $file
+	[ -z ${nummod+x}    ] || echo    "nummod=$nummod"      >> $file
+	[ -z ${ip4addr+x}   ] || echo   "ip4addr='$ip4addr'"   >> $file
+	[ -z ${ip6addr+x}   ] || echo   "ip6addr='$ip6addr'"   >> $file
+	[ -z ${tcaddress+x} ] || echo "tcaddress='$tcaddress'" >> $file
+	[ -z ${tcmodules+x} ] || echo "tcmodules='$tcmodules'" >> $file
+	[ -z ${g3support+x} ] || echo "g3support=$g3support"   >> $file
+	[ -z ${dbsupport+x} ] || echo "dbsupport=$dbsupport"   >> $file
+	echo "===========${file}============="
+	cat $file
+}
+
+WriteSRCHFile () {
+	local file
+	file="$srch"
+	echo "// Created on `date`" > $file
+	echo "#define CALLSIGN \"${callsign}\"" >> $file
+	if [[ "$callsign" == XRF* ]]; then
+		echo "#define NO_XLX" >> $file
+	fi
+	if [ -z ${nummod+x} ]; then
+		echo "#define NB_OF_MODULES ${nummod_d}" >> $file
+	else
+		echo "#define NB_OF_MODULES ${nummod}" >> $file
+	fi
+	[ -z ${ip4addr+x} ] || echo "#define LISTEN_IPV4 \"${ip4addr}\"" >> $file
+	[ -z ${ip6addr+x} ] || echo "#define LISTEN_IPV6 \"${ip6addr}\"" >> $file
+	if [ ! -z ${tcaddress+x} ]; then
+		echo "#define TRANSCODER_IP \"${tcaddress}\"" >> $file
+		if [ -z ${tcmodules+x} ]; then
+			echo "#define TRANSCODED_MODULES \"${tcmodules_d}\"" >> $file
+		else
+			echo "#define TRANSCODED_MODULES \"${tcmodules}\"" >> $file
+		fi
+	fi
+	if [ -z ${g3support+x} ]; then
+		m=${g3support_d}
+	else
+		m=${g3support}
+	fi
+	[ $m ] || echo "#define NO_G3" >> $file
+}
+
+WriteSRCMKFile () {
+	local file
+	file="$srcm"
+	echo "# Created on `date`" > $file
+	if [[ "$callsign" == XLX* ]]; then
+		echo "is_xlx = true" >> $file
+	else
+		echo "is_xlx = false" >> $file
+	fi
+	[ -z ${ip4addr+x} ] || echo "ipv4 = $ip4addr" >> $file
+	[ -z ${ip6addr+x} ] || echo "ipv6 = $ip6addr" >> $file
+	[ -z ${tcaddress+x} ] || echo "tc_ip = $tcaddress" >> $file
+	if [ -z ${g3support+x} ]; then
+		echo "use_g3 = $g3support_d" >> $file
+	else
+		echo "use_g3 = $g3support" >> $file
+	fi
+	if [ -z ${dbsupport+x} ]; then
+		echo "debug = $dbsupport_d" >> $file
+	else
+		echo "debug = $dbsupport" >> $file
+	fi
+}
+
+WriteAmbeHFile () {
+	local file
+	file="$ambh"
+	echo "// Created on `date`" > $file
+	echo "#define TRANSCODER_IP \"${tcaddress}\"" >> $file
+}
+
+WriteAmbeMKFile () {
+	local file
+	file="$ambm"
+	echo "# created on `date`" > $file
+	if [ -z ${dbsupport+x} ]; then
+		echo "debug = $dbsupport_d" >> $file
+	else
+		echo "debug = $dbsupport" >> $file
+	fi
+}
+
+WriteCFGFiles () {
+	WriteMemFile
+	WriteSRCHFile
+	WriteSRCMKFile
+	if [ -z ${tcaddress+x} ]; then
+		rm -f $ambh $ambm
+	else
+		WriteAmbeHFile
+		WriteAmbeMKFile
+	fi
+}
+
+ListCFGFiles ()
+{
+	echo "===========${srch}============="
+	cat $srch
+	echo "===========${srcm}============="
+	cat $srcm
+	if [ ! -z ${tcaddress+x} ]; then
+		echo "===========${ambh}============="
+		cat $ambh
+		echo "===========${ambm}============="
+		cat $ambm
+	fi
+	read -p "Press <return> to continue: " ans
+}
+
+# Execution starts here!
+# file locations
+rcfg='reflector.cfg'
+srch='src/configure.h'
+srcm='src/configure.mk'
+ambh='ambed/configure.h'
+ambm='ambed/configure.mk'
+# default values
+callsign_d='CHNGME'
+nummod_d=26
+ip4addr_d='none'
+ip6addr_d='none'
+tcaddress_d='none'
+tcmodules_d='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+g3support_d=true
+dbsupport_d=false
+
+if [ -e reflector.cfg ]; then
+	source reflector.cfg
+else
+	echo 'No configuration file found...'
+	sleep 1
+fi
+key='x'
+# main loop
+while [[ "$key" != q* ]]
+do
+	clear
+	echo
+	echo "        Reflector Configuration, Version #200712"
+	echo
+	echo -n "cs : Reflector Callsign  = "; EvaluateVar callsign{,_d}
+	echo -n "nm : Number of Modules   = "; EvaluateVar nummod{,_d}
+	echo -n "i4 : IPv4 Listen Address = "; EvaluateVar ip4addr{,_d}
+	echo -n "i6 : IPv6 Listen Address = "; EvaluateVar ip6addr{,_d}
+	if [[ "$callsign" == XLX* ]]; then
+		echo -n "tc : Transcoder Address  = "; EvaluateVar tcaddress{,_d}
+		if [ ! -z ${tcaddress+x} ]; then
+			echo -n "tm : Transcoder Modules  = "; EvaluateVar tcmodules{,_d}
+		fi
+	fi
+	echo -n "g3 : Icom G3 Support     = "; EvaluateVar g3support{,_d}
+	echo -n "db : Debugging Support   = "; EvaluateVar dbsupport{,_d}
+	if [[ "$callsign" == XLX* ]] || [[ "$callsign" == XRF* ]]; then
+		echo    "w  : Write configuration filess (overwrites any existing files)"
+	fi
+	echo
+	echo    "q  : Quit"
+	echo    "u <key> : Unset the value of <key> (revert to the default value)."
+	read -p "Please input <key> <value> - omit value to toggle a true/false : " key value
+
+	if [[ "$key" == cs* ]]; then
+		callsign="${value^^}"
+		callsign="${callsign:0:6}"
+		if [[ "$callsign" == REF* ]]; then
+			unset tcaddress tcmodules
+		fi
+	elif [[ "$key" == nm* ]]; then nummod="$value"
+	elif [[ "$key" == i4* ]]; then ip4addr="$value"
+	elif [[ "$key" == i6* ]]; then ip6addr="$value"
+	elif [[ "$key" == tc* ]]; then tcaddress="$value"
+	elif [[ "$key" == tm* ]]; then tcmodules="${value^^}"
+	elif [[ "$key" == g3* ]]; then SetBooleanValue g3support "$value"
+	elif [[ "$key" == db* ]]; then SetBooleanValue dbsupport "$value"
+	elif [[ "$key" == w* ]]; then
+		WriteCFGFiles
+		ListCFGFiles
+	elif [[ "$key" == u* ]]; then
+		if   [[ "$value" == cs* ]]; then unset callsign
+		elif [[ "$value" == nm* ]]; then unset nummod
+		elif [[ "$value" == i4* ]]; then unset ip4addr
+		elif [[ "$value" == i6* ]]; then unset ip6addr
+		elif [[ "$value" == tc* ]]; then unset tcaddress
+		elif [[ "$value" == tm* ]]; then unset tcmodules
+		elif [[ "$value" == g3* ]]; then unset g3support
+		elif [[ "$value" == db* ]]; then unset dbsupport
+		fi
+	fi
+done
+exit 0

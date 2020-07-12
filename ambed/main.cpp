@@ -23,23 +23,20 @@
 //    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
+#include <sys/stat.h>
+
+#include "configure.h"
 #include "main.h"
 #include "ctimepoint.h"
 #include "cambeserver.h"
 
-#include <sys/stat.h>
-
 ////////////////////////////////////////////////////////////////////////////////////////
 // function declaration
-
-#ifndef IP_ADDR
-#define IP_ADDR "127.0.0.1"
-#endif
 
 int main()
 {
     // initialize ambeserver
-    g_AmbeServer.SetListenIp(IP_ADDR);
+    g_AmbeServer.SetListenIp(TRANSCODER_IP);
 
     // and let it run
     std::cout << "Starting AMBEd " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_REVISION << std::endl << std::endl;
