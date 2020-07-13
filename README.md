@@ -41,45 +41,12 @@ sudo apt install build-essential
 sudo apt install g++
 ```
 
-### Download the sources
+### Download the repository and enter the directory
 
 ```bash
 git clone https://github.com/n7tae/new-xlxd.git
+cd new-xlxd
 ```
-
-### move to the ambed directory
-
-```bash
-cd ambed
-```
-
-### Edit the makefile
-
-You only need to do this if you are not going to use 127.0.0.1 for the ambed IP address:
-
-```bash
-cp Makefile makefile
-```
-
-The only thing to change here is your new IP address.
-
-### Compile, install and start the ambed program
-
-```bash
-make -j<N>
-sudo make install
-```
-
-### Configure your reflector software
-
-All of the software configuration is done in the makefile, so first, copy it:
-
-```bash
-cd ../src
-cp Makefile makefile
-```
-
-Everything you need to change is in one section near the top of the `makefile`. Specify a reflector callsign that is not currently being used. Make sure you check carefully to be sure your callsign choice is not already in use. You need to also set the IPv4 and IPv6 addresses to be used for binding. This should be static IP address that uses only a dotted number for IPv4 or a coloned hexidecimal number for IPv6. You can comment out either the IPv4 or the IPv6 address to create an IPv4-only or an IPv6-only reflector. Define both to build a dual stack (IPv4 *and* IPv6) reflector. Of course if you build a reflector with only IPv6, you should disable G3 support, because it's the one protocol that only operates on IPv4. In fact, currently, it would be silly to build an IPv6-only XLX reflector because there are currently no DMR or YSF system that could use it. For and XLX reflector, you can also supply a binding address for the transcoder. If you comment out this definition, you will build an XLX reflector without transcoding support. You can also control whether you reflector will support linking from Icom's G3 routing transceivers. This lining is IPv4 only! Finally you can build your reflector software with debugging support.
 
 ### Create and edit your blacklist, whitelist and linking files and systemd file
 
@@ -101,30 +68,29 @@ cp ../config/xlxd.interlink xrfd.interlink
 cp ../config/xlxd.terminal xrfd.terminal
 ```
 
-If you are not going to support G3 links, you don't need to copy the .terminal file. Use your favorite editor to modify each of these files. If you want a totally open network, the blacklist and whitelist files are ready to go. The blacklist determine which callsigns can't use the reflector. The whitelist determines which callsigns can use the reflector and the interlink or linklist file sets up the XLX<--->XLX linking and/or out-going XRF linking. When building your network, remember that XLX only supports a single hop, so each XLX reflector needs to be interlinked with all the reflectors for that module's network. Along with multi-protocol support, this is the outstanding feature of the XLX design! The down-side is that a Brand Meister link is of the same Peer group as XLX, so if you want to set up a big XLX cluster that supports transcoding, you need a transcoder for all nodes!
+If you are not going to support G3 links, you don't need to copy the .terminal file. Use your favorite editor to modify each of these files. If you want a totally open network, the blacklist and whitelist files are ready to go. The blacklist determine which callsigns can't use the reflector. The whitelist determines which callsigns can use the reflector. The interlink file sets up the XLX<--->XLX inter-linking and/or out-going XRF linking.
 
-### Start the reflector
+### Configuring your reflector
 
-Now for the reflector:
-
-```bash
-cd ../xlxd
-```
-
-There are several options in reflector Makefile, by default, you will not have debugging support, you will build an XLX (not an XRF) reflector and you will support Icom's G3 routing. If you want to change any of these, you need to modify you Makefile:
+Start the configuration script:
 
 ```bash
-cp Makefile makefile
+./rconfig
 ```
 
-Edit the makefile to change your configuration. Just uncomment the lines indicated near the beginning of the file. Now your ready to comile and install:
+There are only a few things that need to be specified, most importantly, the reflector callsign and the IP addresses for the IPv4 and IPv6 listen ports and a transcoder port, if there is a transcoder. Obviously the transcoder is only specified for an XLX reflector. If you are building an XLX system with a transcoder, you can specify which channels get transcoder support. There are also true/false flags to prevent G3 support and so that you can build executables that will support gdb debugging.
+
+Be sure to write out the configuration files and look over the up to 5 different configration files that are created. The first file, reflector.cfg is the memory file for rconfig so that if you start that script again, it will remember how you left things. There are one or two `.h` files for the reflector and ambed and there are one or two `.mk` files for the reflector and ambed makefiles.
+
+### Compling and installing your system
+
+After you have written your configutation files, you can build and install your system:
 
 ```bash
-make -j<N>
-sudo make install
+./radmin
 ```
 
-Replace the `<N>` with the number of processors on your system, which can be found with `cat /proc/cpuinfo`.
+Use this command to compile and install your system. It can also be used to uninstall your system. It will use the information in reflector.cfg to perform each task. This radmin menu can also perform other tasks like restarting the reflector or transcoder process. It can also be used to update the software, if the system is uninstalled.
 
 ### Stoping and starting the services
 
