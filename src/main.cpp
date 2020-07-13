@@ -46,6 +46,10 @@ int main()
 		std::cerr << "Malformed reflector callsign: '" << cs << "', aborting!" << std::endl;
 		return EXIT_FAILURE;
 	}
+
+	// remove pidfile
+	remove(PIDFILE_PATH);
+
     // splash
     std::cout << "Starting " << cs << " " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_REVISION << std::endl << std::endl;
 
@@ -84,6 +88,11 @@ int main()
 	std::cout << "...ABORTING! No IP addresses defined!" << std::endl;
 	return EXIT_FAILURE;
 #endif
+
+	// write new pid file
+	std::ofstream ofs(PIDFILE_PATH, std::ofstream::out);
+	ofs << getpid() << std::endl;
+	ofs.close();
 
 	pause(); // wait for any signal
 

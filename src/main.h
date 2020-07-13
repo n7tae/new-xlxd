@@ -197,6 +197,7 @@
 #define INTERLINKLIST_PATH              "/usr/local/etc/xrfd.interlink"
 #define TERMINALOPTIONS_PATH            "/usr/local/etc/xrfd.terminal"
 #define DEBUGDUMP_PATH                  "/var/log/xrfd.debug"
+#define PIDFILE_PATH                    "/var/run/xrfd.pid"
 #else
 #define XML_PATH                        "/var/log/xlxd.xml"
 #define WHITELIST_PATH                  "/usr/local/etc/xlxd.whitelist"
@@ -204,6 +205,7 @@
 #define INTERLINKLIST_PATH              "/usr/local/etc/xlxd.interlink"
 #define TERMINALOPTIONS_PATH            "/usr/local/etc/xlxd.terminal"
 #define DEBUGDUMP_PATH                  "/var/log/xlxd.debug"
+#define PIDFILE_PATH                    "/var/run/xlxd.pid"
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////

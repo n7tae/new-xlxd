@@ -1,5 +1,5 @@
 ##############################################################################
-#  XLXD blacklist file
+#  XLXD/XRFD blacklist file
 #
 #  one line per entry
 #  each entry is explicitely denied access (blacklisted)
