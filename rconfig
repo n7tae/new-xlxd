@@ -71,7 +71,6 @@ WriteMemFile () {
 	[ -z ${tcmodules+x} ] || echo "tcmodules='$tcmodules'" >> $file
 	[ -z ${g3support+x} ] || echo "g3support=$g3support"   >> $file
 	[ -z ${dbsupport+x} ] || echo "dbsupport=$dbsupport"   >> $file
-	echo "===========${file}============="
 }
 
 WriteSRCHFile () {
