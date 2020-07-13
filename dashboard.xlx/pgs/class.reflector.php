@@ -2,31 +2,31 @@
 
 class xReflector {
    
-   public $Nodes                     = null;
-   public $Stations                  = null;
-   public $Peers                     = null;
-   private $Flagarray                = null;
-   private $Flagarray_DXCC           = null;
-   private $Flagfile                 = null;
-   private $CallingHomeActive        = null;
-   private $CallingHomeHash          = null;
-   private $CallingHomeDashboardURL  = null;
-   private $CallingHomeServerURL     = null;
-   private $ReflectorName            = null;
-   private $ServiceUptime            = null;
-   private $ProcessIDFile            = null;
-   private $XMLContent               = null;
-   private $XMLFile                  = null;
-   private $ServiceName              = null;
-   private $Version                  = null;
-   private $CallingHomeCountry       = null;
-   private $CallingHomeComment       = null;
-   private $CallingHomeOverrideIP    = null;
-   private $Transferinterlink        = null;
-   private $Interlinkfile            = null;
+   public $Nodes                    = null;
+   public $Stations                 = null;
+   public $Peers                    = null;
+   private $Flagarray               = null;
+   private $Flagarray_DXCC          = null;
+   private $Flagfile                = null;
+   private $CallingHomeActive       = null;
+   private $CallingHomeHash         = null;
+   private $CallingHomeDashboardURL = null;
+   private $CallingHomeServerURL    = null;
+   private $ReflectorName           = null;
+   private $ServiceUptime           = null;
+   private $ProcessIDFile           = null;
+   private $XMLContent              = null;
+   private $XMLFile                 = null;
+   private $ServiceName             = null;
+   private $Version                 = null;
+   private $CallingHomeCountry      = null;
+   private $CallingHomeComment      = null;
+   private $CallingHomeOverrideIP   = null;
+   private $Transferinterlink       = null;
+   private $Interlinkfile           = null;
    public $Interlinks               = null;
-   private $InterlinkXML             = null;
-   private $ReflectorXML             = null;
+   private $InterlinkXML            = null;
+   private $ReflectorXML            = null;
    
    public function __construct() {
       $this->Nodes             = array();
@@ -239,7 +239,12 @@ class xReflector {
       $i        = 0;
       while ($i < $this->NodeCount()) {
          if ($this->Nodes[$i]->GetRandomID() == $RandomId) {
-            return $this->Nodes[$i]->GetCallSign().'-'.$this->Nodes[$i]->GetSuffix();
+            if (trim($this->Nodes[$i]->GetSuffix()) == "") {
+               return $this->Nodes[$i]->GetCallSign();
+            }
+            else {
+               return $this->Nodes[$i]->GetCallSign().'-'.$this->Nodes[$i]->GetSuffix();
+            }
          }
          $i++;
       }
