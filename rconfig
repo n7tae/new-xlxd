@@ -205,7 +205,7 @@ while [[ "$key" != q* ]]
 do
 	clear
 	echo
-	echo "        Reflector Configuration, Version #200712"
+	echo "        Reflector Configuration, Version #200713"
 	echo
 	echo -n "cs : Reflector Callsign  = "; EvaluateVar callsign{,_d}
 	echo -n "nm : Number of Modules   = "; EvaluateVar nummod{,_d}
