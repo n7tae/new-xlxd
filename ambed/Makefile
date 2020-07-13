@@ -37,9 +37,9 @@ clean :
 -include $(DEPS)
 
 # The install and uninstall targets need to be run by root
-install : $(EXE) $(EXE).service
+install : $(EXE)
 	cp $(EXE) $(BINDIR)
-	cp $(EXE).service /etc/systemd/system/
+	cp ../ambed/$(EXE).service /etc/systemd/system/
 	systemctl enable ambed
 	systemctl daemon-reload
 	systemctl start ambed

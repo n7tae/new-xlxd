@@ -85,7 +85,7 @@ Clean () {
 Compile () {
 	local np
 	WriteCFGFiles
-	np=`cat /proc/cpuinfo | grep "model name" | wc -l`
+	np=`getconf _NPROCESSORS_ONLN`
 	cd src
 	make -j$np
 	cd ..
