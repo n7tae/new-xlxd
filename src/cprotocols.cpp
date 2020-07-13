@@ -27,11 +27,15 @@
 #include "cdextraprotocol.h"
 #include "cdplusprotocol.h"
 #include "cdcsprotocol.h"
+#ifndef NO_XLX
 #include "cxlxprotocol.h"
 #include "cdmrplusprotocol.h"
 #include "cdmrmmdvmprotocol.h"
 #include "cysfprotocol.h"
+#endif
+#ifndef NO_G3
 #include "cg3protocol.h"
+#endif
 #include "cprotocols.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////

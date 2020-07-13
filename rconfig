@@ -74,7 +74,7 @@ WriteMemFile () {
 }
 
 WriteSRCHFile () {
-	local file
+	local file m
 	file="$srch"
 	echo "// Created on `date`" > $file
 	echo "#define CALLSIGN \"${callsign}\"" >> $file
@@ -101,7 +101,9 @@ WriteSRCHFile () {
 	else
 		m=${g3support}
 	fi
-	[ $m ] || echo "#define NO_G3" >> $file
+	if [[ "$m" != true ]]; then
+		echo "#define NO_G3" >> $file
+	fi
 }
 
 WriteSRCMKFile () {
