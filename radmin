@@ -99,11 +99,6 @@ Compile () {
 # Execution starts here!
 
 # file locations
-rcfg='reflector.cfg'
-srch='src/configure.h'
-srcm='src/configure.mk'
-ambh='ambed/configure.h'
-ambm='ambed/configure.mk'
 xlxserv='/etc/systemd/system/xlxd.service'
 xrfserv='/etc/systemd/system/xrfd.service'
 
@@ -144,8 +139,9 @@ do
 		echo "rr : Restart reflector"
 		echo "rt : Restart transcoder"
 	else
-		echo "cl : Clean objects and executables"
-		echo "co : Compile executable(s)"
+		echo "cl : Clean (remove) compiled objects and executables"
+		echo "gp : Pull the latest software from the repo"
+		echo "co : Compile system executable(s)"
 		if [[ "$callsign" == XRF* ]] || [[ "$callsign" == XLX* ]]; then
 			if [[ "$callsign" == XRF* ]] && [ -e src/xrfd ]; then
 				echo "is : Install XRF reflector"
@@ -162,14 +158,17 @@ do
 	fi
 	echo
 	echo    "q  : Quit"
-	echo    "u <key> : Unset the value of <key> (revert to the default value)."
-	read -p "Please input <key> <value> - omit value to toggle a true/false : " key value
+	echo    "u  : Unset the value of <key> (revert to the default value)."
+	echo
+	read -p "Please input <key> <value> - omit value to toggle a true/false : " key value garbage
 
 	if   [[ "$key" == ls* ]]; then
 		cat reflector.cfg;
-		read -p "Enter to return: " ans
+		ceho
+		read -p "<Enter> to return to main menu: " ans
 	elif [[ "$key" == us* ]]; then UninstallReflector
 	elif [[ "$key" == is* ]]; then InstallReflector
+	elif [[ "$key" == gp* ]]; then git pull
 	elif [[ "$key" == rr* ]]; then
 		if [[ "$callsign" == XLX* ]]
 		then sudo systemctl restart xlxd

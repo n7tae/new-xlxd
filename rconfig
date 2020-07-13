@@ -162,6 +162,8 @@ WriteCFGFiles () {
 
 ListCFGFiles ()
 {
+	echo "===========${rcfg}============="
+	cat $rcfg
 	echo "===========${srch}============="
 	cat $srch
 	echo "===========${srcm}============="
@@ -172,7 +174,6 @@ ListCFGFiles ()
 		echo "===========${ambm}============="
 		cat $ambm
 	fi
-	read -p "Press <return> to continue: " ans
 }
 
 # Execution starts here!
@@ -218,15 +219,16 @@ do
 	fi
 	echo -n "g3 : Icom G3 Support     = "; EvaluateVar g3support{,_d}
 	echo -n "db : Debugging Support   = "; EvaluateVar dbsupport{,_d}
-	if [[ "$callsign" == XLX* ]] || [[ "$callsign" == XRF* ]]; then
-		echo    "w  : Write configuration filess (overwrites any existing files)"
-	fi
 	echo
-	echo    "q  : Quit"
-	echo    "u <key> : Unset the value of <key> (revert to the default value)."
-	read -p "Please input <key> <value> - omit value to toggle a true/false : " key value
+	if [[ "$callsign" == XLX* ]] || [[ "$callsign" == XRF* ]]; then
+		echo    "w  : Write configuration files (overwrites any existing files) and quit"
+	fi
+	echo    "q  : Quit without saving"
+	echo    "u  : Unset the value of <key> (revert to the default value)."
+	echo
+	read -p "Please input <key> <value> - omit value to toggle a true/false : " key value garbage
 
-	if [[ "$key" == cs* ]]; then
+	if [[ "$key" == cs*  && ( ${value^^} == XRF* || ${value^^} == XLX* ) ]]; then
 		callsign="${value^^}"
 		callsign="${callsign:0:6}"
 		if [[ "$callsign" == REF* ]]; then
@@ -242,6 +244,7 @@ do
 	elif [[ "$key" == w* ]]; then
 		WriteCFGFiles
 		ListCFGFiles
+		exit 0
 	elif [[ "$key" == u* ]]; then
 		if   [[ "$value" == cs* ]]; then unset callsign
 		elif [[ "$value" == nm* ]]; then unset nummod
