@@ -39,7 +39,7 @@ clean :
 # The install and uninstall targets need to be run by root
 install : $(EXE)
 	cp $(EXE) $(BINDIR)
-	cp ../ambed/$(EXE).service /etc/systemd/system/
+	cp ../systemd/$(EXE).service /etc/systemd/system/
 	systemctl enable ambed
 	systemctl daemon-reload
 	systemctl start ambed
