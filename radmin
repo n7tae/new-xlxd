@@ -116,7 +116,7 @@ key='x'
 while [[ "$key" != q* ]]
 do
 	clear
-	pcount = `ps -aux | grep -e xlxd -e xrfd -e ambed | wc -l`
+	pcount=$(ps -aux | grep -e xlxd -e xrfd -e ambed | wc -l)
 	if [ "$pcount" -gt 1 ]; then
 		echo
 		ps -aux | head -1
