@@ -37,36 +37,28 @@ InstallReflector () {
 	cd src
 	if [[ "$callsign" == XLX* ]]; then
 		if [ ! -e xlxd.whitelist ]; then
-			echo "Making default whitelist"
 			cp ../config/xlxd.whitelist .
 		fi
 		if [ ! -e xlxd.blacklist ]; then
-			echo "Making default blacklist"
 			cp ../config/xlxd.blacklist .
 		fi
 		if [ ! -e xlxd.interlink ]; then
-			echo "Making default interlink"
 			cp ../config/xlxd.whitelist .
 		fi
-		if [[ ${g3support:-$g3support_d} == true ]] && [ ! -e xlxd.terminal ]; then
-			echo "Making default g3 terminal"
+		if [[ "$g3support" == true ]] && [ ! -e xlxd.terminal ]; then
 			cp ../config/xlxd.terminal .
 		fi
 	else
 		if [ ! -e xrfd.whitelist ]; then
-			echo "Making default whitelist"
 			cp ../config/xlxd.whitelist xrfd.whitelist
 		fi
 		if [ ! -e xrfd.blacklist ]; then
-			echo "Making default blacklist"
 			cp ../config/xlxd.blacklist xrfd.blacklist
 		fi
 		if [ ! -e xrfd.interlink ]; then
-			echo "Making default interlink"
 			cp ../config/xlxd.whitelist xrfd.interlink
 		fi
-		if [[ ${g3support:-$g3support_d} == true ]] && [ ! -e xrfd.terminal ]; then
-			echo "Making default g3 terminal"
+		if [[ "$g3support" == true ]] && [ ! -e xrfd.terminal ]; then
 			cp ../config/xlxd.terminal xrfd.terminal
 		fi
 	fi
@@ -98,20 +90,20 @@ Compile () {
 
 # Execution starts here!
 
-# file locations
+# service file locations
 xlxserv='/etc/systemd/system/xlxd.service'
 xrfserv='/etc/systemd/system/xrfd.service'
 ambserv='/etc/systemd/system/ambed.service'
 
-# default values
-callsign='CHNGME'
-nummod=26
-ip4addr='none'
-ip6addr='none'
+# default values, we only need a few
+#callsign='CHNGME'
+#nummod=26
+#ip4addr='none'
+#ip6addr='none'
 tcaddress='none'
-tcmodules='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-g3support=true
-dbsupport=false
+#tcmodules='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+g3support=false
+#dbsupport=false
 
 if [ -e reflector.cfg ]; then
 	source reflector.cfg
