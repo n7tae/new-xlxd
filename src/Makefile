@@ -95,7 +95,6 @@ uninstall :
 	rm -f $(CFGDIR)/$(EXE).whitelist
 	rm -f $(CFGDIR)/$(EXE).interlink
 	rm -f $(CFGDIR)/$(EXE).terminal
-	rm -rf xlxd xrfd
 	systemctl stop $(EXE).service
 	rm -f $(CFGDIR)/dmrid.dat
 	systemctl disable $(EXE).service
