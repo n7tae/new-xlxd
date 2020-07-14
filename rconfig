@@ -190,7 +190,7 @@ ip4addr_d='none'
 ip6addr_d='none'
 tcaddress_d='none'
 tcmodules_d='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-g3support_d=true
+g3support_d=false
 dbsupport_d=false
 
 if [ -e reflector.cfg ]; then

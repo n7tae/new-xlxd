@@ -21,7 +21,7 @@ UninstallReflector () {
 		sudo make uninstall
 		cd ..
 	fi
-	if [ -e /etc/systemd/system/ambed ]; then
+	if [ -e $ambserv ]; then
 		cd ambed
 		sudo make uninstall
 		cd ..
@@ -101,6 +101,7 @@ Compile () {
 # file locations
 xlxserv='/etc/systemd/system/xlxd.service'
 xrfserv='/etc/systemd/system/xrfd.service'
+ambserv='/etc/systemd/system/ambed.service'
 
 # default values
 callsign='CHNGME'
@@ -140,7 +141,7 @@ do
 			echo "us : Uninstall the XRF reflector"
 		fi
 		echo "rr : Restart the reflector"
-		if [ -e /etc/systemd/system/ambed ]; then
+		if [ -e $ambserv ]; then
 			echo "rt : Restart the transcoder"
 		fi
 	else
@@ -166,7 +167,7 @@ do
 
 	if   [[ "$key" == ls* ]]; then
 		cat reflector.cfg;
-		ceho
+		echo
 		read -p "<Enter> to return to main menu: " ans
 	elif [[ "$key" == us* ]]; then UninstallReflector
 	elif [[ "$key" == is* ]]; then InstallReflector
