@@ -31,7 +31,7 @@ UninstallReflector () {
 InstallReflector () {
 	if [ "$tcaddress" != none ]; then
 		cd ambed
-		sudo make install
+		sudo make install || read -p "<Enter> to continue: " ans
 		cd ..
 	fi
 	cd src
@@ -62,7 +62,7 @@ InstallReflector () {
 			cp ../config/xlxd.terminal xrfd.terminal
 		fi
 	fi
-	sudo make install
+	sudo make install || read -p "<Enter> to continue: " ans
 	cd ..
 }
 
@@ -79,11 +79,11 @@ Compile () {
 	WriteCFGFiles
 	np=`getconf _NPROCESSORS_ONLN`
 	cd src
-	make -j$np
+	make -j$np || read -p "<Enter to continue: " ans
 	cd ..
 	if [[ "$callsign" == XLX* ]] && [[ "$tcaddress" != none ]]; then
 		cd ambed
-		make -j$np
+		make -j$np || read -p "<Enter to continue: " ans
 		cd ..
 	fi
 }
