@@ -188,7 +188,11 @@ do
 		elif [[ "$callsign" == XRF* ]] && [ -e src/xrfd ] && [ ! -e $xlxserv ] && [ ! -e $xrfserv ]; then
 			InstallReflector
 		fi
-	elif [[ "$key" == gp* ]]; then git pull
+	elif [[ "$key" == gp* ]]; then
+		echo
+		git pull
+		echo
+		read -p "<Enter> to continue: " ans
 	elif [[ "$key" == rr* ]]; then
 		if   [[ "$callsign" == XLX* ]] && [ -e $xlxserv ]; then
 			sudo systemctl restart xlxd
