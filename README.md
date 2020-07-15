@@ -48,7 +48,7 @@ git clone https://github.com/n7tae/new-xlxd.git
 cd new-xlxd
 ```
 
-### Create and edit your blacklist, whitelist and linking files and systemd file
+### Create and edit your blacklist, whitelist and linking files
 
 If you are building an XLX reflector:
 
@@ -68,7 +68,7 @@ cp ../config/xlxd.interlink xrfd.interlink
 cp ../config/xlxd.terminal xrfd.terminal
 ```
 
-If you are not going to support G3 links, you don't need to copy the .terminal file. Use your favorite editor to modify each of these files. If you want a totally open network, the blacklist and whitelist files are ready to go. The blacklist determine which callsigns can't use the reflector. The whitelist determines which callsigns can use the reflector. The interlink file sets up the XLX<--->XLX inter-linking and/or out-going XRF linking.
+If you are not going to support G3 linking, you don't need to copy the .terminal file. Use your favorite editor to modify each of these files. If you want a totally open network, the blacklist and whitelist files are ready to go. The blacklist determine which callsigns can't use the reflector. The whitelist determines which callsigns can use the reflector. The interlink file sets up the XLX<--->XLX inter-linking and/or out-going XRF peer linking.
 
 ### Configuring your reflector
 
@@ -78,9 +78,9 @@ Start the configuration script:
 ./rconfig
 ```
 
-There are only a few things that need to be specified, most importantly, the reflector callsign and the IP addresses for the IPv4 and IPv6 listen ports and a transcoder port, if there is a transcoder. Obviously the transcoder is only specified for an XLX reflector. If you are building an XLX system with a transcoder, you can specify which channels get transcoder support. There are also true/false flags to prevent G3 support and so that you can build executables that will support gdb debugging.
+There are only a few things that need to be specified, most importantly, the reflector callsign and the IP addresses for the IPv4 and IPv6 listen ports and a transcoder port, if there is a transcoder. Dual-stack operation is enabled by specifying both an IPv4 and IPv6 address. It's even possible to operate in an IPv6-only configuration by leaving the IPv4 address to the default `none`. Obviously the transcoder is only specified for an XLX reflector. If you are building an XLX system with a transcoder, you can also specify which channels get transcoder support. There are also true/false flags to prevent G3 support and so that you can build executables that will support gdb debugging.
 
-Be sure to write out the configuration files and look over the up to 5 different configration files that are created. The first file, reflector.cfg is the memory file for rconfig so that if you start that script again, it will remember how you left things. There are one or two `.h` files for the reflector and ambed and there are one or two `.mk` files for the reflector and ambed makefiles.
+Be sure to write out the configuration files and look over the up to 5 different configration files that are created. The first file, reflector.cfg is the memory file for rconfig so that if you start that script again, it will remember how you left things. There are one or two `.h` files for the reflector and ambed and there are one or two `.mk` files for the reflector and ambed makefiles. You should **not** modify these files by hand unless you really know exactly how they work. The rconfig will not start if it detects that an XLX or XRF server is already running. If you do change the configuration after you have compiled the code, it is safest if you clean the repo and then recompile.
 
 ### Compling and installing your system
 
