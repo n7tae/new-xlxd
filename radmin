@@ -15,6 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+trap ControlC INT
+
+ControlC () {
+	echo "caught SIGINT"
+}
+
 UninstallReflector () {
 	if [ -e $xlxserv ] || [ -e $xrfserv ]; then
 		cd src
@@ -134,8 +140,13 @@ do
 			exit 1
 		elif [ -e $xlxserv ]; then
 			echo "us : Uninstall the XLX reflector"
+			echo "rl : View reflector log"
+			if [ -e $ambserv ]; then
+				echo "tl : View transcoder log"
+			fi
 		elif [ -e $xrfserv ]; then
 			echo "us : Uninstall the XRF reflector"
+			echo "rl : View Reflector log"
 		fi
 		echo "rr : Restart the reflector"
 		if [ -e $ambserv ]; then
@@ -158,7 +169,6 @@ do
 	fi
 	echo
 	echo    "q  : Quit"
-	echo    "u  : Unset the value of <key> (revert to the default value)."
 	echo
 	read -p "Please input <key> <value> - omit value to toggle a true/false : " key value garbage
 
@@ -177,6 +187,13 @@ do
 	elif [[ "$key" == rt* ]]; then sudo systemctl restart ambed
 	elif [[ "$key" == cl* ]]; then Clean
 	elif [[ "$key" == co* ]]; then Compile
+	elif [[ "$key" == tl* ]]; then sudo journalctl -u ambed -f
+	elif [[ "$key" == rl* ]]; then
+		if [ -e $xlxserv ]; then
+			sudo journalctl -u xlxd -f
+		elif [ -e $xrfserv ]; then
+			sudo journalctl -u xrfd -f
+		fi
 	fi
 done
 exit 0
