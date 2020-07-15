@@ -195,6 +195,11 @@ tcmodules_d='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 g3support_d=false
 dbsupport_d=false
 
+# expert mode
+if [[ "$1" == ex* ]]; then
+	expertmode="expertMode"
+fi
+
 if [ -e reflector.cfg ]; then
 	source reflector.cfg
 else
@@ -202,18 +207,20 @@ else
 	sleep 1
 fi
 
-if [ -e $xlxserv ] || [ -e $xrfserv ]; then
-	echo -n "You cannot change the configuration right now beacuse there is an "
-	if [ -e $xlxserv ]; then
-		echo "XLX server running."
-	else
-		echo "XRF server running."
-	fi;
-	echo "===========${rcfg}============="
-	cat $rcfg
-	echo
-	echo "Please use radmin to uninstall the running server before attempting to modify the configuration."
-	exit 1
+if [ ! -z ${expertmode+x} ]; then
+	if [ -e $xlxserv ] || [ -e $xrfserv ]; then
+		echo -n "You cannot change the configuration right now beacuse there is an "
+		if [ -e $xlxserv ]; then
+			echo "XLX server running."
+		else
+			echo "XRF server running."
+		fi;
+		echo "===========${rcfg}============="
+		cat $rcfg
+		echo
+		echo "Please use radmin to uninstall the running server before attempting to modify the configuration."
+		exit 1
+	fi
 fi
 
 key='x'
