@@ -231,7 +231,7 @@ do
 	if [[ "$key" == cs*  && ( ${value^^} == XRF* || ${value^^} == XLX* ) ]]; then
 		callsign="${value^^}"
 		callsign="${callsign:0:6}"
-		if [[ "$callsign" == REF* ]]; then
+		if [[ "$callsign" == XRF* ]]; then
 			unset tcaddress tcmodules
 		fi
 	elif [[ "$key" == nm* ]]; then nummod="$value"
