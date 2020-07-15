@@ -207,7 +207,7 @@ else
 	sleep 1
 fi
 
-if [ ! -z ${expertmode+x} ]; then
+if [ -z ${expertmode+x} ]; then
 	if [ -e $xlxserv ] || [ -e $xrfserv ]; then
 		echo -n "You cannot change the configuration right now beacuse there is an "
 		if [ -e $xlxserv ]; then
