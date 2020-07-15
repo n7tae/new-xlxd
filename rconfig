@@ -183,6 +183,8 @@ srch='src/configure.h'
 srcm='src/configure.mk'
 ambh='ambed/configure.h'
 ambm='ambed/configure.mk'
+xlxserv='/etc/systemd/system/xlxd.service'
+xrfserv='/etc/systemd/system/xrfd.service'
 # default values
 callsign_d='CHNGME'
 nummod_d=26
@@ -199,13 +201,28 @@ else
 	echo 'No configuration file found...'
 	sleep 1
 fi
+
+if [ -e $xlxserv ] || [ -e $xrfserv ]; then
+	echo -n "You cannot change the configuration right now beacuse there is an "
+	if [ -e $xlxserv ]; then
+		echo "XLX server running."
+	else
+		echo "XRF server running."
+	fi;
+	echo "===========${rcfg}============="
+	cat $rcfg
+	echo
+	echo "Please use radmin to uninstall the running server before attempting to modify the configuration."
+	exit 1
+fi
+
 key='x'
 # main loop
 while [[ "$key" != q* ]]
 do
 	clear
 	echo
-	echo "        Reflector Configuration, Version #200713"
+	echo "        Reflector Configuration, Version #200715"
 	echo
 	echo -n "cs : Reflector Callsign  = "; EvaluateVar callsign{,_d}
 	echo -n "nm : Number of Modules   = "; EvaluateVar nummod{,_d}

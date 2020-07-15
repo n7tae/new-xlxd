@@ -128,7 +128,7 @@ do
 		ps -aux | grep -e xlxd -e xrfd -e ambed | grep -v grep
 	fi
 	echo
-	echo "        Reflector Administration, Version #200713"
+	echo "        Reflector Administration, Version #200715"
 	echo
 	echo "ls : List the configuration file"
 	echo "cl : Clean (remove) compiled objects and executables"
@@ -176,18 +176,29 @@ do
 		cat reflector.cfg;
 		echo
 		read -p "<Enter> to return to main menu: " ans
-	elif [[ "$key" == us* ]]; then UninstallReflector
-	elif [[ "$key" == is* ]]; then InstallReflector
+	elif [[ "$key" == us* ]]; then
+		if   [[ "$callsign" == XLX* ]] && [ -e $xlxserv ]; then
+			UninstallReflector
+		elif [[ "$callsign" == XRF* ]] && [ -e $xrfserv ]; then
+			UninstallReflector
+		fi
+	elif [[ "$key" == is* ]]; then
+		if   [[ "$callsign" == XLX* ]] && [ -e src/xlxd ] && [ ! -e $xlxserv ] && [ ! -e $xrfserv ]; then
+			InstallReflector
+		elif [[ "$callsign" == XRF* ]] && [ -e src/xrfd ] && [ ! -e $xlxserv ] && [ ! -e $xrfserv ]; then
+			InstallReflector
+		fi
 	elif [[ "$key" == gp* ]]; then git pull
 	elif [[ "$key" == rr* ]]; then
-		if [[ "$callsign" == XLX* ]]
-		then sudo systemctl restart xlxd
-		else sudo systemctl restart xrfd
+		if   [[ "$callsign" == XLX* ]] && [ -e $xlxserv ]; then
+			sudo systemctl restart xlxd
+		elif [[ "$callsign" == XRF* ]] && [ -e $xrfserv ]; then
+			sudo systemctl restart xrfd
 		fi
-	elif [[ "$key" == rt* ]]; then sudo systemctl restart ambed
+	elif [[ "$key" == rt* ]] && [ -e $ambserv ]; then sudo systemctl restart ambed
 	elif [[ "$key" == cl* ]]; then Clean
 	elif [[ "$key" == co* ]]; then Compile
-	elif [[ "$key" == tl* ]]; then sudo journalctl -u ambed -f
+	elif [[ "$key" == tl* ]] && [ -e $ambserv ]; then sudo journalctl -u ambed -f
 	elif [[ "$key" == rl* ]]; then
 		if [ -e $xlxserv ]; then
 			sudo journalctl -u xlxd -f
