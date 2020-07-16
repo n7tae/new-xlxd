@@ -34,9 +34,6 @@
 #include "cysfnode.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// define
-
-
 // compare function for std::map::find
 
 struct CYsfNodeDirCallsignCompare
@@ -48,7 +45,9 @@ struct CYsfNodeDirCallsignCompare
 ////////////////////////////////////////////////////////////////////////////////////////
 // class
 
-class CYsfNodeDir : public std::map <CCallsign, CYsfNode, CYsfNodeDirCallsignCompare>
+using CsNodeMap = std::map<CCallsign, CYsfNode, CYsfNodeDirCallsignCompare>;
+
+class CYsfNodeDir
 {
 public:
     // constructor
@@ -71,6 +70,13 @@ public:
     // find
     bool FindFrequencies(const CCallsign &, uint32 *, uint32 *);
 
+	// pass-thru
+	void clear() { m_map.clear(); }
+	size_t size() { return m_map.size(); }
+	CsNodeMap::iterator find(const CCallsign &cs) { return m_map.find(cs); }
+	CsNodeMap::iterator end()  { return m_map.end(); }
+	std::pair<CsNodeMap::iterator, bool> insert(const std::pair<CCallsign, CYsfNode> &pair) { return m_map.insert(pair); }
+
 protected:
     // thread
     static void Thread(CYsfNodeDir *);
@@ -88,6 +94,7 @@ protected:
      // thread
      std::atomic<bool> keep_running;
      std::thread         *m_pThread;
+	 CsNodeMap m_map;
 };
 
 

@@ -69,6 +69,8 @@ WriteMemFile () {
 	[ -z ${ip6addr+x}   ] || echo   "ip6addr='$ip6addr'"   >> $file
 	[ -z ${tcaddress+x} ] || echo "tcaddress='$tcaddress'" >> $file
 	[ -z ${tcmodules+x} ] || echo "tcmodules='$tcmodules'" >> $file
+	[ -z ${ysfenable+x} ] || echo "ysfenable=$ysfenable"   >> $file
+	[ -z ${ysfmodule+x} ] || echo "ysfmodule='$ysfmodule'" >> $file
 	[ -z ${g3support+x} ] || echo "g3support=$g3support"   >> $file
 	[ -z ${dbsupport+x} ] || echo "dbsupport=$dbsupport"   >> $file
 }
@@ -95,6 +97,16 @@ WriteSRCHFile () {
 		else
 			echo "#define TRANSCODED_MODULES \"${tcmodules}\"" >> $file
 		fi
+	fi
+	if [ -z ${ysfenable+x} ]; then
+		echo "#define YSF_AUTOLINK_ENABLE ${ysfenable_d}" >> $file
+	else
+		echo "#define YSF_AUTOLINK_ENABLE ${ysfenable}" >> $file
+	fi
+	if [ -z ${ysfmodule+x} ]; then
+		echo "#define YSF_AUTOLINK_MODULE '${ysfmodule_d}'" >> $file
+	else
+		echo "#define YSF_AUTOLINK_MODULE '${ysfmodule}'" >> $file
 	fi
 	if [ -z ${g3support+x} ]; then
 		m=${g3support_d}
@@ -192,6 +204,8 @@ ip4addr_d='none'
 ip6addr_d='none'
 tcaddress_d='none'
 tcmodules_d='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+ysfenable_d=false
+ysfmodule_d='D'
 g3support_d=false
 dbsupport_d=false
 
@@ -229,7 +243,7 @@ while [[ "$key" != q* ]]
 do
 	clear
 	echo
-	echo "        Reflector Configuration, Version #200715"
+	echo "        Reflector Configuration, Version #200716"
 	echo
 	echo -n "cs : Reflector Callsign  = "; EvaluateVar callsign{,_d}
 	echo -n "nm : Number of Modules   = "; EvaluateVar nummod{,_d}
@@ -239,6 +253,12 @@ do
 		echo -n "tc : Transcoder Address  = "; EvaluateVar tcaddress{,_d}
 		if [ ! -z ${tcaddress+x} ]; then
 			echo -n "tm : Transcoder Modules  = "; EvaluateVar tcmodules{,_d}
+		fi
+		echo -n "ye : YSF Autolink Enable = "; EvaluateVar ysfenable{,_d}
+		if [ ! -z ${ysfenable+x} ]; then
+			if [[ "$ysfenable" == true ]]; then
+				echo -n "ym : YSF Autolink Module = "; EvaluateVar ysfmodule{,_d}
+			fi
 		fi
 	fi
 	echo -n "g3 : Icom G3 Support     = "; EvaluateVar g3support{,_d}
@@ -263,6 +283,10 @@ do
 	elif [[ "$key" == i6* ]]; then ip6addr="$value"
 	elif [[ "$key" == tc* ]]; then tcaddress="$value"
 	elif [[ "$key" == tm* ]]; then tcmodules="${value^^}"
+	elif [[ "$key" == ye* ]]; then SetBooleanValue ysfenable "$value"
+	elif [[ "$key" == ym* ]]; then
+		ysfmodule="${value^^}"
+		ysfmodule="${ysfmodule:0:1}"
 	elif [[ "$key" == g3* ]]; then SetBooleanValue g3support "$value"
 	elif [[ "$key" == db* ]]; then SetBooleanValue dbsupport "$value"
 	elif [[ "$key" == w* ]]; then
@@ -276,6 +300,8 @@ do
 		elif [[ "$value" == i6* ]]; then unset ip6addr
 		elif [[ "$value" == tc* ]]; then unset tcaddress
 		elif [[ "$value" == tm* ]]; then unset tcmodules
+		elif [[ "$value" == ye* ]]; then unset ysfenable ysfmodule
+		elif [[ "$value" == ym* ]]; then unset ysfmodule
 		elif [[ "$value" == g3* ]]; then unset g3support
 		elif [[ "$value" == db* ]]; then unset dbsupport
 		fi

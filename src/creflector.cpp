@@ -234,8 +234,7 @@ CPacketStream *CReflector::OpenStream(CDvHeaderPacket *DvHeader, CClient *client
                         stream->Push(DvHeader);
 
                         // report
-                        std::cout << "Opening stream on module " << module << " for client " << client->GetCallsign()
-                                  << " with sid " << DvHeader->GetStreamId() << std::endl;
+						std::cout << "Opening stream on module " << module << " for client " << client->GetCallsign() << " with sid " << DvHeader->GetStreamId() << " by user " << DvHeader->GetMyCallsign() << std::endl;
 
                         // notify
                         g_Reflector.OnStreamOpen(stream->GetUserCallsign());
@@ -248,8 +247,7 @@ CPacketStream *CReflector::OpenStream(CDvHeaderPacket *DvHeader, CClient *client
             else
             {
                 // report
-                std::cout << "Detected stream loop on module " << DvHeader->GetRpt2Module() << " for client " << client->GetCallsign()
-                          << " with sid " << DvHeader->GetStreamId() << std::endl;
+                std::cerr << "Detected stream loop on module " << DvHeader->GetRpt2Module() << " for client " << client->GetCallsign() << " with sid " << DvHeader->GetStreamId() << std::endl;
             }
         }
     }
