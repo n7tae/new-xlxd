@@ -385,7 +385,7 @@ void CDextraProtocol::HandlePeerLinks(void)
             // send disconnect packet
             EncodeDisconnectPacket(&buffer, peer->GetReflectorModules()[0]);
             Send(buffer, peer->GetIp());
-            std::cout << "Sending disconnect packet to XRF peer " << peer->GetCallsign() << std::endl;
+            std::cout << "Sending disconnect packet to XRF peer " << peer->GetCallsign() << " at " << peer->GetIp() << std::endl;
             // remove client
             peers->RemovePeer(peer);
         }
