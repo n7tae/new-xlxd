@@ -98,15 +98,17 @@ WriteSRCHFile () {
 			echo "#define TRANSCODED_MODULES \"${tcmodules}\"" >> $file
 		fi
 	fi
-	if [ -z ${ysfenable+x} ]; then
-		echo "#define YSF_AUTOLINK_ENABLE ${ysfenable_d}" >> $file
-	else
-		echo "#define YSF_AUTOLINK_ENABLE ${ysfenable}" >> $file
-	fi
-	if [ -z ${ysfmodule+x} ]; then
-		echo "#define YSF_AUTOLINK_MODULE '${ysfmodule_d}'" >> $file
-	else
-		echo "#define YSF_AUTOLINK_MODULE '${ysfmodule}'" >> $file
+	if [[ "$callsign" == XLX* ]]; then
+		if [ -z ${ysfenable+x} ]; then
+			echo "#define YSF_AUTOLINK_ENABLE ${ysfenable_d}" >> $file
+		else
+			echo "#define YSF_AUTOLINK_ENABLE ${ysfenable}" >> $file
+		fi
+		if [ -z ${ysfmodule+x} ]; then
+			echo "#define YSF_AUTOLINK_MODULE '${ysfmodule_d}'" >> $file
+		else
+			echo "#define YSF_AUTOLINK_MODULE '${ysfmodule}'" >> $file
+		fi
 	fi
 	if [ -z ${g3support+x} ]; then
 		m=${g3support_d}
@@ -243,7 +245,7 @@ while [[ "$key" != q* ]]
 do
 	clear
 	echo
-	echo "        Reflector Configuration, Version #200716"
+	echo "        Reflector Configuration, Version #200723"
 	echo
 	echo -n "cs : Reflector Callsign  = "; EvaluateVar callsign{,_d}
 	echo -n "nm : Number of Modules   = "; EvaluateVar nummod{,_d}
