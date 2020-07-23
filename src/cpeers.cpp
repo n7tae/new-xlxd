@@ -40,8 +40,6 @@ CPeers::CPeers() {}
 CPeers::~CPeers()
 {
     m_Mutex.lock();
-    for (auto it=begin(); it!=end(); it++ )
-		delete *it;
     m_Peers.clear();
     m_Mutex.unlock();
 }
@@ -49,7 +47,7 @@ CPeers::~CPeers()
 ////////////////////////////////////////////////////////////////////////////////////////
 // manage peers
 
-void CPeers::AddPeer(CPeer *peer)
+void CPeers::AddPeer(std::shared_ptr<CPeer>peer)
 {
     // first check if peer already exists
     for ( auto it=begin(); it!=end(); it++ )
@@ -60,7 +58,6 @@ void CPeers::AddPeer(CPeer *peer)
         // on function return
         {
             // delete new one
-            delete peer;
             return;
         }
     }
@@ -82,7 +79,7 @@ void CPeers::AddPeer(CPeer *peer)
 	g_Reflector.OnPeersChanged();
 }
 
-void CPeers::RemovePeer(CPeer *peer)
+void CPeers::RemovePeer(std::shared_ptr<CPeer>peer)
 {
     // look for the client
     for ( auto pit=begin(); pit!=end(); /*increment done in body */ )
@@ -103,9 +100,7 @@ void CPeers::RemovePeer(CPeer *peer)
 			g_Reflector.ReleaseClients();
 
 			// remove it
-			std::cout << "Peer " << (*pit)->GetCallsign() << " at " << (*pit)->GetIp()
-						<< " removed" << std::endl;
-			delete *pit;
+			std::cout << "Peer " << (*pit)->GetCallsign() << " at " << (*pit)->GetIp() << " removed" << std::endl;
 			pit = m_Peers.erase(pit);
 			// notify
 			g_Reflector.OnPeersChanged();
@@ -120,7 +115,7 @@ void CPeers::RemovePeer(CPeer *peer)
 ////////////////////////////////////////////////////////////////////////////////////////
 // find peers
 
-CPeer *CPeers::FindPeer(const CIp &Ip, int Protocol)
+std::shared_ptr<CPeer>CPeers::FindPeer(const CIp &Ip, int Protocol)
 {
     for ( auto it=begin(); it!=end(); it++ )
     {
@@ -130,10 +125,10 @@ CPeer *CPeers::FindPeer(const CIp &Ip, int Protocol)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
-CPeer *CPeers::FindPeer(const CCallsign &Callsign, const CIp &Ip, int Protocol)
+std::shared_ptr<CPeer>CPeers::FindPeer(const CCallsign &Callsign, const CIp &Ip, int Protocol)
 {
     for ( auto it=begin(); it!=end(); it++ )
     {
@@ -145,10 +140,10 @@ CPeer *CPeers::FindPeer(const CCallsign &Callsign, const CIp &Ip, int Protocol)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
-CPeer *CPeers::FindPeer(const CCallsign &Callsign, int Protocol)
+std::shared_ptr<CPeer>CPeers::FindPeer(const CCallsign &Callsign, int Protocol)
 {
     for ( auto it=begin(); it!=end(); it++ )
     {
@@ -159,14 +154,14 @@ CPeer *CPeers::FindPeer(const CCallsign &Callsign, int Protocol)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // iterate on peers
 
-CPeer *CPeers::FindNextPeer(int Protocol, std::list<CPeer *>::iterator &it)
+std::shared_ptr<CPeer>CPeers::FindNextPeer(int Protocol, std::list<std::shared_ptr<CPeer>>::iterator &it)
 {
     while ( it!=end() )
     {
@@ -176,5 +171,5 @@ CPeer *CPeers::FindNextPeer(int Protocol, std::list<CPeer *>::iterator &it)
         }
 		it++;
     }
-    return NULL;
+    return nullptr;
 }

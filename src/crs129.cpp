@@ -87,10 +87,10 @@ static unsigned char gmult(unsigned char a, unsigned char b)
 {
     if (a == 0U || b == 0U)
         return 0U;
-    
+
     unsigned int i = LOG_TABLE[a];
     unsigned int j = LOG_TABLE[b];
-    
+
     return EXP_TABLE[i + j];
 }
 
@@ -101,18 +101,18 @@ static unsigned char gmult(unsigned char a, unsigned char b)
  */
 void CRS129::encode(const unsigned char* msg, unsigned int nbytes, unsigned char* parity)
 {
-    assert(msg != NULL);
-    assert(parity != NULL);
-    
+    assert(msg != nullptr);
+    assert(parity != nullptr);
+
     for (unsigned int i = 0U; i < NPAR + 1U; i++)
         parity[i] = 0x00U;
-    
+
     for (unsigned int i = 0U; i < nbytes; i++) {
         unsigned char dbyte = msg[i] ^ parity[NPAR - 1U];
-        
+
         for (int j = NPAR - 1; j > 0; j--)
             parity[j] = parity[j - 1] ^ ::gmult(POLY[j], dbyte);
-        
+
         parity[0] = ::gmult(POLY[0], dbyte);
     }
 }
@@ -120,11 +120,10 @@ void CRS129::encode(const unsigned char* msg, unsigned int nbytes, unsigned char
 // Reed-Solomon (12,9) check
 bool CRS129::check(const unsigned char* in)
 {
-    assert(in != NULL);
-    
+    assert(in != nullptr);
+
     unsigned char parity[4U];
     encode(in, 9U, parity);
-    
+
     return in[9U] == parity[2U] && in[10U] == parity[1U] && in[11U] == parity[0U];
 }
-

@@ -51,27 +51,27 @@ public:
 
     // manage peers
     int     GetSize(void) const         { return (int)m_Peers.size(); }
-    void    AddPeer(CPeer *);
-    void    RemovePeer(CPeer *);
+    void    AddPeer(std::shared_ptr<CPeer>);
+    void    RemovePeer(std::shared_ptr<CPeer>);
 
 	// pass-thru
-	std::list<CPeer *>::iterator begin()              { return m_Peers.begin(); }
-	std::list<CPeer *>::iterator end()                { return m_Peers.end(); }
-	std::list<CPeer *>::const_iterator cbegin() const { return m_Peers.cbegin(); }
-	std::list<CPeer *>::const_iterator cend() const   { return m_Peers.cend(); }
+	std::list<std::shared_ptr<CPeer>>::iterator begin()              { return m_Peers.begin(); }
+	std::list<std::shared_ptr<CPeer>>::iterator end()                { return m_Peers.end(); }
+	std::list<std::shared_ptr<CPeer>>::const_iterator cbegin() const { return m_Peers.cbegin(); }
+	std::list<std::shared_ptr<CPeer>>::const_iterator cend() const   { return m_Peers.cend(); }
 
     // find peers
-    CPeer *FindPeer(const CIp &, int);
-    CPeer *FindPeer(const CCallsign &, const CIp &, int);
-    CPeer *FindPeer(const CCallsign &, int);
+    std::shared_ptr<CPeer>FindPeer(const CIp &, int);
+    std::shared_ptr<CPeer>FindPeer(const CCallsign &, const CIp &, int);
+    std::shared_ptr<CPeer>FindPeer(const CCallsign &, int);
 
     // iterate on peers
-    CPeer *FindNextPeer(int, std::list<CPeer *>::iterator &);
+    std::shared_ptr<CPeer>FindNextPeer(int, std::list<std::shared_ptr<CPeer>>::iterator &);
 
 protected:
     // data
     std::mutex         m_Mutex;
-    std::list<CPeer *> m_Peers;
+    std::list<std::shared_ptr<CPeer>> m_Peers;
 };
 
 

@@ -111,7 +111,7 @@ const uint8 *CDvFramePacket::GetAmbe(uint8 uiCodec) const
 #ifndef NO_XLX
         case CODEC_AMBE2PLUS:   return m_uiAmbePlus;
 #endif
-        default:                return NULL;
+        default:                return nullptr;
     }
 }
 

@@ -35,8 +35,8 @@ CClient::CClient()
     m_ReflectorModule = ' ';
     m_ModuleMastered = ' ';
     m_LastKeepaliveTime.Now();
-    m_ConnectTime = std::time(NULL);
-    m_LastHeardTime = std::time(NULL);
+    m_ConnectTime = std::time(nullptr);
+    m_LastHeardTime = std::time(nullptr);
 }
 
 CClient::CClient(const CCallsign &callsign, const CIp &ip, char reflectorModule)
@@ -46,8 +46,8 @@ CClient::CClient(const CCallsign &callsign, const CIp &ip, char reflectorModule)
     m_Ip = ip;
     m_ModuleMastered = ' ';
     m_LastKeepaliveTime.Now();
-    m_ConnectTime = std::time(NULL);
-    m_LastHeardTime = std::time(NULL);
+    m_ConnectTime = std::time(nullptr);
+    m_LastHeardTime = std::time(nullptr);
 }
 
 CClient::CClient(const CClient &client)

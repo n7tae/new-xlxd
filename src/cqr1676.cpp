@@ -75,40 +75,40 @@ unsigned int CQR1676::getSyndrome1576(unsigned int pattern)
  */
 {
     unsigned int aux = X14;
-    
+
     if (pattern >= X8) {
         while (pattern & MASK7) {
             while (!(aux & pattern))
                 aux = aux >> 1;
-            
+
             pattern ^= (aux / X8) * GENPOL;
         }
     }
-    
+
     return pattern;
 }
 
 // Compute the EMB against a precomputed list of correct words
 void CQR1676::encode(unsigned char* data)
 {
-    assert(data != NULL);
-    
+    assert(data != nullptr);
+
     unsigned int value = (data[0U] >> 1) & 0x7FU;
     unsigned int cksum = ENCODING_TABLE_1676[value];
-    
+
     data[0U] = cksum >> 8;
     data[1U] = cksum & 0xFFU;
 }
 
 unsigned char CQR1676::decode(const unsigned char* data)
 {
-    assert(data != NULL);
-    
+    assert(data != nullptr);
+
     unsigned int code = (data[0U] << 7) + (data[1U] >> 1);
     unsigned int syndrome = getSyndrome1576(code);
     unsigned int error_pattern = DECODING_TABLE_1576[syndrome];
-    
+
     code ^= error_pattern;
-    
+
     return code >> 7;
 }

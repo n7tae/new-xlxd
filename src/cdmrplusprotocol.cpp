@@ -50,7 +50,7 @@ static uint8 g_DmrSyncMSData[]     = { 0x0D,0x5D,0x7F,0x77,0xFD,0x75,0x70 };
 bool CDmrplusProtocol::Init()
 {
     // base class
-    if (! Initialize(NULL, DMRPLUS_PORT, DMR_IPV4, DMR_IPV6))
+    if (! Initialize(nullptr, DMRPLUS_PORT, DMR_IPV4, DMR_IPV6))
 		return false;
 
     // update time
@@ -140,17 +140,14 @@ void CDmrplusProtocol::Task(void)
 
                 // add client if needed
                 CClients *clients = g_Reflector.GetClients();
-                CClient *client = clients->FindClient(Callsign, Ip, PROTOCOL_DMRPLUS);
+                std::shared_ptr<CClient>client = clients->FindClient(Callsign, Ip, PROTOCOL_DMRPLUS);
                 // client already connected ?
-                if ( client == NULL )
+                if ( client == nullptr )
                 {
                     std::cout << "DMRplus connect packet for module " << ToLinkModule << " from " << Callsign << " at " << Ip << std::endl;
 
-                    // create the client
-                    CDmrplusClient *newclient = new CDmrplusClient(Callsign, Ip, ToLinkModule);
-
-                    // and append
-                    clients->AddClient(newclient);
+                    // create the client and append
+                    clients->AddClient(std::make_shared<CDmrplusClient>(Callsign, Ip, ToLinkModule));
                 }
                 else
                 {
@@ -173,8 +170,8 @@ void CDmrplusProtocol::Task(void)
 
             // find client & remove it
             CClients *clients = g_Reflector.GetClients();
-            CClient *client = clients->FindClient(Ip, PROTOCOL_DMRPLUS);
-            if ( client != NULL )
+            std::shared_ptr<CClient>client = clients->FindClient(Ip, PROTOCOL_DMRPLUS);
+            if ( client != nullptr )
             {
                 clients->RemoveClient(client);
             }
@@ -213,15 +210,15 @@ bool CDmrplusProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip
 
     // find the stream
     CPacketStream *stream = GetStream(Header->GetStreamId());
-    if ( stream == NULL )
+    if ( stream == nullptr )
     {
         // no stream open yet, open a new one
         // find this client
-        CClient *client = g_Reflector.GetClients()->FindClient(Ip, PROTOCOL_DMRPLUS);
-        if ( client != NULL )
+        std::shared_ptr<CClient>client = g_Reflector.GetClients()->FindClient(Ip, PROTOCOL_DMRPLUS);
+        if ( client != nullptr )
         {
             // and try to open the stream
-            if ( (stream = g_Reflector.OpenStream(Header, client)) != NULL )
+            if ( (stream = g_Reflector.OpenStream(Header, client)) != nullptr )
             {
                 // keep the handle
                 m_Streams.push_back(stream);
@@ -318,8 +315,8 @@ void CDmrplusProtocol::HandleQueue(void)
             // and push it to all our clients linked to the module and who are not streaming in
             CClients *clients = g_Reflector.GetClients();
             auto it = clients->begin();
-            CClient *client = NULL;
-            while ( (client = clients->FindNextClient(PROTOCOL_DMRPLUS, it)) != NULL )
+            std::shared_ptr<CClient>client = nullptr;
+            while ( (client = clients->FindNextClient(PROTOCOL_DMRPLUS, it)) != nullptr )
             {
                 // is this client busy ?
                 if ( !client->IsAMaster() && (client->GetReflectorModule() == packet->GetModuleId()) )
@@ -347,8 +344,8 @@ void CDmrplusProtocol::SendBufferToClients(const CBuffer &buffer, uint8 module)
         // and push it to all our clients linked to the module and who are not streaming in
         CClients *clients = g_Reflector.GetClients();
         auto it = clients->begin();
-        CClient *client = NULL;
-        while ( (client = clients->FindNextClient(PROTOCOL_DMRPLUS, it)) != NULL )
+        std::shared_ptr<CClient>client = nullptr;
+        while ( (client = clients->FindNextClient(PROTOCOL_DMRPLUS, it)) != nullptr )
         {
             // is this client busy ?
             if ( !client->IsAMaster() && (client->GetReflectorModule() == module) )
@@ -377,8 +374,8 @@ void CDmrplusProtocol::HandleKeepalives(void)
     // iterate on clients
     CClients *clients = g_Reflector.GetClients();
     auto it = clients->begin();
-    CClient *client = NULL;
-    while ( (client = clients->FindNextClient(PROTOCOL_DMRPLUS, it)) != NULL )
+    std::shared_ptr<CClient>client = nullptr;
+    while ( (client = clients->FindNextClient(PROTOCOL_DMRPLUS, it)) != nullptr )
     {
         // is this client busy ?
         if ( client->IsAMaster() )
@@ -449,7 +446,7 @@ bool CDmrplusProtocol::IsValidDisconnectPacket(const CBuffer &Buffer, CCallsign 
 bool CDmrplusProtocol::IsValidDvHeaderPacket(const CIp &Ip, const CBuffer &Buffer, CDvHeaderPacket **Header)
 {
     bool valid = false;
-    *Header = NULL;
+    *Header = nullptr;
 
     uint8 uiPacketType = Buffer.data()[8];
     if ( (Buffer.size() == 72)  && ( uiPacketType == 2 ) )
@@ -480,7 +477,7 @@ bool CDmrplusProtocol::IsValidDvHeaderPacket(const CIp &Ip, const CBuffer &Buffe
             if ( !valid )
             {
                 delete *Header;
-                *Header = NULL;
+                *Header = nullptr;
             }
         }
     }
@@ -491,9 +488,9 @@ bool CDmrplusProtocol::IsValidDvHeaderPacket(const CIp &Ip, const CBuffer &Buffe
 bool CDmrplusProtocol::IsValidDvFramePacket(const CIp &Ip, const CBuffer &Buffer, CDvFramePacket **frames)
 {
     bool valid = false;
-    frames[0] = NULL;
-    frames[1] = NULL;
-    frames[2] = NULL;
+    frames[0] = nullptr;
+    frames[1] = nullptr;
+    frames[2] = nullptr;
 
     uint8 uiPacketType = Buffer.data()[8];
     if ( (Buffer.size() == 72)  && ((uiPacketType == 1) || (uiPacketType == 3)) )
@@ -816,7 +813,7 @@ void CDmrplusProtocol::ReplaceEMBInBuffer(CBuffer *buffer, uint8 uiDmrPacketId) 
     // voice packet F
     else
     {
-        // NULL
+        // nullptr
         uint8 emb[2];
         emb[0]  = (DMRMMDVM_REFLECTOR_COLOUR << 4) & 0xF0;
         //emb[0] |= PI ? 0x08U : 0x00;

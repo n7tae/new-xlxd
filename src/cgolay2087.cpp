@@ -222,41 +222,41 @@ unsigned int CGolay2087::getSyndrome1987(unsigned int pattern)
  */
 {
     unsigned int aux = X18;
-    
+
     if (pattern >= X11) {
         while (pattern & MASK8) {
             while (!(aux & pattern))
                 aux = aux >> 1;
-            
+
             pattern ^= (aux / X11) * GENPOL;
         }
     }
-    
+
     return pattern;
 }
 
 unsigned char CGolay2087::decode(const unsigned char* data)
 {
-    assert(data != NULL);
-    
+    assert(data != nullptr);
+
     unsigned int code = (data[0U] << 11) + (data[1U] << 3) + (data[2U] >> 5);
     unsigned int syndrome = getSyndrome1987(code);
     unsigned int error_pattern = DECODING_TABLE_1987[syndrome];
-    
+
     if (error_pattern != 0x00U)
         code ^= error_pattern;
-    
+
     return code >> 11;
 }
 
 void CGolay2087::encode(unsigned char* data)
 {
-    assert(data != NULL);
-    
+    assert(data != nullptr);
+
     unsigned int value = data[0U];
-    
+
     unsigned int cksum = ENCODING_TABLE_2087[value];
-    
+
     data[1U] = cksum & 0xFFU;
     data[2U] = cksum >> 8;
 }

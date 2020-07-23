@@ -73,14 +73,14 @@ void CDplusProtocol::Task(void)
 #endif
     {
         // crack the packet
-        if ( (Frame = IsValidDvFramePacket(Buffer)) != NULL )
+        if ( (Frame = IsValidDvFramePacket(Buffer)) != nullptr )
         {
             //std::cout << "DPlus DV frame" << std::endl;
 
             // handle it
             OnDvFramePacketIn(Frame, &Ip);
         }
-        else if ( (Header = IsValidDvHeaderPacket(Buffer)) != NULL )
+        else if ( (Header = IsValidDvHeaderPacket(Buffer)) != nullptr )
         {
             //std::cout << "DPlus DV header:" << std::endl << *Header << std::endl;
 
@@ -95,7 +95,7 @@ void CDplusProtocol::Task(void)
                 delete Header;
             }
         }
-        else if ( (LastFrame = IsValidDvLastFramePacket(Buffer)) != NULL )
+        else if ( (LastFrame = IsValidDvLastFramePacket(Buffer)) != nullptr )
         {
             //std::cout << "DPlus DV last frame" << std::endl;
 
@@ -120,11 +120,8 @@ void CDplusProtocol::Task(void)
                 EncodeLoginAckPacket(&Buffer);
                 Send(Buffer, Ip);
 
-               // create the client
-                CDplusClient *client = new CDplusClient(Callsign, Ip);
-
-                // and append
-                g_Reflector.GetClients()->AddClient(client);
+               // create the client and append
+                g_Reflector.GetClients()->AddClient(std::make_shared<CDplusClient>(Callsign, Ip));
                 g_Reflector.ReleaseClients();
             }
             else
@@ -141,8 +138,8 @@ void CDplusProtocol::Task(void)
 
             // find client
             CClients *clients = g_Reflector.GetClients();
-            CClient *client = clients->FindClient(Ip, PROTOCOL_DPLUS);
-            if ( client != NULL )
+            std::shared_ptr<CClient>client = clients->FindClient(Ip, PROTOCOL_DPLUS);
+            if ( client != nullptr )
             {
                 // remove it
                 clients->RemoveClient(client);
@@ -159,8 +156,8 @@ void CDplusProtocol::Task(void)
             // find all clients with that callsign & ip and keep them alive
             CClients *clients = g_Reflector.GetClients();
             auto it = clients->begin();
-            CClient *client = NULL;
-            while ( (client = clients->FindNextClient(Ip, PROTOCOL_DPLUS, it)) != NULL )
+            std::shared_ptr<CClient>client = nullptr;
+            while ( (client = clients->FindNextClient(Ip, PROTOCOL_DPLUS, it)) != nullptr )
             {
                 client->Alive();
             }
@@ -198,7 +195,7 @@ bool CDplusProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
 
     // find the stream
     CPacketStream *stream = GetStream(Header->GetStreamId());
-    if ( stream == NULL )
+    if ( stream == nullptr )
     {
         // no stream open yet, open a new one
         CCallsign via(Header->GetRpt1Callsign());
@@ -207,8 +204,8 @@ bool CDplusProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
         if ( g_Reflector.IsValidModule(Header->GetRpt1Module()) )
         {
             // find this client
-            CClient *client = g_Reflector.GetClients()->FindClient(Ip, PROTOCOL_DPLUS);
-            if ( client != NULL )
+            std::shared_ptr<CClient>client = g_Reflector.GetClients()->FindClient(Ip, PROTOCOL_DPLUS);
+            if ( client != nullptr )
             {
                 // now we know if it's a dextra dongle or a genuine dplus node
                 if ( Header->GetRpt2Callsign().HasSameCallsignWithWildcard(CCallsign("XRF*"))  )
@@ -223,7 +220,7 @@ bool CDplusProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
                 // get client callsign
                 via = client->GetCallsign();
                 // and try to open the stream
-                if ( (stream = g_Reflector.OpenStream(Header, client)) != NULL )
+                if ( (stream = g_Reflector.OpenStream(Header, client)) != nullptr )
                 {
                     // keep the handle
                     m_Streams.push_back(stream);
@@ -293,8 +290,8 @@ void CDplusProtocol::HandleQueue(void)
             // it's client who decide which stream he's interrrested in
             CClients *clients = g_Reflector.GetClients();
             auto it = clients->begin();
-            CClient *client = NULL;
-            while ( (client = clients->FindNextClient(PROTOCOL_DPLUS, it)) != NULL )
+            std::shared_ptr<CClient>client = nullptr;
+            while ( (client = clients->FindNextClient(PROTOCOL_DPLUS, it)) != nullptr )
             {
                 // is this client busy ?
                 if ( !client->IsAMaster() )
@@ -305,7 +302,7 @@ void CDplusProtocol::HandleQueue(void)
                     if ( packet->IsDvHeader() )
                     {
                         // sending header in Dplus is client specific
-                        SendDvHeader((CDvHeaderPacket *)packet, (CDplusClient *)client);
+                        SendDvHeader((CDvHeaderPacket *)packet, (CDplusClient *)client.get());
                     }
                     else if ( packet->IsDvFrame() )
                     {
@@ -318,7 +315,7 @@ void CDplusProtocol::HandleQueue(void)
                             // yes, clone it
                             CDvHeaderPacket packet2(m_StreamsCache[iModId].m_dvHeader);
                             // and send it
-                            SendDvHeader(&packet2, (CDplusClient *)client);
+                            SendDvHeader(&packet2, (CDplusClient *)client.get());
                         }
                     }
                     else
@@ -387,8 +384,8 @@ void CDplusProtocol::HandleKeepalives(void)
     // iterate on clients
     CClients *clients = g_Reflector.GetClients();
     auto it = clients->begin();
-    CClient *client = NULL;
-    while ( (client = clients->FindNextClient(PROTOCOL_DPLUS, it)) != NULL )
+    std::shared_ptr<CClient>client = nullptr;
+    while ( (client = clients->FindNextClient(PROTOCOL_DPLUS, it)) != nullptr )
     {
         // send keepalive
         //std::cout << "Sending DPlus packet @ " << client->GetIp() << std::endl;
@@ -452,7 +449,7 @@ bool CDplusProtocol::IsValidKeepAlivePacket(const CBuffer &Buffer)
 
 CDvHeaderPacket *CDplusProtocol::IsValidDvHeaderPacket(const CBuffer &Buffer)
 {
-    CDvHeaderPacket *header = NULL;
+    CDvHeaderPacket *header = nullptr;
 
     if ( (Buffer.size() == 58) &&
          (Buffer.data()[0] == 0x3A) && (Buffer.data()[1] == 0x80) &&
@@ -466,7 +463,7 @@ CDvHeaderPacket *CDplusProtocol::IsValidDvHeaderPacket(const CBuffer &Buffer)
         if ( !header->IsValid() )
         {
             delete header;
-            header = NULL;
+            header = nullptr;
         }
     }
     return header;
@@ -474,7 +471,7 @@ CDvHeaderPacket *CDplusProtocol::IsValidDvHeaderPacket(const CBuffer &Buffer)
 
 CDvFramePacket *CDplusProtocol::IsValidDvFramePacket(const CBuffer &Buffer)
 {
-    CDvFramePacket *dvframe = NULL;
+    CDvFramePacket *dvframe = nullptr;
 
     if ( (Buffer.size() == 29) &&
          (Buffer.data()[0] == 0x1D) && (Buffer.data()[1] == 0x80) &&
@@ -488,7 +485,7 @@ CDvFramePacket *CDplusProtocol::IsValidDvFramePacket(const CBuffer &Buffer)
         if ( !dvframe->IsValid() )
         {
             delete dvframe;
-            dvframe = NULL;
+            dvframe = nullptr;
         }
     }
     return dvframe;
@@ -496,7 +493,7 @@ CDvFramePacket *CDplusProtocol::IsValidDvFramePacket(const CBuffer &Buffer)
 
 CDvLastFramePacket *CDplusProtocol::IsValidDvLastFramePacket(const CBuffer &Buffer)
 {
-    CDvLastFramePacket *dvframe = NULL;
+    CDvLastFramePacket *dvframe = nullptr;
 
     if ( (Buffer.size() == 32) &&
          (Buffer.Compare((uint8 *)"DSVT", 2, 4) == 0) &&
@@ -510,7 +507,7 @@ CDvLastFramePacket *CDplusProtocol::IsValidDvLastFramePacket(const CBuffer &Buff
         if ( !dvframe->IsValid() )
         {
             delete dvframe;
-            dvframe = NULL;
+            dvframe = nullptr;
         }
     }
     return dvframe;

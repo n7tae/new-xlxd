@@ -46,10 +46,8 @@ CDextraPeer::CDextraPeer(const CCallsign &callsign, const CIp &ip, const char *m
     // and construct the DExtra clients
     for ( unsigned i = 0; i < ::strlen(modules); i++ )
     {
-        // create
-        CDextraClient *client = new CDextraClient(callsign, ip, modules[i], version.GetMajor());
-        // and append to vector
-        m_Clients.push_back(client);
+        // create and append to vector
+        m_Clients.push_back(std::make_shared<CDextraClient>(callsign, ip, modules[i], version.GetMajor()));
     }
 }
 
@@ -58,7 +56,7 @@ CDextraPeer::CDextraPeer(const CDextraPeer &peer)
 {
     for ( auto it=peer.cbegin(); it!=peer.cend(); it++ )
     {
-        CDextraClient *client = new CDextraClient((const CDextraClient &)*(*it));
+        std::shared_ptr<CDextraClient> client(new CDextraClient((const CDextraClient &)*(*it)));
         m_Clients.push_back(client);
 
     }

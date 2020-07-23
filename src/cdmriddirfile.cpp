@@ -56,7 +56,7 @@ bool CDmridDirFile::Init(void)
 bool CDmridDirFile::NeedReload(void)
 {
     bool needReload = false;
-    
+
     time_t time;
     if ( GetLastModTime(&time) )
     {
@@ -70,7 +70,7 @@ bool CDmridDirFile::LoadContent(CBuffer *buffer)
     bool ok = false;
     std::ifstream file;
     std::streampos size;
-    
+
     // open file
     file.open(DMRIDDB_PATH, std::ios::in | std::ios::binary | std::ios::ate);
     if ( file.is_open() )
@@ -83,18 +83,18 @@ bool CDmridDirFile::LoadContent(CBuffer *buffer)
             buffer->resize((int)size+1);
             file.seekg (0, std::ios::beg);
             file.read((char *)buffer->data(), (int)size);
-            
+
             // close file
             file.close();
-            
+
             // update time
             GetLastModTime(&m_LastModTime);
-            
+
             // done
             ok = true;
         }
     }
-    
+
     // done
     return ok;
 }
@@ -102,28 +102,28 @@ bool CDmridDirFile::LoadContent(CBuffer *buffer)
 bool CDmridDirFile::RefreshContent(const CBuffer &buffer)
 {
     bool ok = false;
-    
+
     // clear directory
     m_CallsignMap.clear();
     m_DmridMap.clear();
-    
+
     // scan buffer
     if ( buffer.size() > 0 )
     {
         // crack it
         char *ptr1 = (char *)buffer.data();
         char *ptr2;
-        
+
         // get next line
-        while ( (ptr2 = ::strchr(ptr1, '\n')) != NULL )
+        while ( (ptr2 = ::strchr(ptr1, '\n')) != nullptr )
         {
             *ptr2 = 0;
             // get items
             char *dmrid;
             char *callsign;
-            if ( ((dmrid = ::strtok(ptr1, ";")) != NULL) && IsValidDmrid(dmrid) )
+            if ( ((dmrid = ::strtok(ptr1, ";")) != nullptr) && IsValidDmrid(dmrid) )
             {
-                if ( ((callsign = ::strtok(NULL, ";")) != NULL) )
+                if ( ((callsign = ::strtok(nullptr, ";")) != nullptr) )
                 {
                     // new entry
                     uint32 ui = atoi(dmrid);
@@ -138,14 +138,14 @@ bool CDmridDirFile::RefreshContent(const CBuffer &buffer)
             // next line
             ptr1 = ptr2+1;
         }
-        
+
         // done
         ok = true;
     }
-    
+
     // report
     std::cout << "Read " << m_DmridMap.size() << " DMR ids from file " << DMRIDDB_PATH << std::endl;
-    
+
     // done
     return ok;
 }
@@ -154,7 +154,7 @@ bool CDmridDirFile::RefreshContent(const CBuffer &buffer)
 bool CDmridDirFile::GetLastModTime(time_t *time)
 {
     bool ok = false;
-    
+
     struct stat fileStat;
     if( ::stat(DMRIDDB_PATH, &fileStat) != -1 )
     {

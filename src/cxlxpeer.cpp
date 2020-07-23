@@ -48,10 +48,8 @@ CXlxPeer::CXlxPeer(const CCallsign &callsign, const CIp &ip, const char *modules
     // and construct all xlx clients
     for ( unsigned i = 0; i < ::strlen(modules); i++ )
     {
-        // create
-        CXlxClient *client = new CXlxClient(callsign, ip, modules[i], protrev);
-        // and append to vector
-        m_Clients.push_back(client);
+        // create and append to vector
+        m_Clients.push_back(std::make_shared<CXlxClient>(callsign, ip, modules[i], protrev));
     }
 }
 
@@ -60,9 +58,8 @@ CXlxPeer::CXlxPeer(const CXlxPeer &peer)
 {
     for ( auto it=peer.cbegin(); it!=peer.cend(); it++ )
     {
-        CXlxClient *client = new CXlxClient((const CXlxClient &)*(*it));
+        std::shared_ptr<CXlxClient> client(new CXlxClient((const CXlxClient &)*(*it)));
         m_Clients.push_back(client);
-
     }
 }
 

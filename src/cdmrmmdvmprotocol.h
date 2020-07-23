@@ -95,11 +95,11 @@ protected:
     bool IsValidDvLastFramePacket(const CBuffer &, CDvLastFramePacket **);
 
     // packet encoding helpers
-    void EncodeKeepAlivePacket(CBuffer *, CClient *);
+    void EncodeKeepAlivePacket(CBuffer *, std::shared_ptr<CClient>);
     void EncodeAckPacket(CBuffer *, const CCallsign &);
     void EncodeConnectAckPacket(CBuffer *, const CCallsign &, uint32);
     void EncodeNackPacket(CBuffer *, const CCallsign &);
-    void EncodeClosePacket(CBuffer *, CClient *);
+    void EncodeClosePacket(CBuffer *, std::shared_ptr<CClient>);
     bool EncodeDvHeaderPacket(const CDvHeaderPacket &, uint8, CBuffer *) const;
     void EncodeDvPacket(const CDvHeaderPacket &, const CDvFramePacket &, const CDvFramePacket &, const CDvFramePacket &, uint8, CBuffer *) const;
     void EncodeDvLastPacket(const CDvHeaderPacket &, uint8, CBuffer *) const;

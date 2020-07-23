@@ -96,25 +96,25 @@ bool CG3Protocol::Init(void)
 
 void CG3Protocol::Close(void)
 {
-    if (m_pPresenceThread != NULL)
+    if (m_pPresenceThread != nullptr)
     {
         m_pPresenceThread->join();
         delete m_pPresenceThread;
-        m_pPresenceThread = NULL;
+        m_pPresenceThread = nullptr;
     }
 
-    if (m_pConfigThread != NULL)
+    if (m_pConfigThread != nullptr)
     {
         m_pConfigThread->join();
         delete m_pConfigThread;
-        m_pConfigThread = NULL;
+        m_pConfigThread = nullptr;
     }
 
-    if (m_pIcmpThread != NULL)
+    if (m_pIcmpThread != nullptr)
     {
         m_pIcmpThread->join();
         delete m_pIcmpThread;
-        m_pIcmpThread = NULL;
+        m_pIcmpThread = nullptr;
     }
 }
 
@@ -188,8 +188,8 @@ void CG3Protocol::PresenceTask(void)
 
             CClients *clients = g_Reflector.GetClients();
             auto it = clients->begin();
-            CClient *extant = NULL;
-            while ( (extant = clients->FindNextClient(PROTOCOL_G3, it)) != NULL )
+            std::shared_ptr<CClient>extant = nullptr;
+            while ( (extant = clients->FindNextClient(PROTOCOL_G3, it)) != nullptr )
             {
                 CIp ClIp = extant->GetIp();
                 if (ClIp.GetAddr() == Ip.GetAddr())
@@ -198,12 +198,12 @@ void CG3Protocol::PresenceTask(void)
                 }
             }
 
-            if (extant == NULL)
+            if (extant == nullptr)
             {
                 it = clients->begin();
 
                 // do we already have a client with the same call (IP changed)?
-                while ( (extant = clients->FindNextClient(PROTOCOL_G3, it)) != NULL )
+                while ( (extant = clients->FindNextClient(PROTOCOL_G3, it)) != nullptr )
                 {
                     {
                         if (extant->GetCallsign().HasSameCallsign(Terminal))
@@ -363,8 +363,8 @@ void CG3Protocol::IcmpTask(void)
         {
                 CClients *clients = g_Reflector.GetClients();
 				auto it = clients->begin();
-                CClient *client = NULL;
-                while ( (client = clients->FindNextClient(PROTOCOL_G3, it)) != NULL )
+                std::shared_ptr<CClient>client = nullptr;
+                while ( (client = clients->FindNextClient(PROTOCOL_G3, it)) != nullptr )
                 {
                     CIp ClientIp = client->GetIp();
                     if (ClientIp.GetAddr() == Ip.GetAddr())
@@ -396,11 +396,11 @@ void CG3Protocol::Task(void)
     if ( m_Socket4.Receive(Buffer, Ip, 20) )
     {
         CIp ClIp;
-        CIp *BaseIp = NULL;
+        CIp *BaseIp = nullptr;
         CClients *clients = g_Reflector.GetClients();
         auto it = clients->begin();
-        CClient *client = NULL;
-        while ( (client = clients->FindNextClient(PROTOCOL_G3, it)) != NULL )
+        std::shared_ptr<CClient>client = nullptr;
+        while ( (client = clients->FindNextClient(PROTOCOL_G3, it)) != nullptr )
         {
             ClIp = client->GetIp();
             if (ClIp.GetAddr() == Ip.GetAddr())
@@ -415,17 +415,17 @@ void CG3Protocol::Task(void)
         }
         g_Reflector.ReleaseClients();
 
-        if (BaseIp != NULL)
+        if (BaseIp != nullptr)
         {
             // crack the packet
-            if ( (Frame = IsValidDvFramePacket(Buffer)) != NULL )
+            if ( (Frame = IsValidDvFramePacket(Buffer)) != nullptr )
             {
                 //std::cout << "Terminal DV frame"  << std::endl;
 
                 // handle it
                 OnDvFramePacketIn(Frame, BaseIp);
             }
-            else if ( (Header = IsValidDvHeaderPacket(Buffer)) != NULL )
+            else if ( (Header = IsValidDvHeaderPacket(Buffer)) != nullptr )
             {
                 //std::cout << "Terminal DV header"  << std::endl;
 
@@ -440,7 +440,7 @@ void CG3Protocol::Task(void)
                     delete Header;
                 }
             }
-            else if ( (LastFrame = IsValidDvLastFramePacket(Buffer)) != NULL )
+            else if ( (LastFrame = IsValidDvLastFramePacket(Buffer)) != nullptr )
             {
                 //std::cout << "Terminal DV last frame" << std::endl;
 
@@ -501,8 +501,8 @@ void CG3Protocol::HandleQueue(void)
             // and push it to all our clients linked to the module and who are not streaming in
             CClients *clients = g_Reflector.GetClients();
             auto it = clients->begin();
-            CClient *client = NULL;
-            while ( (client = clients->FindNextClient(PROTOCOL_G3, it)) != NULL )
+            std::shared_ptr<CClient>client = nullptr;
+            while ( (client = clients->FindNextClient(PROTOCOL_G3, it)) != nullptr )
             {
                 // is this client busy ?
                 if ( !client->IsAMaster() && (client->GetReflectorModule() == packet->GetModuleId()) )
@@ -537,8 +537,8 @@ void CG3Protocol::HandleKeepalives(void)
     // iterate on clients
     CClients *clients = g_Reflector.GetClients();
     auto it = clients->begin();
-    CClient *client = NULL;
-    while ( (client = clients->FindNextClient(PROTOCOL_G3, it)) != NULL )
+    std::shared_ptr<CClient>client = nullptr;
+    while ( (client = clients->FindNextClient(PROTOCOL_G3, it)) != nullptr )
     {
         if (!client->IsAlive())
         {
@@ -563,7 +563,7 @@ bool CG3Protocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
     // find the stream
     CPacketStream *stream = GetStream(Header->GetStreamId(), &Ip);
 
-    if ( stream == NULL )
+    if ( stream == nullptr )
     {
         // no stream open yet, open a new one
         CCallsign via(Header->GetRpt1Callsign());
@@ -571,8 +571,8 @@ bool CG3Protocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
         // find this client
         CClients *clients = g_Reflector.GetClients();
         auto it = clients->begin();
-        CClient *client = NULL;
-        while ( (client = clients->FindNextClient(PROTOCOL_G3, it)) != NULL )
+        std::shared_ptr<CClient>client = nullptr;
+        while ( (client = clients->FindNextClient(PROTOCOL_G3, it)) != nullptr )
         {
             CIp ClIp = client->GetIp();
             if (ClIp.GetAddr() == Ip.GetAddr())
@@ -581,7 +581,7 @@ bool CG3Protocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
             }
         }
 
-        if ( client != NULL )
+        if ( client != nullptr )
         {
 
             // move it to the proper module
@@ -599,7 +599,7 @@ bool CG3Protocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
                         // drop if invalid module
                         delete Header;
                         g_Reflector.ReleaseClients();
-                        return NULL;
+                        return nullptr;
                     }
                 }
 
@@ -607,7 +607,7 @@ bool CG3Protocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
                 via = client->GetCallsign();
 
                 // and try to open the stream
-                if ( (stream = g_Reflector.OpenStream(Header, client)) != NULL )
+                if ( (stream = g_Reflector.OpenStream(Header, client)) != nullptr )
                 {
                     // keep the handle
                     m_Streams.push_back(stream);
@@ -653,7 +653,7 @@ bool CG3Protocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
 
 CDvHeaderPacket *CG3Protocol::IsValidDvHeaderPacket(const CBuffer &Buffer)
 {
-    CDvHeaderPacket *header = NULL;
+    CDvHeaderPacket *header = nullptr;
 
     if ( (Buffer.size() == 56) && (Buffer.Compare((uint8 *)"DSVT", 4) == 0) &&
          (Buffer.data()[4] == 0x10) && (Buffer.data()[8] == 0x20) )
@@ -665,7 +665,7 @@ CDvHeaderPacket *CG3Protocol::IsValidDvHeaderPacket(const CBuffer &Buffer)
         if ( !header->IsValid() )
         {
             delete header;
-            header = NULL;
+            header = nullptr;
         }
     }
     return header;
@@ -673,7 +673,7 @@ CDvHeaderPacket *CG3Protocol::IsValidDvHeaderPacket(const CBuffer &Buffer)
 
 CDvFramePacket *CG3Protocol::IsValidDvFramePacket(const CBuffer &Buffer)
 {
-    CDvFramePacket *dvframe = NULL;
+    CDvFramePacket *dvframe = nullptr;
 
     if ( (Buffer.size() == 27) && (Buffer.Compare((uint8 *)"DSVT", 4) == 0) &&
          (Buffer.data()[4] == 0x20) && (Buffer.data()[8] == 0x20) &&
@@ -686,7 +686,7 @@ CDvFramePacket *CG3Protocol::IsValidDvFramePacket(const CBuffer &Buffer)
         if ( !dvframe->IsValid() )
         {
             delete dvframe;
-            dvframe = NULL;
+            dvframe = nullptr;
         }
     }
     return dvframe;
@@ -694,7 +694,7 @@ CDvFramePacket *CG3Protocol::IsValidDvFramePacket(const CBuffer &Buffer)
 
 CDvLastFramePacket *CG3Protocol::IsValidDvLastFramePacket(const CBuffer &Buffer)
 {
-    CDvLastFramePacket *dvframe = NULL;
+    CDvLastFramePacket *dvframe = nullptr;
 
     if ( (Buffer.size() == 27) && (Buffer.Compare((uint8 *)"DSVT", 4) == 0) &&
          (Buffer.data()[4] == 0x20) && (Buffer.data()[8] == 0x20) &&
@@ -707,7 +707,7 @@ CDvLastFramePacket *CG3Protocol::IsValidDvLastFramePacket(const CBuffer &Buffer)
         if ( !dvframe->IsValid() )
         {
             delete dvframe;
-            dvframe = NULL;
+            dvframe = nullptr;
         }
     }
     return dvframe;
@@ -787,8 +787,8 @@ void CG3Protocol::NeedReload(void)
             // we have new options - iterate on clients for potential removal
             CClients *clients = g_Reflector.GetClients();
             auto it = clients->begin();
-            CClient *client = NULL;
-            while ( (client = clients->FindNextClient(PROTOCOL_G3, it)) != NULL )
+            std::shared_ptr<CClient>client = nullptr;
+            while ( (client = clients->FindNextClient(PROTOCOL_G3, it)) != nullptr )
             {
                 char module = client->GetReflectorModule();
                 if (!strchr(m_Modules.c_str(), module) && !strchr(m_Modules.c_str(), '*'))
@@ -820,9 +820,9 @@ void CG3Protocol::ReadOptions(void)
 
             if ((::strlen(szt) > 0) && szt[0] != '#')
             {
-                if ((szt = ::strtok(szt, " ,\t")) != NULL)
+                if ((szt = ::strtok(szt, " ,\t")) != nullptr)
                 {
-                    if ((szval = ::strtok(NULL, " ,\t")) != NULL)
+                    if ((szval = ::strtok(nullptr, " ,\t")) != nullptr)
                     {
                         if (::strncmp(szt, "address", 7) == 0)
                         {

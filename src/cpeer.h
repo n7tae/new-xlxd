@@ -68,17 +68,17 @@ public:
     virtual bool IsAMaster(void) const;
     virtual void Alive(void);
     virtual bool IsAlive(void) const                    { return false; }
-    virtual void Heard(void)                            { m_LastHeardTime = std::time(NULL); }
+    virtual void Heard(void)                            { m_LastHeardTime = std::time(nullptr); }
 
     // clients access
     int     GetNbClients(void) const                    { return (int)m_Clients.size(); }
     void    ClearClients(void)                          { m_Clients.clear(); }
 
 	// pass-thru
-	std::list<CClient *>::iterator begin()              { return m_Clients.begin(); }
-	std::list<CClient *>::iterator end()                { return m_Clients.end(); }
- 	std::list<CClient *>::const_iterator cbegin() const { return m_Clients.cbegin(); }
-	std::list<CClient *>::const_iterator cend() const   { return m_Clients.cend(); }
+	std::list<std::shared_ptr<CClient>>::iterator begin()              { return m_Clients.begin(); }
+	std::list<std::shared_ptr<CClient>>::iterator end()                { return m_Clients.end(); }
+ 	std::list<std::shared_ptr<CClient>>::const_iterator cbegin() const { return m_Clients.cbegin(); }
+	std::list<std::shared_ptr<CClient>>::const_iterator cend() const   { return m_Clients.cend(); }
 
     // reporting
     virtual void WriteXml(std::ofstream &);
@@ -90,7 +90,7 @@ protected:
     CIp                   m_Ip;
     char                  m_ReflectorModules[27];
     CVersion              m_Version;
-    std::list<CClient *>  m_Clients;
+    std::list<std::shared_ptr<CClient>> m_Clients;
 
     // status
     CTimePoint            m_LastKeepaliveTime;

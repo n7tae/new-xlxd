@@ -51,7 +51,7 @@ public:
 
 protected:
     // data
-    std::mutex              m_Mutex;
+    std::mutex m_Mutex;
     std::list<CProtocol *>  m_Protocols;
 };
 

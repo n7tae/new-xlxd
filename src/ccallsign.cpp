@@ -78,7 +78,7 @@ CCallsign::CCallsign(const char *sz, uint32 dmrid)
     	g_DmridDir.Lock();
     	{
 			const CCallsign *callsign = g_DmridDir.FindCallsign(m_uiDmrid);
-			if ( callsign != NULL )
+			if ( callsign != nullptr )
 			{
 				::memcpy(m_Callsign, callsign->m_Callsign, sizeof(m_Callsign));
 			}
@@ -125,7 +125,7 @@ bool CCallsign::IsValid(void) const
     // is an letter or space
     valid &= IsLetter(m_Module) || IsSpace(m_Module);
 
-    // dmrid is not tested, as it can be NULL
+    // dmrid is not tested, as it can be nullptr
     // if station does is not dmr registered
 
     // done
@@ -206,7 +206,7 @@ void CCallsign::SetDmrid(uint32 dmrid, bool UpdateCallsign)
     	g_DmridDir.Lock();
     	{
 			const CCallsign *callsign = g_DmridDir.FindCallsign(dmrid);
-			if ( callsign != NULL )
+			if ( callsign != nullptr )
 			{
 				::memcpy(m_Callsign, callsign->m_Callsign, sizeof(m_Callsign));
 			}
@@ -220,7 +220,7 @@ void CCallsign::SetDmrid(const uint8 *buffer, bool UpdateCallsign)
     char sz[9];
     ::memcpy(sz, buffer, 8);
     sz[8] = 0;
-    SetDmrid((uint32)::strtol(sz, NULL, 16), UpdateCallsign);
+    SetDmrid((uint32)::strtol(sz, nullptr, 16), UpdateCallsign);
 }
 #endif
 

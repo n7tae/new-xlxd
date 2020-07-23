@@ -34,7 +34,7 @@
 
 CCallsignList::CCallsignList()
 {
-    m_Filename = NULL;
+    m_Filename = nullptr;
     ::memset(&m_LastModTime, 0, sizeof(time_t));
 }
 
@@ -65,13 +65,13 @@ bool CCallsignList::LoadFromFile(const char *filename)
             if ( (::strlen(szt) > 0) && (szt[0] != '#') )
             {
                 // 1st token is callsign
-                if ( (szt = ::strtok(szt, " ,\t")) != NULL )
+                if ( (szt = ::strtok(szt, " ,\t")) != nullptr )
                 {
                     CCallsign callsign(szt);
                     // 2nd token is modules list
-                    szt = ::strtok(NULL, " ,\t");
+                    szt = ::strtok(nullptr, " ,\t");
                     // if token absent, use wildcard
-                    if ( szt == NULL )
+                    if ( szt == nullptr )
                     {
                         szt = szStar;
                     }
@@ -106,7 +106,7 @@ bool CCallsignList::ReloadFromFile(void)
 {
     bool ok = false;
 
-    if ( m_Filename !=  NULL )
+    if ( m_Filename !=  nullptr )
     {
         ok = LoadFromFile(m_Filename);
     }
@@ -185,7 +185,7 @@ CCallsignListItem *CCallsignList::FindListItem(const CCallsign &Callsign)
         }
     }
 
-    return NULL;
+    return nullptr;
 
 }
 
@@ -217,7 +217,7 @@ bool CCallsignList::GetLastModTime(time_t *time)
 {
     bool ok = false;
 
-    if ( m_Filename != NULL )
+    if ( m_Filename != nullptr )
     {
         struct stat fileStat;
         if( ::stat(m_Filename, &fileStat) != -1 )

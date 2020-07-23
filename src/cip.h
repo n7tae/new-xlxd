@@ -36,10 +36,10 @@ public:
 	// constructors
 	CIp();
 	CIp(const char *address, int family = AF_UNSPEC, int type = SOCK_DGRAM, uint16_t port = 0U);
-	CIp(const int family, const uint16_t port = 0U, const char *address = NULL);
+	CIp(const int family, const uint16_t port = 0U, const char *address = nullptr);
 
 	// initializer for empty constructor
-	void Initialize(const int family, const uint16_t port = 0U, const char *address = NULL);
+	void Initialize(const int family, const uint16_t port = 0U, const char *address = nullptr);
 
 	// comparison operators
 	bool operator==(const CIp &rhs) const;

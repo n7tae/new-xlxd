@@ -39,11 +39,11 @@
 CReflector::CReflector()
 {
     keep_running = true;
-    m_XmlReportThread = NULL;
-    m_JsonReportThread = NULL;
+    m_XmlReportThread = nullptr;
+    m_JsonReportThread = nullptr;
     for ( int i = 0; i < NB_OF_MODULES; i++ )
     {
-        m_RouterThreads[i] = NULL;
+        m_RouterThreads[i] = nullptr;
     }
 #ifdef DEBUG_DUMPFILE
     m_DebugFile.open("/Users/jeanluc/Desktop/xlxdebug.txt");
@@ -56,11 +56,11 @@ CReflector::CReflector(const CCallsign &callsign)
     m_DebugFile.close();
 #endif
     keep_running = true;
-    m_XmlReportThread = NULL;
-    m_JsonReportThread = NULL;
+    m_XmlReportThread = nullptr;
+    m_JsonReportThread = nullptr;
     for ( int i = 0; i < NB_OF_MODULES; i++ )
     {
-        m_RouterThreads[i] = NULL;
+        m_RouterThreads[i] = nullptr;
     }
     m_Callsign = callsign;
 }
@@ -71,19 +71,19 @@ CReflector::CReflector(const CCallsign &callsign)
 CReflector::~CReflector()
 {
     keep_running = false;
-    if ( m_XmlReportThread != NULL )
+    if ( m_XmlReportThread != nullptr )
     {
         m_XmlReportThread->join();
         delete m_XmlReportThread;
     }
-    if ( m_JsonReportThread != NULL )
+    if ( m_JsonReportThread != nullptr )
     {
         m_JsonReportThread->join();
         delete m_JsonReportThread;
     }
     for ( int i = 0; i < NB_OF_MODULES; i++ )
     {
-        if ( m_RouterThreads[i] != NULL )
+        if ( m_RouterThreads[i] != nullptr )
         {
              m_RouterThreads[i]->join();
              delete m_RouterThreads[i];
@@ -145,27 +145,27 @@ void CReflector::Stop(void)
     keep_running = false;
 
     // stop & delete report threads
-    if ( m_XmlReportThread != NULL )
+    if ( m_XmlReportThread != nullptr )
     {
         m_XmlReportThread->join();
         delete m_XmlReportThread;
-        m_XmlReportThread = NULL;
+        m_XmlReportThread = nullptr;
     }
-    if ( m_JsonReportThread != NULL )
+    if ( m_JsonReportThread != nullptr )
     {
         m_JsonReportThread->join();
         delete m_JsonReportThread;
-        m_JsonReportThread = NULL;
+        m_JsonReportThread = nullptr;
     }
 
     // stop & delete all router thread
     for ( int i = 0; i < NB_OF_MODULES; i++ )
     {
-        if ( m_RouterThreads[i] != NULL )
+        if ( m_RouterThreads[i] != nullptr )
         {
             m_RouterThreads[i]->join();
             delete m_RouterThreads[i];
-            m_RouterThreads[i] = NULL;
+            m_RouterThreads[i] = nullptr;
         }
     }
 
@@ -195,14 +195,14 @@ bool CReflector::IsStreaming(char module)
     return false;
 }
 
-CPacketStream *CReflector::OpenStream(CDvHeaderPacket *DvHeader, CClient *client)
+CPacketStream *CReflector::OpenStream(CDvHeaderPacket *DvHeader, std::shared_ptr<CClient>client)
 {
-    CPacketStream *retStream = NULL;
+    CPacketStream *retStream = nullptr;
 
     // clients MUST have bee locked by the caller
     // so we can freely access it within the fuction
 
-    // check sid is not NULL
+    // check sid is not nullptr
     if ( DvHeader->GetStreamId() != 0 )
     {
         // check if client is valid candidate
@@ -215,7 +215,7 @@ CPacketStream *CReflector::OpenStream(CDvHeaderPacket *DvHeader, CClient *client
                 // get the module's queue
                 char module = DvHeader->GetRpt2Module();
                 CPacketStream *stream = GetStream(module);
-                if ( stream != NULL )
+                if ( stream != nullptr )
                 {
                     // lock it
                     stream->Lock();
@@ -259,7 +259,7 @@ CPacketStream *CReflector::OpenStream(CDvHeaderPacket *DvHeader, CClient *client
 void CReflector::CloseStream(CPacketStream *stream)
 {
     //
-    if ( stream != NULL )
+    if ( stream != nullptr )
     {
         // wait queue is empty
         // this waits forever
@@ -286,8 +286,8 @@ void CReflector::CloseStream(CPacketStream *stream)
         stream->Lock();
 
         // get and check the master
-        CClient *client = stream->GetOwnerClient();
-        if ( client != NULL )
+        std::shared_ptr<CClient>client = stream->GetOwnerClient();
+        if ( client != nullptr )
         {
             // client no longer a master
             client->NotAMaster();
@@ -336,12 +336,12 @@ void CReflector::RouterThread(CReflector *This, CPacketStream *streamIn)
         }
         else
         {
-            packet = NULL;
+            packet = nullptr;
         }
         streamIn->Unlock();
 
         // route it
-        if ( packet != NULL )
+        if ( packet != nullptr )
         {
             // set origin
             packet->SetModuleId(uiModuleId);
@@ -368,7 +368,7 @@ void CReflector::RouterThread(CReflector *This, CPacketStream *streamIn)
             }
             // done
             delete packet;
-            packet = NULL;
+            packet = nullptr;
         }
         else
         {
@@ -566,7 +566,7 @@ int CReflector::GetModuleIndex(char module) const
 
 CPacketStream *CReflector::GetStream(char module)
 {
-    CPacketStream *stream = NULL;
+    CPacketStream *stream = nullptr;
     int i = GetModuleIndex(module);
     if ( i >= 0 )
     {

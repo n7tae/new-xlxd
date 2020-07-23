@@ -74,14 +74,14 @@ void CXlxProtocol::Task(void)
 #endif
     {
         // crack the packet
-        if ( (Frame = IsValidDvFramePacket(Buffer)) != NULL )
+        if ( (Frame = IsValidDvFramePacket(Buffer)) != nullptr )
         {
             //std::cout << "XLX (DExtra) DV frame"  << std::endl;
 
             // handle it
             OnDvFramePacketIn(Frame, &Ip);
         }
-        else if ( (Header = IsValidDvHeaderPacket(Buffer)) != NULL )
+        else if ( (Header = IsValidDvHeaderPacket(Buffer)) != nullptr )
         {
             //std::cout << "XLX (DExtra) DV header:"  << std::endl << *Header << std::endl;
             //std::cout << "XLX (DExtra) DV header on module " << Header->GetRpt2Module() << std::endl;
@@ -97,7 +97,7 @@ void CXlxProtocol::Task(void)
                 delete Header;
             }
         }
-        else if ( (LastFrame = IsValidDvLastFramePacket(Buffer)) != NULL )
+        else if ( (LastFrame = IsValidDvLastFramePacket(Buffer)) != nullptr )
         {
             //std::cout << "XLX (DExtra) DV last frame" << std::endl;
 
@@ -122,7 +122,7 @@ void CXlxProtocol::Task(void)
                         {
                             // already connected ?
                             CPeers *peers = g_Reflector.GetPeers();
-                            if ( peers->FindPeer(Callsign, Ip, PROTOCOL_XLX) == NULL )
+                            if ( peers->FindPeer(Callsign, Ip, PROTOCOL_XLX) == nullptr )
                             {
                                 // acknowledge the request
                                 EncodeConnectAckPacket(&Buffer, Modules);
@@ -157,11 +157,11 @@ void CXlxProtocol::Task(void)
             {
                 // already connected ?
                 CPeers *peers = g_Reflector.GetPeers();
-                if ( peers->FindPeer(Callsign, Ip, PROTOCOL_XLX) == NULL )
+                if ( peers->FindPeer(Callsign, Ip, PROTOCOL_XLX) == nullptr )
                 {
                     // create the new peer
                     // this also create one client per module
-                    CPeer *peer = CreateNewPeer(Callsign, Ip, Modules, Version);
+                    std::shared_ptr<CPeer>peer = CreateNewPeer(Callsign, Ip, Modules, Version);
 
                     // append the peer to reflector peer list
                     // this also add all new clients to reflector client list
@@ -176,8 +176,8 @@ void CXlxProtocol::Task(void)
 
             // find peer
             CPeers *peers = g_Reflector.GetPeers();
-            CPeer *peer = peers->FindPeer(Ip, PROTOCOL_XLX);
-            if ( peer != NULL )
+            std::shared_ptr<CPeer>peer = peers->FindPeer(Ip, PROTOCOL_XLX);
+            if ( peer != nullptr )
             {
                 // remove it from reflector peer list
                 // this also remove all concerned clients from reflector client list
@@ -196,8 +196,8 @@ void CXlxProtocol::Task(void)
 
             // find peer
             CPeers *peers = g_Reflector.GetPeers();
-            CPeer *peer = peers->FindPeer(Ip, PROTOCOL_XLX);
-            if ( peer != NULL )
+            std::shared_ptr<CPeer>peer = peers->FindPeer(Ip, PROTOCOL_XLX);
+            if ( peer != nullptr )
             {
                 // keep it alive
                 peer->Alive();
@@ -268,8 +268,8 @@ void CXlxProtocol::HandleQueue(void)
                 // and push it to all our clients linked to the module and who are not streaming in
                 CClients *clients = g_Reflector.GetClients();
                 auto it = clients->begin();
-                CClient *client = NULL;
-                while ( (client = clients->FindNextClient(PROTOCOL_XLX, it)) != NULL )
+                std::shared_ptr<CClient>client = nullptr;
+                while ( (client = clients->FindNextClient(PROTOCOL_XLX, it)) != nullptr )
                 {
                     // is this client busy ?
                     if ( !client->IsAMaster() && (client->GetReflectorModule() == packet->GetModuleId()) )
@@ -322,8 +322,8 @@ void CXlxProtocol::HandleKeepalives(void)
     // iterate on peers
     CPeers *peers = g_Reflector.GetPeers();
     auto pit = peers->begin();
-    CPeer *peer = NULL;
-    while ( (peer = peers->FindNextPeer(PROTOCOL_XLX, pit)) != NULL )
+    std::shared_ptr<CPeer>peer = nullptr;
+    while ( (peer = peers->FindNextPeer(PROTOCOL_XLX, pit)) != nullptr )
     {
         // send keepalive
         Send(keepalive, peer->GetIp());
@@ -364,10 +364,10 @@ void CXlxProtocol::HandlePeerLinks(void)
     // check if all our connected peers are still listed by gatekeeper
     // if not, disconnect
     auto pit = peers->begin();
-    CPeer *peer = NULL;
-    while ( (peer = peers->FindNextPeer(PROTOCOL_XLX, pit)) != NULL )
+    std::shared_ptr<CPeer>peer = nullptr;
+    while ( (peer = peers->FindNextPeer(PROTOCOL_XLX, pit)) != nullptr )
     {
-        if ( list->FindListItem(peer->GetCallsign()) == NULL )
+        if ( list->FindListItem(peer->GetCallsign()) == nullptr )
         {
             // send disconnect packet
             EncodeDisconnectPacket(&buffer);
@@ -384,7 +384,7 @@ void CXlxProtocol::HandlePeerLinks(void)
     {
         if ( (*it).GetCallsign().HasSameCallsignWithWildcard(CCallsign("XRF*")) )
             continue;
-        if ( peers->FindPeer((*it).GetCallsign(), PROTOCOL_XLX) == NULL )
+        if ( peers->FindPeer((*it).GetCallsign(), PROTOCOL_XLX) == nullptr )
         {
             // resolve again peer's IP in case it's a dynamic IP
             (*it).ResolveIp();
@@ -417,15 +417,15 @@ bool CXlxProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
 
     // find the stream
     CPacketStream *stream = GetStream(Header->GetStreamId());
-    if ( stream == NULL )
+    if ( stream == nullptr )
     {
         // no stream open yet, open a new one
         // find this client
-        CClient *client = g_Reflector.GetClients()->FindClient(Ip, PROTOCOL_XLX, Header->GetRpt2Module());
-        if ( client != NULL )
+        std::shared_ptr<CClient>client = g_Reflector.GetClients()->FindClient(Ip, PROTOCOL_XLX, Header->GetRpt2Module());
+        if ( client != nullptr )
         {
             // and try to open the stream
-            if ( (stream = g_Reflector.OpenStream(Header, client)) != NULL )
+            if ( (stream = g_Reflector.OpenStream(Header, client)) != nullptr )
             {
                 // keep the handle
                 m_Streams.push_back(stream);
@@ -550,13 +550,13 @@ bool CXlxProtocol::IsValidNackPacket(const CBuffer &Buffer, CCallsign *callsign)
 
 CDvFramePacket *CXlxProtocol::IsValidDvFramePacket(const CBuffer &Buffer)
 {
-    CDvFramePacket *dvframe = NULL;
+    CDvFramePacket *dvframe = nullptr;
 
     // base class first (protocol revision 1 and lower)
     dvframe = CDextraProtocol::IsValidDvFramePacket(Buffer);
 
     // otherwise try protocol revision 2
-    if ( (dvframe == NULL) &&
+    if ( (dvframe == nullptr) &&
          (Buffer.size() == 45) && (Buffer.Compare((uint8 *)"DSVT", 4) == 0) &&
          (Buffer.data()[4] == 0x20) && (Buffer.data()[8] == 0x20) &&
          ((Buffer.data()[14] & 0x40) == 0) )
@@ -574,7 +574,7 @@ CDvFramePacket *CXlxProtocol::IsValidDvFramePacket(const CBuffer &Buffer)
         if ( !dvframe->IsValid() )
         {
             delete dvframe;
-            dvframe = NULL;
+            dvframe = nullptr;
         }
     }
 
@@ -584,13 +584,13 @@ CDvFramePacket *CXlxProtocol::IsValidDvFramePacket(const CBuffer &Buffer)
 
 CDvLastFramePacket *CXlxProtocol::IsValidDvLastFramePacket(const CBuffer &Buffer)
 {
-    CDvLastFramePacket *dvframe = NULL;
+    CDvLastFramePacket *dvframe = nullptr;
 
     // base class first (protocol revision 1 and lower)
     dvframe = CDextraProtocol::IsValidDvLastFramePacket(Buffer);
 
     // otherwise try protocol revision 2
-    if ( (dvframe == NULL) &&
+    if ( (dvframe == nullptr) &&
          (Buffer.size() == 45) && (Buffer.Compare((uint8 *)"DSVT", 4) == 0) &&
          (Buffer.data()[4] == 0x20) && (Buffer.data()[8] == 0x20) &&
          ((Buffer.data()[14] & 0x40) != 0) )
@@ -608,7 +608,7 @@ CDvLastFramePacket *CXlxProtocol::IsValidDvLastFramePacket(const CBuffer &Buffer
         if ( !dvframe->IsValid() )
         {
             delete dvframe;
-            dvframe = NULL;
+            dvframe = nullptr;
         }
     }
 
@@ -746,20 +746,15 @@ int CXlxProtocol::GetConnectingPeerProtocolRevision(const CCallsign &Callsign, c
     return protrev;
 }
 
-CPeer *CXlxProtocol::CreateNewPeer(const CCallsign &Callsign, const CIp &Ip, char *Modules, const CVersion &Version)
+std::shared_ptr<CPeer> CXlxProtocol::CreateNewPeer(const CCallsign &Callsign, const CIp &Ip, char *Modules, const CVersion &Version)
 {
-    CPeer *peer = NULL;
-
     // BM ?
     if ( Callsign.HasSameCallsignWithWildcard(CCallsign("BM*")) )
     {
-        peer = new CBmPeer(Callsign, Ip, Modules, Version);
+		return std::make_shared<CBmPeer>(Callsign, Ip, Modules, Version);
     }
     else
     {
-        peer = new CXlxPeer(Callsign, Ip, Modules, Version);
+        return std::make_shared<CXlxPeer>(Callsign, Ip, Modules, Version);
     }
-
-    // done
-    return peer;
 }

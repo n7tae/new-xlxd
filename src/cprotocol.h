@@ -100,11 +100,11 @@ protected:
 
     // stream helpers
     virtual bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &) { return false; }
-    virtual void OnDvFramePacketIn(CDvFramePacket *, const CIp * = NULL);
-    virtual void OnDvLastFramePacketIn(CDvLastFramePacket *, const CIp * = NULL);
+    virtual void OnDvFramePacketIn(CDvFramePacket *, const CIp * = nullptr);
+    virtual void OnDvLastFramePacketIn(CDvLastFramePacket *, const CIp * = nullptr);
 
     // stream handle helpers
-    CPacketStream *GetStream(uint16, const CIp * = NULL);
+    CPacketStream *GetStream(uint16, const CIp * = nullptr);
     void CheckStreamsTimeout(void);
 
     // queue helper

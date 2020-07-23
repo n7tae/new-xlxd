@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #ifndef cuser_h
@@ -37,12 +37,12 @@ public:
     CUser();
     CUser(const CCallsign &, const CCallsign &, const CCallsign &, const CCallsign &);
     CUser(const CUser &);
-    
+
     // destructor
     ~CUser() {}
-    
+
     // operation
-    void HeardNow(void)     { m_LastHeardTime = std::time(NULL); }
+    void HeardNow(void)     { m_LastHeardTime = std::time(nullptr); }
 
     // operators
     bool operator ==(const CUser &) const;

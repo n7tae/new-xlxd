@@ -35,18 +35,18 @@
 CDmridDir::CDmridDir()
 {
     keep_running = true;
-    m_pThread = NULL;
+    m_pThread = nullptr;
 }
 
 CDmridDir::~CDmridDir()
 {
     // kill threads
     keep_running = false;
-    if ( m_pThread != NULL )
+    if ( m_pThread != nullptr )
     {
         m_pThread->join();
         delete m_pThread;
-		m_pThread = NULL;
+		m_pThread = nullptr;
     }
 }
 
@@ -71,11 +71,11 @@ bool CDmridDir::Init(void)
 void CDmridDir::Close(void)
 {
     keep_running = false;
-    if ( m_pThread != NULL )
+    if ( m_pThread != nullptr )
     {
         m_pThread->join();
         delete m_pThread;
-        m_pThread = NULL;
+        m_pThread = nullptr;
     }
 }
 
@@ -128,7 +128,7 @@ const CCallsign *CDmridDir::FindCallsign(uint32 dmrid)
     {
         return &(found->second);
     }
-    return NULL;
+    return nullptr;
 }
 
 uint32 CDmridDir::FindDmrid(const CCallsign &callsign)

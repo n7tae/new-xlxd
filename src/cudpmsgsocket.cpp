@@ -100,7 +100,7 @@ int CUdpMsgSocket::Receive(CBuffer *Buffer, CIp *Ip, int timeout)
 
             // get local IP
             struct cmsghdr *Cmsg;
-            for (Cmsg = CMSG_FIRSTHDR(&Msg); Cmsg != NULL; Cmsg = CMSG_NXTHDR(&Msg, Cmsg))
+            for (Cmsg = CMSG_FIRSTHDR(&Msg); Cmsg != nullptr; Cmsg = CMSG_NXTHDR(&Msg, Cmsg))
             {
                 if (Cmsg->cmsg_level == IPPROTO_IP && Cmsg->cmsg_type == IP_PKTINFO)
                 {

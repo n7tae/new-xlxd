@@ -39,7 +39,7 @@
 CCodecStream::CCodecStream(CPacketStream *PacketStream, uint16 uiId, uint8 uiCodecIn, uint8 uiCodecOut)
 {
     keep_running = true;
-    m_pThread = NULL;
+    m_pThread = nullptr;
     m_uiStreamId = uiId;
     m_uiPid = 0;
     m_uiCodecIn = uiCodecIn;
@@ -64,11 +64,11 @@ CCodecStream::~CCodecStream()
 
     // kill threads
     keep_running = false;
-    if ( m_pThread != NULL )
+    if ( m_pThread != nullptr )
     {
         m_pThread->join();
         delete m_pThread;
-		m_pThread = NULL;
+		m_pThread = nullptr;
     }
 
     // empty local queue
@@ -141,11 +141,11 @@ void CCodecStream::Close(void)
     m_Socket.Close();
 
     // kill threads
-    if ( m_pThread != NULL )
+    if ( m_pThread != nullptr )
     {
         m_pThread->join();
         delete m_pThread;
-        m_pThread = NULL;
+        m_pThread = nullptr;
     }
 }
 

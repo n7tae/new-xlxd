@@ -56,8 +56,8 @@ protected:
 
     // stream helpers
     bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &);
-    void OnDvFramePacketIn(CDvFramePacket *, const CIp * = NULL);
-    void OnDvLastFramePacketIn(CDvLastFramePacket *, const CIp * = NULL);
+    void OnDvFramePacketIn(CDvFramePacket *, const CIp * = nullptr);
+    void OnDvLastFramePacketIn(CDvLastFramePacket *, const CIp * = nullptr);
 
     // packet decoding helpers
     bool IsValidKeepAlivePacket(const CBuffer &, CCallsign *);
@@ -79,7 +79,7 @@ protected:
 
     // protocol revision helper
     int GetConnectingPeerProtocolRevision(const CCallsign &, const CVersion &);
-    CPeer *CreateNewPeer(const CCallsign &, const CIp &, char *, const CVersion &);
+    std::shared_ptr<CPeer>CreateNewPeer(const CCallsign &, const CIp &, char *, const CVersion &);
 
 protected:
     // time

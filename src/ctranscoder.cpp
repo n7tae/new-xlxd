@@ -47,7 +47,7 @@ CTranscoder g_Transcoder;
 CTranscoder::CTranscoder()
 {
     keep_running = true;
-    m_pThread = NULL;
+    m_pThread = nullptr;
     m_bConnected = false;
     m_LastKeepaliveTime.Now();
     m_LastActivityTime.Now();
@@ -133,11 +133,11 @@ void CTranscoder::Close(void)
 
     // kill threads
     keep_running = false;
-    if ( m_pThread != NULL )
+    if ( m_pThread != nullptr )
     {
         m_pThread->join();
         delete m_pThread;
-        m_pThread = NULL;
+        m_pThread = nullptr;
     }
 }
 
@@ -208,7 +208,7 @@ CCodecStream *CTranscoder::GetStream(CPacketStream *PacketStream, uint8 uiCodecI
 {
     CBuffer     Buffer;
 
-    CCodecStream *stream = NULL;
+    CCodecStream *stream = nullptr;
 
     // do we need transcoding
     if ( uiCodecIn != CODEC_NONE )
@@ -245,7 +245,7 @@ CCodecStream *CTranscoder::GetStream(CPacketStream *PacketStream, uint8 uiCodecI
                         m_Socket.Send(Buffer, m_Ip, TRANSCODER_PORT);
                         // and delete
                         delete stream;
-                        stream = NULL;
+                        stream = nullptr;
                     }
                 }
                 else
@@ -267,7 +267,7 @@ void CTranscoder::ReleaseStream(CCodecStream *stream)
 {
     CBuffer Buffer;
 
-    if ( stream != NULL )
+    if ( stream != nullptr )
     {
         // look for the stream
         bool found = false;

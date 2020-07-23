@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #include "main.h"
@@ -32,7 +32,7 @@
 
 CUser::CUser()
 {
-    m_LastHeardTime = std::time(NULL);
+    m_LastHeardTime = std::time(nullptr);
 }
 
 CUser::CUser(const CCallsign &my, const CCallsign &rpt1, const CCallsign &rpt2, const CCallsign &xlx)
@@ -41,7 +41,7 @@ CUser::CUser(const CCallsign &my, const CCallsign &rpt1, const CCallsign &rpt2, 
     m_Rpt1 = rpt1;
     m_Rpt2 = rpt2;
     m_Xlx = xlx;
-    m_LastHeardTime = std::time(NULL);
+    m_LastHeardTime = std::time(nullptr);
 }
 
 CUser::CUser(const CUser &user)
@@ -93,12 +93,12 @@ void CUser::GetJsonObject(char *Buffer)
     char mbstr[100];
     char my[16];
     char rpt1[16];
-    
+
     if (std::strftime(mbstr, sizeof(mbstr), "%A %c", std::localtime(&m_LastHeardTime)))
     {
         m_My.GetCallsignString(my);
         m_Rpt1.GetCallsignString(rpt1);
-        
+
         ::sprintf(sz, "{\"callsign\":\"%s\",\"node\":\"%s\",\"module\":\"%c\",\"time\":\"%s\"}",
               my,
               rpt1,

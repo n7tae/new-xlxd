@@ -1056,16 +1056,16 @@ static unsigned int get_syndrome_23127(unsigned int pattern)
  */
 {
     unsigned int aux = X22;
-    
+
     if (pattern >= X11) {
         while (pattern & MASK12) {
             while (!(aux & pattern))
                 aux = aux >> 1;
-            
+
             pattern ^= (aux / X11) * GENPOL;
         }
     }
-    
+
     return pattern;
 }
 
@@ -1083,9 +1083,9 @@ unsigned int CGolay24128::decode23127(unsigned int code)
 {
     unsigned int syndrome = ::get_syndrome_23127(code);
     unsigned int error_pattern = DECODING_TABLE_23127[syndrome];
-    
+
     code ^= error_pattern;
-    
+
     return code >> 11;
 }
 
@@ -1096,13 +1096,13 @@ unsigned int CGolay24128::decode24128(unsigned int code)
 
 unsigned int CGolay24128::decode24128(unsigned char* bytes)
 {
-    assert(bytes != NULL);
-    
+    assert(bytes != nullptr);
+
     unsigned int code = bytes[0U];
     code <<= 8;
     code |= bytes[1U];
     code <<= 8;
     code |= bytes[2U];
-    
+
     return decode23127(code >> 1);
 }

@@ -18,8 +18,8 @@
 
 void CUtils::byteToBitsBE(unsigned char byte, bool* bits)
 {
-    assert(bits != NULL);
-    
+    assert(bits != nullptr);
+
     bits[0U] = (byte & 0x80U) == 0x80U;
     bits[1U] = (byte & 0x40U) == 0x40U;
     bits[2U] = (byte & 0x20U) == 0x20U;
@@ -32,8 +32,8 @@ void CUtils::byteToBitsBE(unsigned char byte, bool* bits)
 
 void CUtils::byteToBitsLE(unsigned char byte, bool* bits)
 {
-    assert(bits != NULL);
-    
+    assert(bits != nullptr);
+
     bits[0U] = (byte & 0x01U) == 0x01U;
     bits[1U] = (byte & 0x02U) == 0x02U;
     bits[2U] = (byte & 0x04U) == 0x04U;
@@ -46,8 +46,8 @@ void CUtils::byteToBitsLE(unsigned char byte, bool* bits)
 
 void CUtils::bitsToByteBE(const bool* bits, unsigned char& byte)
 {
-    assert(bits != NULL);
-    
+    assert(bits != nullptr);
+
     byte  = bits[0U] ? 0x80U : 0x00U;
     byte |= bits[1U] ? 0x40U : 0x00U;
     byte |= bits[2U] ? 0x20U : 0x00U;
@@ -60,8 +60,8 @@ void CUtils::bitsToByteBE(const bool* bits, unsigned char& byte)
 
 void CUtils::bitsToByteLE(const bool* bits, unsigned char& byte)
 {
-    assert(bits != NULL);
-    
+    assert(bits != nullptr);
+
     byte  = bits[0U] ? 0x01U : 0x00U;
     byte |= bits[1U] ? 0x02U : 0x00U;
     byte |= bits[2U] ? 0x04U : 0x00U;

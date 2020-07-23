@@ -48,7 +48,7 @@ public:
     virtual ~CPacketStream() {}
 
     // open / close
-    bool Open(const CDvHeaderPacket &, CClient *);
+    bool Open(const CDvHeaderPacket &, std::shared_ptr<CClient>);
     void Close(void);
 
     // push & pop
@@ -57,7 +57,7 @@ public:
     bool IsEmpty(void) const;
 
     // get
-    CClient         *GetOwnerClient(void)           { return m_OwnerClient; }
+    std::shared_ptr<CClient> GetOwnerClient(void)   { return m_OwnerClient; }
     const CIp       *GetOwnerIp(void);
     bool            IsExpired(void) const           { return (m_LastPacketTime.DurationSinceNow() > STREAM_TIMEOUT); }
     bool            IsOpen(void) const              { return m_bOpen; }
@@ -69,7 +69,7 @@ protected:
     bool                m_bOpen;
     uint16              m_uiStreamId;
     uint32              m_uiPacketCntr;
-    CClient             *m_OwnerClient;
+    std::shared_ptr<CClient> m_OwnerClient;
     CTimePoint          m_LastPacketTime;
     CDvHeaderPacket     m_DvHeader;
 #ifdef TRANSCODER_IP

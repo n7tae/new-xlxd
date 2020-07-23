@@ -113,11 +113,8 @@ void CDcsProtocol::Task(void)
                     EncodeConnectAckPacket(Callsign, ToLinkModule, &Buffer);
                     Send(Buffer, Ip);
 
-                    // create the client
-                    CDcsClient *client = new CDcsClient(Callsign, Ip, ToLinkModule);
-
-                    // and append
-                    g_Reflector.GetClients()->AddClient(client);
+                    // create the client and append
+                    g_Reflector.GetClients()->AddClient(std::make_shared<CDcsClient>(Callsign, Ip, ToLinkModule));
                     g_Reflector.ReleaseClients();
                 }
                 else
@@ -143,8 +140,8 @@ void CDcsProtocol::Task(void)
 
             // find client
             CClients *clients = g_Reflector.GetClients();
-            CClient *client = clients->FindClient(Ip, PROTOCOL_DCS);
-            if ( client != NULL )
+            std::shared_ptr<CClient>client = clients->FindClient(Ip, PROTOCOL_DCS);
+            if ( client != nullptr )
             {
                 // remove it
                 clients->RemoveClient(client);
@@ -161,8 +158,8 @@ void CDcsProtocol::Task(void)
             // find all clients with that callsign & ip and keep them alive
             CClients *clients = g_Reflector.GetClients();
             auto it = clients->begin();
-            CClient *client = NULL;
-            while ( (client = clients->FindNextClient(Callsign, Ip, PROTOCOL_DCS, it)) != NULL )
+            std::shared_ptr<CClient>client = nullptr;
+            while ( (client = clients->FindNextClient(Callsign, Ip, PROTOCOL_DCS, it)) != nullptr )
             {
                 client->Alive();
             }
@@ -206,19 +203,19 @@ bool CDcsProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
 
     // find the stream
     CPacketStream *stream = GetStream(Header->GetStreamId());
-    if ( stream == NULL )
+    if ( stream == nullptr )
     {
         // no stream open yet, open a new one
         CCallsign via(Header->GetRpt1Callsign());
 
         // find this client
-        CClient *client = g_Reflector.GetClients()->FindClient(Ip, PROTOCOL_DCS);
-        if ( client != NULL )
+        std::shared_ptr<CClient>client = g_Reflector.GetClients()->FindClient(Ip, PROTOCOL_DCS);
+        if ( client != nullptr )
         {
             // get client callsign
             via = client->GetCallsign();
             // and try to open the stream
-            if ( (stream = g_Reflector.OpenStream(Header, client)) != NULL )
+            if ( (stream = g_Reflector.OpenStream(Header, client)) != nullptr )
             {
                 // keep the handle
                 m_Streams.push_back(stream);
@@ -300,8 +297,8 @@ void CDcsProtocol::HandleQueue(void)
                 // and push it to all our clients linked to the module and who are not streaming in
                 CClients *clients = g_Reflector.GetClients();
                 auto it = clients->begin();
-                CClient *client = NULL;
-                while ( (client = clients->FindNextClient(PROTOCOL_DCS, it)) != NULL )
+                std::shared_ptr<CClient>client = nullptr;
+                while ( (client = clients->FindNextClient(PROTOCOL_DCS, it)) != nullptr )
                 {
                     // is this client busy ?
                     if ( !client->IsAMaster() && (client->GetReflectorModule() == packet->GetModuleId()) )
@@ -335,8 +332,8 @@ void CDcsProtocol::HandleKeepalives(void)
     // iterate on clients
     CClients *clients = g_Reflector.GetClients();
     auto it = clients->begin();
-    CClient *client = NULL;
-    while ( (client = clients->FindNextClient(PROTOCOL_DCS, it)) != NULL )
+    std::shared_ptr<CClient>client = nullptr;
+    while ( (client = clients->FindNextClient(PROTOCOL_DCS, it)) != nullptr )
     {
         // encode client's specific keepalive packet
         CBuffer keepalive2;
@@ -419,27 +416,24 @@ bool CDcsProtocol::IsValidDvPacket(const CBuffer &Buffer, CDvHeaderPacket **head
     uint8 tag[] = { '0','0','0','1' };
 
     bool valid = false;
-    *header = NULL;
-    *frame = NULL;
+    *header = nullptr;
+    *frame = nullptr;
 
     if ( (Buffer.size() >= 100) && (Buffer.Compare(tag, sizeof(tag)) == 0) )
     {
         // get the header
-        *header = new CDvHeaderPacket((struct dstar_header *)&(Buffer.data()[4]),
-                                     *((uint16 *)&(Buffer.data()[43])), 0x80);
+        *header = new CDvHeaderPacket((struct dstar_header *)&(Buffer.data()[4]), *((uint16 *)&(Buffer.data()[43])), 0x80);
 
         // get the frame
         if ( ((Buffer.data()[45]) & 0x40) != 0 )
         {
             // it's the last frame
-            *frame = new CDvLastFramePacket((struct dstar_dvframe *)&(Buffer.data()[46]),
-                                             *((uint16 *)&(Buffer.data()[43])), Buffer.data()[45]);
+            *frame = new CDvLastFramePacket((struct dstar_dvframe *)&(Buffer.data()[46]), *((uint16 *)&(Buffer.data()[43])), Buffer.data()[45]);
         }
         else
         {
             // it's a regular DV frame
-            *frame = new CDvFramePacket((struct dstar_dvframe *)&(Buffer.data()[46]),
-                                         *((uint16 *)&(Buffer.data()[43])), Buffer.data()[45]);
+            *frame = new CDvFramePacket((struct dstar_dvframe *)&(Buffer.data()[46]), *((uint16 *)&(Buffer.data()[43])), Buffer.data()[45]);
         }
 
         // check validity of packets
@@ -447,8 +441,8 @@ bool CDcsProtocol::IsValidDvPacket(const CBuffer &Buffer, CDvHeaderPacket **head
         {
             delete *header;
             delete *frame;
-            *header = NULL;
-            *frame = NULL;
+            *header = nullptr;
+            *frame = nullptr;
         }
         else
         {
@@ -480,7 +474,7 @@ void CDcsProtocol::EncodeKeepAlivePacket(CBuffer *Buffer)
     Buffer->Set(GetReflectorCallsign());
 }
 
-void CDcsProtocol::EncodeKeepAlivePacket(CBuffer *Buffer, CClient *Client)
+void CDcsProtocol::EncodeKeepAlivePacket(CBuffer *Buffer, std::shared_ptr<CClient>Client)
 {
     uint8 tag[] = { 0x0A,0x00,0x20,0x20 };
 
@@ -519,7 +513,7 @@ void CDcsProtocol::EncodeConnectNackPacket(const CCallsign &Callsign, char Refle
     Buffer->Append(tag, sizeof(tag));
 }
 
-void CDcsProtocol::EncodeDisconnectPacket(CBuffer *Buffer, CClient *Client)
+void CDcsProtocol::EncodeDisconnectPacket(CBuffer *Buffer, std::shared_ptr<CClient>Client)
 {
     Buffer->Set((uint8 *)(const char *)Client->GetCallsign(), CALLSIGN_LEN-1);
     Buffer->Append((uint8)' ');

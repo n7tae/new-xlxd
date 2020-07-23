@@ -33,7 +33,7 @@
 // constructor
 
 
-CProtocol::CProtocol() : keep_running(true), m_pThread(NULL) {}
+CProtocol::CProtocol() : keep_running(true), m_pThread(nullptr) {}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -43,11 +43,11 @@ CProtocol::~CProtocol()
 {
     // kill threads
     keep_running = false;
-    if ( m_pThread != NULL )
+    if ( m_pThread != nullptr )
     {
         m_pThread->join();
         delete m_pThread;
-		m_pThread = NULL;
+		m_pThread = nullptr;
     }
 
 	// Close sockets
@@ -108,7 +108,7 @@ bool CProtocol::Initialize(const char *type, const uint16 port, const bool has_i
 
     // start  thread;
 	m_pThread = new std::thread(CProtocol::Thread, this);
-	if (m_pThread == NULL)
+	if (m_pThread == nullptr)
 	{
 		std::cerr << "Could not start DCS thread!" << std::endl;
 		m_Socket4.Close();
@@ -131,11 +131,11 @@ void CProtocol::Thread(CProtocol *This)
 void CProtocol::Close(void)
 {
     keep_running = false;
-    if ( m_pThread != NULL )
+    if ( m_pThread != nullptr )
     {
         m_pThread->join();
         delete m_pThread;
-        m_pThread = NULL;
+        m_pThread = nullptr;
     }
 	m_Socket4.Close();
 	m_Socket6.Close();
@@ -176,7 +176,7 @@ void CProtocol::OnDvFramePacketIn(CDvFramePacket *Frame, const CIp *Ip)
 {
     // find the stream
     CPacketStream *stream = GetStream(Frame->GetStreamId(), Ip);
-    if ( stream == NULL )
+    if ( stream == nullptr )
 	{
 		std::cout << "Deleting orphaned Frame with ID " << Frame->GetStreamId() << " on " << *Ip << std::endl;
 		delete Frame;
@@ -195,7 +195,7 @@ void CProtocol::OnDvLastFramePacketIn(CDvLastFramePacket *Frame, const CIp *Ip)
 {
     // find the stream
     CPacketStream *stream = GetStream(Frame->GetStreamId(), Ip);
-    if ( stream == NULL )
+    if ( stream == nullptr )
 	{
 		std::cout << "Deleting orphaned Last Frame with ID " << Frame->GetStreamId() << " on " << *Ip << std::endl;
 		delete Frame;
@@ -221,8 +221,8 @@ CPacketStream *CProtocol::GetStream(uint16 uiStreamId, const CIp *Ip)
     {
         if ( (*it)->GetStreamId() == uiStreamId )
         {
-            // if Ip not NULL, also check if IP match
-            if ( (Ip != NULL) && ((*it)->GetOwnerIp() != NULL) )
+            // if Ip not nullptr, also check if IP match
+            if ( (Ip != nullptr) && ((*it)->GetOwnerIp() != nullptr) )
             {
                 if ( *Ip == *((*it)->GetOwnerIp()) )
                 {
@@ -232,7 +232,7 @@ CPacketStream *CProtocol::GetStream(uint16 uiStreamId, const CIp *Ip)
         }
     }
     // done
-    return NULL;
+    return nullptr;
 }
 
 void CProtocol::CheckStreamsTimeout(void)

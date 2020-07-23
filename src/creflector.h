@@ -87,7 +87,7 @@ public:
     void      ReleasePeers(void)                    { m_Peers.Unlock(); }
 
     // stream opening & closing
-    CPacketStream *OpenStream(CDvHeaderPacket *, CClient *);
+    CPacketStream *OpenStream(CDvHeaderPacket *, std::shared_ptr<CClient>);
     bool IsStreaming(char);
     void CloseStream(CPacketStream *);
 

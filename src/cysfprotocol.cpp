@@ -166,14 +166,14 @@ void CYsfProtocol::Task(void)
 
                 // add client if needed
                 CClients *clients = g_Reflector.GetClients();
-                CClient *client = clients->FindClient(Callsign, Ip, PROTOCOL_YSF);
+                std::shared_ptr<CClient>client = clients->FindClient(Callsign, Ip, PROTOCOL_YSF);
                 // client already connected ?
-                if ( client == NULL )
+                if ( client == nullptr )
                 {
                     std::cout << "YSF connect packet from " << Callsign << " at " << Ip << std::endl;
 
                     // create the client
-                    CYsfClient *newclient = new CYsfClient(Callsign, Ip);
+                    auto newclient = std::make_shared<CYsfClient>(Callsign, Ip);
 
                     // aautolink, if enabled
                     #if YSF_AUTOLINK_ENABLE
@@ -241,14 +241,14 @@ bool CYsfProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
 
     // find the stream
     CPacketStream *stream = GetStream(Header->GetStreamId());
-    if ( stream == NULL )
+    if ( stream == nullptr )
     {
         // no stream open yet, open a new one
         CCallsign via(Header->GetRpt1Callsign());
 
         // find this client
-        CClient *client = g_Reflector.GetClients()->FindClient(Ip, PROTOCOL_YSF);
-        if ( client != NULL )
+        std::shared_ptr<CClient>client = g_Reflector.GetClients()->FindClient(Ip, PROTOCOL_YSF);
+        if ( client != nullptr )
         {
             // get client callsign
             via = client->GetCallsign();
@@ -256,7 +256,7 @@ bool CYsfProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
             Header->SetRpt2Module(client->GetReflectorModule());
 
             // and try to open the stream
-            if ( (stream = g_Reflector.OpenStream(Header, client)) != NULL )
+            if ( (stream = g_Reflector.OpenStream(Header, client)) != nullptr )
             {
                 // keep the handle
                 m_Streams.push_back(stream);
@@ -350,8 +350,8 @@ void CYsfProtocol::HandleQueue(void)
             // and push it to all our clients linked to the module and who are not streaming in
             CClients *clients = g_Reflector.GetClients();
             auto it = clients->begin();
-            CClient *client = NULL;
-            while ( (client = clients->FindNextClient(PROTOCOL_YSF, it)) != NULL )
+            std::shared_ptr<CClient>client = nullptr;
+            while ( (client = clients->FindNextClient(PROTOCOL_YSF, it)) != nullptr )
             {
                 // is this client busy ?
                 if ( !client->IsAMaster() && (client->GetReflectorModule() == packet->GetModuleId()) )
@@ -382,8 +382,8 @@ void CYsfProtocol::HandleKeepalives(void)
     // iterate on clients
     CClients *clients = g_Reflector.GetClients();
     auto it = clients->begin();
-    CClient *client = NULL;
-    while ( (client = clients->FindNextClient(PROTOCOL_YSF, it)) != NULL )
+    std::shared_ptr<CClient>client = nullptr;
+    while ( (client = clients->FindNextClient(PROTOCOL_YSF, it)) != nullptr )
     {
         // is this client busy ?
         if ( client->IsAMaster() )
@@ -441,9 +441,9 @@ bool CYsfProtocol::IsValidDvPacket(const CBuffer &Buffer, CYSFFICH *Fich)
 bool CYsfProtocol::IsValidDvHeaderPacket(const CIp &Ip, const CYSFFICH &Fich, const CBuffer &Buffer, CDvHeaderPacket **header, CDvFramePacket **frames)
 {
     bool valid = false;
-    *header = NULL;
-    frames[0] = NULL;
-    frames[1] = NULL;
+    *header = nullptr;
+    frames[0] = nullptr;
+    frames[1] = nullptr;
 
     // DV header ?
     if ( Fich.getFI() == YSF_FI_HEADER )
@@ -482,17 +482,17 @@ bool CYsfProtocol::IsValidDvHeaderPacket(const CIp &Ip, const CYSFFICH &Fich, co
         }
 
         // check validity of packets
-        if ( ((*header) == NULL) || !(*header)->IsValid() ||
-             (frames[0] == NULL) || !(frames[0]->IsValid()) ||
-             (frames[1] == NULL) || !(frames[1]->IsValid()) )
+        if ( ((*header) == nullptr) || !(*header)->IsValid() ||
+             (frames[0] == nullptr) || !(frames[0]->IsValid()) ||
+             (frames[1] == nullptr) || !(frames[1]->IsValid()) )
 
         {
             delete *header;
-            *header = NULL;
+            *header = nullptr;
             delete frames[0];
             delete frames[1];
-            frames[0] = NULL;
-            frames[1] = NULL;
+            frames[0] = nullptr;
+            frames[1] = nullptr;
         }
         else
         {
@@ -508,11 +508,11 @@ bool CYsfProtocol::IsValidDvHeaderPacket(const CIp &Ip, const CYSFFICH &Fich, co
 bool CYsfProtocol::IsValidDvFramePacket(const CIp &Ip, const CYSFFICH &Fich, const CBuffer &Buffer, CDvFramePacket **frames)
 {
     bool valid = false;
-    frames[0] = NULL;
-    frames[1] = NULL;
-    frames[2] = NULL;
-    frames[3] = NULL;
-    frames[4] = NULL;
+    frames[0] = nullptr;
+    frames[1] = nullptr;
+    frames[2] = nullptr;
+    frames[3] = nullptr;
+    frames[4] = nullptr;
 
     // is it DV frame ?
     if ( Fich.getFI() == YSF_FI_COMMUNICATIONS )
@@ -538,22 +538,22 @@ bool CYsfProtocol::IsValidDvFramePacket(const CIp &Ip, const CYSFFICH &Fich, con
         frames[4] = new CDvFramePacket(ambe4, uiStreamId, Fich.getFN(), 4, fid);
 
         // check validity of packets
-        if ( (frames[0] == NULL) || !(frames[0]->IsValid()) ||
-            (frames[1] == NULL) || !(frames[1]->IsValid()) ||
-            (frames[2] == NULL) || !(frames[2]->IsValid()) ||
-            (frames[3] == NULL) || !(frames[3]->IsValid()) ||
-            (frames[4] == NULL) || !(frames[4]->IsValid()) )
+        if ( (frames[0] == nullptr) || !(frames[0]->IsValid()) ||
+            (frames[1] == nullptr) || !(frames[1]->IsValid()) ||
+            (frames[2] == nullptr) || !(frames[2]->IsValid()) ||
+            (frames[3] == nullptr) || !(frames[3]->IsValid()) ||
+            (frames[4] == nullptr) || !(frames[4]->IsValid()) )
         {
             delete frames[0];
             delete frames[1];
             delete frames[2];
             delete frames[3];
             delete frames[4];
-            frames[0] = NULL;
-            frames[1] = NULL;
-            frames[2] = NULL;
-            frames[3] = NULL;
-            frames[4] = NULL;
+            frames[0] = nullptr;
+            frames[1] = nullptr;
+            frames[2] = nullptr;
+            frames[3] = nullptr;
+            frames[4] = nullptr;
         }
         else
         {
@@ -568,8 +568,8 @@ bool CYsfProtocol::IsValidDvFramePacket(const CIp &Ip, const CYSFFICH &Fich, con
 bool CYsfProtocol::IsValidDvLastFramePacket(const CIp &Ip, const CYSFFICH &Fich, const CBuffer &Buffer, CDvFramePacket **frames)
 {
     bool valid = false;
-    frames[0] = NULL;
-    frames[1] = NULL;
+    frames[0] = nullptr;
+    frames[1] = nullptr;
 
     // DV header ?
     if ( Fich.getFI() == YSF_FI_TERMINATOR )
@@ -586,14 +586,14 @@ bool CYsfProtocol::IsValidDvLastFramePacket(const CIp &Ip, const CYSFFICH &Fich,
         }
 
         // check validity of packets
-        if ( (frames[0] == NULL) || !(frames[0]->IsValid()) ||
-             (frames[1] == NULL) || !(frames[1]->IsValid()) )
+        if ( (frames[0] == nullptr) || !(frames[0]->IsValid()) ||
+             (frames[1] == nullptr) || !(frames[1]->IsValid()) )
 
         {
             delete frames[0];
             delete frames[1];
-            frames[0] = NULL;
-            frames[1] = NULL;
+            frames[0] = nullptr;
+            frames[1] = nullptr;
         }
         else
         {

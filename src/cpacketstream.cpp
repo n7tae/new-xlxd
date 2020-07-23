@@ -33,16 +33,16 @@ CPacketStream::CPacketStream()
     m_bOpen = false;
     m_uiStreamId = 0;
     m_uiPacketCntr = 0;
-    m_OwnerClient = NULL;
+    m_OwnerClient = nullptr;
 #ifdef TRANSCODER_IP
-    m_CodecStream = NULL;
+    m_CodecStream = nullptr;
 #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // open / close
 
-bool CPacketStream::Open(const CDvHeaderPacket &DvHeader, CClient *client)
+bool CPacketStream::Open(const CDvHeaderPacket &DvHeader, std::shared_ptr<CClient>client)
 {
     bool ok = false;
 
@@ -72,10 +72,10 @@ void CPacketStream::Close(void)
     // update status
     m_bOpen = false;
     m_uiStreamId = 0;
-    m_OwnerClient = NULL;
+    m_OwnerClient = nullptr;
 #ifdef TRANSCODER_IP
     g_Transcoder.ReleaseStream(m_CodecStream);
-    m_CodecStream = NULL;
+    m_CodecStream = nullptr;
 #endif
 }
 
@@ -89,7 +89,7 @@ void CPacketStream::Push(CPacket *Packet)
     Packet->UpdatePids(m_uiPacketCntr++);
     // transcoder avaliable ?
 #ifdef TRANSCODER_IP
-    if ( m_CodecStream != NULL )
+    if ( m_CodecStream != nullptr )
     {
         // todo: verify no possibilty of double lock here
         m_CodecStream->Lock();
@@ -123,7 +123,7 @@ bool CPacketStream::IsEmpty(void) const
 #ifdef TRANSCODER_IP
     bool bEmpty = empty();
     // also check no packets still in Codec stream's queue
-    if ( bEmpty && (m_CodecStream != NULL) )
+    if ( bEmpty && (m_CodecStream != nullptr) )
     {
         bEmpty = m_CodecStream->IsEmpty();
     }
@@ -140,9 +140,9 @@ bool CPacketStream::IsEmpty(void) const
 
 const CIp *CPacketStream::GetOwnerIp(void)
 {
-    if ( m_OwnerClient != NULL )
+    if ( m_OwnerClient != nullptr )
     {
         return &(m_OwnerClient->GetIp());
     }
-    return NULL;
+    return nullptr;
 }

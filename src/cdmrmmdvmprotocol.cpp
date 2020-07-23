@@ -57,7 +57,7 @@ static uint8 g_DmrSyncMSData[]     = { 0x0D,0x5D,0x7F,0x77,0xFD,0x75,0x70 };
 bool CDmrmmdvmProtocol::Init(void)
 {
     // base class
-    if (! Initialize(NULL, DMRMMDVM_PORT, DMR_IPV4, DMR_IPV6))
+    if (! Initialize(nullptr, DMRMMDVM_PORT, DMR_IPV4, DMR_IPV6))
 		return false;
 
     // update time
@@ -165,17 +165,14 @@ void CDmrmmdvmProtocol::Task(void)
 
                 // add client if needed
                 CClients *clients = g_Reflector.GetClients();
-                CClient *client = clients->FindClient(Callsign, Ip, PROTOCOL_DMRMMDVM);
+                std::shared_ptr<CClient>client = clients->FindClient(Callsign, Ip, PROTOCOL_DMRMMDVM);
                 // client already connected ?
-                if ( client == NULL )
+                if ( client == nullptr )
                 {
                     std::cout << "DMRmmdvm login from " << Callsign << " at " << Ip << std::endl;
 
-                    // create the client
-                    CDmrmmdvmClient *newclient = new CDmrmmdvmClient(Callsign, Ip);
-
-                    // and append
-                    clients->AddClient(newclient);
+                    // create the client and append
+                    clients->AddClient(std::make_shared<CDmrmmdvmClient>(Callsign, Ip));
                 }
                 else
                 {
@@ -198,8 +195,8 @@ void CDmrmmdvmProtocol::Task(void)
 
             // find client & remove it
             CClients *clients = g_Reflector.GetClients();
-            CClient *client = clients->FindClient(Ip, PROTOCOL_DMRMMDVM);
-            if ( client != NULL )
+            std::shared_ptr<CClient>client = clients->FindClient(Ip, PROTOCOL_DMRMMDVM);
+            if ( client != nullptr )
             {
                 clients->RemoveClient(client);
             }
@@ -220,8 +217,8 @@ void CDmrmmdvmProtocol::Task(void)
             // find all clients with that callsign & ip and keep them alive
             CClients *clients = g_Reflector.GetClients();
             auto it = clients->begin();
-            CClient *client = NULL;
-            while ( (client = clients->FindNextClient(Callsign, Ip, PROTOCOL_DMRMMDVM, it)) != NULL )
+            std::shared_ptr<CClient>client = nullptr;
+            while ( (client = clients->FindNextClient(Callsign, Ip, PROTOCOL_DMRMMDVM, it)) != nullptr )
             {
                 // acknowledge
                 EncodeKeepAlivePacket(&Buffer, client);
@@ -285,12 +282,12 @@ bool CDmrmmdvmProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &I
 
     // find the stream
     CPacketStream *stream = GetStream(Header->GetStreamId());
-    if ( stream == NULL )
+    if ( stream == nullptr )
     {
         // no stream open yet, open a new one
         // firstfind this client
-        CClient *client = g_Reflector.GetClients()->FindClient(Ip, PROTOCOL_DMRMMDVM);
-        if ( client != NULL )
+        std::shared_ptr<CClient>client = g_Reflector.GetClients()->FindClient(Ip, PROTOCOL_DMRMMDVM);
+        if ( client != nullptr )
         {
             // process cmd if any
             if ( !client->HasReflectorModule() )
@@ -330,7 +327,7 @@ bool CDmrmmdvmProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &I
             if ( g_Reflector.IsValidModule(Header->GetRpt2Module()) && (CallType == DMR_GROUP_CALL) )
             {
                 // yes, try to open the stream
-                if ( (stream = g_Reflector.OpenStream(Header, client)) != NULL )
+                if ( (stream = g_Reflector.OpenStream(Header, client)) != nullptr )
                 {
                     // keep the handle
                     m_Streams.push_back(stream);
@@ -444,8 +441,8 @@ void CDmrmmdvmProtocol::HandleQueue(void)
             // and push it to all our clients linked to the module and who are not streaming in
             CClients *clients = g_Reflector.GetClients();
             auto it = clients->begin();
-            CClient *client = NULL;
-            while ( (client = clients->FindNextClient(PROTOCOL_DMRMMDVM, it)) != NULL )
+            std::shared_ptr<CClient>client = nullptr;
+            while ( (client = clients->FindNextClient(PROTOCOL_DMRMMDVM, it)) != nullptr )
             {
                 // is this client busy ?
                 if ( !client->IsAMaster() && (client->GetReflectorModule() == packet->GetModuleId()) )
@@ -476,8 +473,8 @@ void CDmrmmdvmProtocol::HandleKeepalives(void)
     // iterate on clients
     CClients *clients = g_Reflector.GetClients();
     auto it = clients->begin();
-    CClient *client = NULL;
-    while ( (client = clients->FindNextClient(PROTOCOL_DMRMMDVM, it)) != NULL )
+    std::shared_ptr<CClient>client = nullptr;
+    while ( (client = clients->FindNextClient(PROTOCOL_DMRMMDVM, it)) != nullptr )
     {
         // is this client busy ?
         if ( client->IsAMaster() )
@@ -628,7 +625,7 @@ bool CDmrmmdvmProtocol::IsValidDvHeaderPacket(const CBuffer &Buffer, CDvHeaderPa
     uint8 tag[] = { 'D','M','R','D' };
 
     bool valid = false;
-    *header = NULL;
+    *header = nullptr;
     *cmd = CMD_NONE;
 
     if ( (Buffer.size() == 55) && (Buffer.Compare(tag, sizeof(tag)) == 0) )
@@ -695,7 +692,7 @@ bool CDmrmmdvmProtocol::IsValidDvHeaderPacket(const CBuffer &Buffer, CDvHeaderPa
                 if ( !valid )
                 {
                     delete *header;
-                    *header = NULL;
+                    *header = nullptr;
                 }
             }
         }
@@ -709,9 +706,9 @@ bool CDmrmmdvmProtocol::IsValidDvFramePacket(const CBuffer &Buffer, CDvFramePack
     uint8 tag[] = { 'D','M','R','D' };
 
     bool valid = false;
-    frames[0] = NULL;
-    frames[1] = NULL;
-    frames[2] = NULL;
+    frames[0] = nullptr;
+    frames[1] = nullptr;
+    frames[2] = nullptr;
 
     if ( (Buffer.size() == 55) && (Buffer.Compare(tag, sizeof(tag)) == 0) )
     {
@@ -778,7 +775,7 @@ bool CDmrmmdvmProtocol::IsValidDvLastFramePacket(const CBuffer &Buffer, CDvLastF
     uint8 tag[] = { 'D','M','R','D' };
 
     bool valid = false;
-    *frame = NULL;
+    *frame = nullptr;
 
     if ( (Buffer.size() == 55) && (Buffer.Compare(tag, sizeof(tag)) == 0) )
     {
@@ -834,7 +831,7 @@ bool CDmrmmdvmProtocol::IsValidDvLastFramePacket(const CBuffer &Buffer, CDvLastF
 ////////////////////////////////////////////////////////////////////////////////////////
 // packet encoding helpers
 
-void CDmrmmdvmProtocol::EncodeKeepAlivePacket(CBuffer *Buffer, CClient *Client)
+void CDmrmmdvmProtocol::EncodeKeepAlivePacket(CBuffer *Buffer, std::shared_ptr<CClient>Client)
 {
     uint8 tag[] = { 'M','S','T','P','O','N','G' };
 
@@ -865,7 +862,7 @@ void CDmrmmdvmProtocol::EncodeNackPacket(CBuffer *Buffer, const CCallsign &Calls
     Buffer->Set(tag, sizeof(tag));
 }
 
-void CDmrmmdvmProtocol::EncodeClosePacket(CBuffer *Buffer, CClient *Client)
+void CDmrmmdvmProtocol::EncodeClosePacket(CBuffer *Buffer, std::shared_ptr<CClient>Client)
 {
     uint8 tag[] = { 'M','S','T','C','L' };
 
@@ -1168,7 +1165,7 @@ void CDmrmmdvmProtocol::ReplaceEMBInBuffer(CBuffer *buffer, uint8 uiDmrPacketId)
     // voice packet F
     else
     {
-        // NULL
+        // nullptr
         uint8 emb[2];
         emb[0]  = (DMRMMDVM_REFLECTOR_COLOUR << 4) & 0xF0;
         //emb[0] |= PI ? 0x08U : 0x00;

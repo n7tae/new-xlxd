@@ -34,18 +34,18 @@
 CYsfNodeDir::CYsfNodeDir()
 {
     keep_running = true;
-    m_pThread = NULL;
+    m_pThread = nullptr;
 }
 
 CYsfNodeDir::~CYsfNodeDir()
 {
     // kill threads
     keep_running = false;
-    if ( m_pThread != NULL )
+    if ( m_pThread != nullptr )
     {
         m_pThread->join();
         delete m_pThread;
-		m_pThread = NULL;
+		m_pThread = nullptr;
     }
 }
 
@@ -70,11 +70,11 @@ bool CYsfNodeDir::Init(void)
 void CYsfNodeDir::Close(void)
 {
     keep_running = false;
-    if ( m_pThread != NULL )
+    if ( m_pThread != nullptr )
     {
         m_pThread->join();
         delete m_pThread;
-        m_pThread = NULL;
+        m_pThread = nullptr;
     }
 }
 

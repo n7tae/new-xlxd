@@ -53,15 +53,15 @@ bool CPeerCallsignList::LoadFromFile(const char *filename)
             if ( (::strlen(szt) > 0) && (szt[0] != '#') )
             {
                 // 1st token is callsign
-                if ( (szt = ::strtok(szt, " ,\t")) != NULL )
+                if ( (szt = ::strtok(szt, " ,\t")) != nullptr )
                 {
                     CCallsign callsign(szt);
                     // 2nd token is ip
                     char *szip;
-                    if ( (szip = ::strtok(NULL, " ,\t")) != NULL )
+                    if ( (szip = ::strtok(nullptr, " ,\t")) != nullptr )
                     {
                         // 3rd token is modules list
-                        if ( (szt = ::strtok(NULL, " ,\t")) != NULL )
+                        if ( (szt = ::strtok(nullptr, " ,\t")) != nullptr )
                         {
                             // and load
                             m_Callsigns.push_back(CCallsignListItem(callsign, szip, szt));

@@ -45,10 +45,8 @@ CBmPeer::CBmPeer(const CCallsign &callsign, const CIp &ip, const char *modules, 
     // and construct all xlx clients
     for ( unsigned i = 0; i < ::strlen(modules); i++ )
     {
-        // create
-        CBmClient *client = new CBmClient(callsign, ip, modules[i]);
-        // and append to vector
-        m_Clients.push_back(client);
+        // create and append to vector
+        m_Clients.push_back(std::make_shared<CBmClient>(callsign, ip, modules[i]));
     }
 }
 
@@ -57,7 +55,7 @@ CBmPeer::CBmPeer(const CBmPeer &peer)
 {
     for ( auto it=peer.cbegin(); it!=peer.cend(); it++ )
     {
-        CBmClient *client = new CBmClient((const CBmClient &)*(*it));
+        std::shared_ptr<CBmClient> client(new CBmClient((const CBmClient &)*(*it)));
         m_Clients.push_back(client);
 
     }

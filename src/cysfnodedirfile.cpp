@@ -55,7 +55,7 @@ bool CYsfNodeDirFile::Init(void)
 bool CYsfNodeDirFile::NeedReload(void)
 {
     bool needReload = false;
-    
+
     time_t time;
     if ( GetLastModTime(&time) )
     {
@@ -69,7 +69,7 @@ bool CYsfNodeDirFile::LoadContent(CBuffer *buffer)
     bool ok = false;
     std::ifstream file;
     std::streampos size;
-    
+
     // open file
     file.open(YSFNODEDB_PATH, std::ios::in | std::ios::binary | std::ios::ate);
     if ( file.is_open() )
@@ -82,18 +82,18 @@ bool CYsfNodeDirFile::LoadContent(CBuffer *buffer)
             buffer->resize((int)size+1);
             file.seekg (0, std::ios::beg);
             file.read((char *)buffer->data(), (int)size);
-            
+
             // close file
             file.close();
-            
+
             // update time
             GetLastModTime(&m_LastModTime);
-            
+
             // done
             ok = true;
         }
     }
-    
+
     // done
     return ok;
 }
@@ -101,30 +101,30 @@ bool CYsfNodeDirFile::LoadContent(CBuffer *buffer)
 bool CYsfNodeDirFile::RefreshContent(const CBuffer &buffer)
 {
     bool ok = false;
-    
+
     // clear directory
     clear();
-    
-    // scan buffer    
+
+    // scan buffer
     if ( buffer.size() > 0 )
     {
         // crack it
         char *ptr1 = (char *)buffer.data();
         char *ptr2;
-        
+
         // get next line
-        while ( (ptr2 = ::strchr(ptr1, '\n')) != NULL )
+        while ( (ptr2 = ::strchr(ptr1, '\n')) != nullptr )
         {
             *ptr2 = 0;
             // get items
             char *callsign;
             char *txfreq;
             char *rxfreq;
-            if ( ((callsign = ::strtok(ptr1, ";")) != NULL) )
+            if ( ((callsign = ::strtok(ptr1, ";")) != nullptr) )
             {
-                if ( ((txfreq = ::strtok(NULL, ";")) != NULL) )
+                if ( ((txfreq = ::strtok(nullptr, ";")) != nullptr) )
                 {
-                    if ( ((rxfreq = ::strtok(NULL, ";")) != NULL) )
+                    if ( ((rxfreq = ::strtok(nullptr, ";")) != nullptr) )
                     {
                         // new entry
                         CCallsign cs(callsign);
@@ -139,15 +139,15 @@ bool CYsfNodeDirFile::RefreshContent(const CBuffer &buffer)
             // next line
             ptr1 = ptr2+1;
         }
-        
+
         // done
         ok = true;
     }
 
-    
+
     // report
     std::cout << "Read " << size() << " YSF nodes from file " << YSFNODEDB_PATH << std::endl;
-    
+
     // done
     return ok;
 }
@@ -156,7 +156,7 @@ bool CYsfNodeDirFile::RefreshContent(const CBuffer &buffer)
 bool CYsfNodeDirFile::GetLastModTime(time_t *time)
 {
     bool ok = false;
-    
+
     struct stat fileStat;
     if( ::stat(YSFNODEDB_PATH, &fileStat) != -1 )
     {

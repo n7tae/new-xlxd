@@ -50,22 +50,22 @@ bool CDmridDirHttp::RefreshContent(const CBuffer &buffer)
     // clear directory
     m_CallsignMap.clear();
     m_DmridMap.clear();
-    
+
     // scan file
     if ( buffer.size() > 0 )
     {
         char *ptr1 = (char *)buffer.data();
         char *ptr2;
         // get next line
-        while ( (ptr2 = ::strchr(ptr1, '\n')) != NULL )
+        while ( (ptr2 = ::strchr(ptr1, '\n')) != nullptr )
         {
             *ptr2 = 0;
             // get items
             char *dmrid;
             char *callsign;
-            if ( ((dmrid = ::strtok(ptr1, ";")) != NULL) && IsValidDmrid(dmrid) )
+            if ( ((dmrid = ::strtok(ptr1, ";")) != nullptr) && IsValidDmrid(dmrid) )
             {
-                if ( ((callsign = ::strtok(NULL, ";")) != NULL) )
+                if ( ((callsign = ::strtok(nullptr, ";")) != nullptr) )
                 {
                     // new entry
                     uint32 ui = atoi(dmrid);
@@ -83,10 +83,10 @@ bool CDmridDirHttp::RefreshContent(const CBuffer &buffer)
         // done
         ok = true;
     }
-    
+
     // report
     std::cout << "Read " << m_DmridMap.size() << " DMR ids from xlxapi.rlx.lu database " << std::endl;
-    
+
     // done
     return ok;
 }
@@ -101,7 +101,7 @@ bool CDmridDirHttp::HttpGet(const char *hostname, const char *filename, int port
 {
     bool ok = false;
     int sock_id;
-    
+
     // open socket
     if ( (sock_id = ::socket(AF_INET, SOCK_STREAM, 0)) >= 0 )
     {
@@ -109,13 +109,13 @@ bool CDmridDirHttp::HttpGet(const char *hostname, const char *filename, int port
         struct sockaddr_in servaddr;
         struct hostent *hp;
         ::memset(&servaddr,0,sizeof(servaddr));
-        if( (hp = gethostbyname(hostname)) != NULL )
+        if( (hp = gethostbyname(hostname)) != nullptr )
         {
             // dns resolved
             ::memcpy((char *)&servaddr.sin_addr.s_addr, (char *)hp->h_addr, hp->h_length);
             servaddr.sin_port = htons(port);
             servaddr.sin_family = AF_INET;
-            
+
             // connect
             if ( ::connect(sock_id, (struct sockaddr *)&servaddr, sizeof(servaddr)) == 0)
             {
@@ -124,7 +124,7 @@ bool CDmridDirHttp::HttpGet(const char *hostname, const char *filename, int port
                 ::sprintf(request, "GET /%s HTTP/1.0\r\nFrom: %s\r\nUser-Agent: xlxd\r\n\r\n",
                           filename, (const char *)g_Reflector.GetCallsign());
                 ::write(sock_id, request, strlen(request));
-                
+
                 // config receive timeouts
                 fd_set read_set;
                 struct timeval timeout;
@@ -132,7 +132,7 @@ bool CDmridDirHttp::HttpGet(const char *hostname, const char *filename, int port
                 timeout.tv_usec = 0;
                 FD_ZERO(&read_set);
                 FD_SET(sock_id, &read_set);
-                
+
                 // get the reply back
                 buffer->clear();
                 bool done = false;
@@ -140,7 +140,7 @@ bool CDmridDirHttp::HttpGet(const char *hostname, const char *filename, int port
                 {
                     char buf[1440];
                     ssize_t len = 0;
-                    select(sock_id+1, &read_set, NULL, NULL, &timeout);
+                    select(sock_id+1, &read_set, nullptr, nullptr, &timeout);
                     //if ( (ret > 0) || ((ret < 0) && (errno == EINPROGRESS)) )
                     //if ( ret >= 0 )
                     //{
@@ -153,10 +153,10 @@ bool CDmridDirHttp::HttpGet(const char *hostname, const char *filename, int port
                     }
                     //}
                     done = (len <= 0);
-                    
+
                 } while (!done);
                 buffer->Append((uint8)0);
-                
+
                 // and disconnect
                 close(sock_id);
             }
@@ -169,13 +169,13 @@ bool CDmridDirHttp::HttpGet(const char *hostname, const char *filename, int port
         {
             std::cout << "Host " << hostname << " not found" << std::endl;
         }
-        
+
     }
     else
     {
         std::cout << "Failed to open wget socket" << std::endl;
     }
-    
+
     // done
     return ok;
 }

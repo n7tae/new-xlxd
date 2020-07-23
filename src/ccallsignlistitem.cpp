@@ -40,7 +40,7 @@ CCallsignListItem::CCallsignListItem(const CCallsign &callsign, const CIp &ip, c
     m_Callsign = callsign;
     ::memset(m_szUrl, 0, sizeof(m_szUrl));
     m_Ip = ip;
-    if ( modules != NULL )
+    if ( modules != nullptr )
     {
         ::memset(m_Modules, 0, sizeof(m_Modules));
         if ( modules[0] == '*' )
@@ -70,7 +70,7 @@ CCallsignListItem::CCallsignListItem(const CCallsign &callsign, const char *url,
     m_Callsign = callsign;
     ::strncpy(m_szUrl, url, URL_MAXLEN);
     m_Ip = CIp(m_szUrl);
-    if ( modules != NULL )
+    if ( modules != nullptr )
     {
         ::memset(m_Modules, 0, sizeof(m_Modules));
         if ( modules[0] == '*' )
@@ -119,14 +119,14 @@ bool CCallsignListItem::HasSameCallsignWithWildcard(const CCallsign &callsign) c
 
 bool CCallsignListItem::HasModuleListed(char module) const
 {
-    return (::strchr(m_Modules, (int)module) != NULL);
+    return (::strchr(m_Modules, (int)module) != nullptr);
 }
 
 bool CCallsignListItem::CheckListedModules(char *Modules) const
 {
     bool listed = false;
 
-    if ( Modules != NULL )
+    if ( Modules != nullptr )
     {
         // build a list of common modules
         char list[27];

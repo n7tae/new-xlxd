@@ -75,10 +75,10 @@ protected:
 
     // packet encoding helpers
     void EncodeKeepAlivePacket(CBuffer *);
-    void EncodeKeepAlivePacket(CBuffer *, CClient *);
+    void EncodeKeepAlivePacket(CBuffer *, std::shared_ptr<CClient>);
     void EncodeConnectAckPacket(const CCallsign &, char, CBuffer *);
     void EncodeConnectNackPacket(const CCallsign &, char, CBuffer *);
-    void EncodeDisconnectPacket(CBuffer *, CClient *);
+    void EncodeDisconnectPacket(CBuffer *, std::shared_ptr<CClient>);
     void EncodeDvPacket(const CDvHeaderPacket &, const CDvFramePacket &, uint32, CBuffer *) const;
     void EncodeDvLastPacket(const CDvHeaderPacket &, const CDvFramePacket &, uint32, CBuffer *) const;
 
