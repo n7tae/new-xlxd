@@ -35,10 +35,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // operation
 
-bool CDextraProtocol::Init(void)
+bool CDextraProtocol::Initialize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6)
 {
     // base class
-    if (! Initialize("XRF", DEXTRA_PORT, DSTAR_IPV4, DSTAR_IPV6))
+    if (! CProtocol::Initialize(type, port, has_ipv4, has_ipv6))
 		return false;
 
     // update time

@@ -44,15 +44,17 @@ public:
     // initialization
     bool Init(void);
     void Close(void);
+	void Lock(void)   { m_Mutex.lock(); }
+	void Unlock(void) { m_Mutex.unlock(); }
 
     // pass-thru
-	std::list<CProtocol *>::iterator begin() { return m_Protocols.begin(); }
- 	std::list<CProtocol *>::iterator end()   { return m_Protocols.end(); }
+	std::list<std::unique_ptr<CProtocol>>::iterator begin() { return m_Protocols.begin(); }
+ 	std::list<std::unique_ptr<CProtocol>>::iterator end()   { return m_Protocols.end(); }
 
 protected:
     // data
     std::mutex m_Mutex;
-    std::list<CProtocol *>  m_Protocols;
+    std::list<std::unique_ptr<CProtocol>> m_Protocols;
 };
 
 

@@ -74,10 +74,10 @@ public:
     CYsfProtocol();
 
     // destructor
-    virtual ~CYsfProtocol() {};
+    ~CYsfProtocol() {}
 
     // initialization
-    bool Init(void);
+    bool Initalize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6);
     void Close(void);
 
     // task

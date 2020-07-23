@@ -36,7 +36,7 @@
 bool CDcsProtocol::Init(void)
 {
     // base class
-    if (! Initialize("DCS", DCS_PORT, DSTAR_IPV4, DSTAR_IPV6))
+    if (! CProtocol::Initialize("DCS", DCS_PORT, DSTAR_IPV4, DSTAR_IPV6))
 		return false;
 
     // update time

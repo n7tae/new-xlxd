@@ -347,6 +347,7 @@ void CReflector::RouterThread(CReflector *This, CPacketStream *streamIn)
             packet->SetModuleId(uiModuleId);
 
             // iterate on all protocols
+			This->m_Protocols.Lock();
             for ( auto it=This->m_Protocols.begin(); it!=This->m_Protocols.end(); it++ )
             {
                 // duplicate packet
@@ -366,6 +367,7 @@ void CReflector::RouterThread(CReflector *This, CPacketStream *streamIn)
                 queue->push(packetClone);
                 (*it)->ReleaseQueue();
             }
+			This->m_Protocols.Unlock();
             // done
             delete packet;
             packet = nullptr;

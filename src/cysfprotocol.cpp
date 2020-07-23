@@ -45,10 +45,10 @@ CYsfProtocol::CYsfProtocol()
 ////////////////////////////////////////////////////////////////////////////////////////
 // operation
 
-bool CYsfProtocol::Init(void)
+bool CYsfProtocol::Initalize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6)
 {
     // base class
-    if (! Initialize("YSF", YSF_PORT, YSF_IPV4, YSF_IPV6))
+    if (! CProtocol::Initialize(type, port, has_ipv4, has_ipv6))
 		return false;
 
     // init the wiresx cmd handler

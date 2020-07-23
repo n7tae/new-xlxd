@@ -43,16 +43,7 @@
 
 CProtocols::~CProtocols()
 {
-    m_Mutex.lock();
-    {
-        for ( auto it=m_Protocols.begin(); it!=m_Protocols.end(); it++)
-		{
-			(*it)->Close();
-			delete *it;
-		}
-		m_Protocols.clear();
-    }
-    m_Mutex.unlock();
+    Close();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -62,88 +53,40 @@ bool CProtocols::Init(void)
 {
     m_Mutex.lock();
     {
-        auto dextra = new CDextraProtocol;
-        if (dextra->Init())
-			m_Protocols.push_back(dextra);
-		else
-		{
-			delete dextra;
+		m_Protocols.emplace_back(std::unique_ptr<CDextraProtocol>(new CDextraProtocol));
+		if (! m_Protocols.back()->Initialize("XRF", DEXTRA_PORT, DSTAR_IPV4, DSTAR_IPV6))
 			return false;
-		}
 
-
-        // create and initialize DPLUS
-        auto dplus = new CDplusProtocol;
-        if (dplus->Init())
-			m_Protocols.push_back(dplus);
-		else
-		{
-			delete dplus;
+		m_Protocols.emplace_back(std::unique_ptr<CDplusProtocol>(new CDplusProtocol));
+		if (! m_Protocols.back()->Initialize("REF", DPLUS_PORT, DSTAR_IPV4, DSTAR_IPV6))
 			return false;
-		}
 
-        // create and initialize DCS
-        auto dcs = new CDcsProtocol;
-        if (dcs->Init())
-			m_Protocols.push_back(dcs);
-		else
-		{
-			delete dcs;
+		m_Protocols.emplace_back(std::unique_ptr<CDcsProtocol>(new CDcsProtocol));
+		if (! m_Protocols.back()->Initialize("DCS", DCS_PORT, DSTAR_IPV4, DSTAR_IPV6))
 			return false;
-		}
 
 #ifndef NO_XLX
-        // create and initialize XLX - interlink
-        auto xlx = new CXlxProtocol;
-        if (xlx->Init())
-			m_Protocols.push_back(xlx);
-		else
-		{
-			delete xlx;
+		m_Protocols.emplace_back(std::unique_ptr<CDmrmmdvmProtocol>(new CDmrmmdvmProtocol));
+		if (! m_Protocols.back()->Initialize(nullptr, DMRMMDVM_PORT, DMR_IPV4, DMR_IPV6))
 			return false;
-		}
 
-        // create and initialize DMRPLUS
-        auto dmrplus = new CDmrplusProtocol;
-        if (dmrplus->Init())
-			m_Protocols.push_back(dmrplus);
-		else
-		{
-			delete dmrplus;
+		m_Protocols.emplace_back(std::unique_ptr<CDmrplusProtocol>(new CDmrplusProtocol));
+		if (! m_Protocols.back()->Initialize(nullptr, DMRPLUS_PORT, DMR_IPV4, DMR_IPV6))
 			return false;
-		}
 
-        // create and initialize DMRMMDVM
-        auto dmrmmdvm = new CDmrmmdvmProtocol;
-        if (dmrmmdvm->Init())
-			m_Protocols.push_back(dmrmmdvm);
-		else
-		{
-			delete dmrmmdvm;
+		m_Protocols.emplace_back(std::unique_ptr<CYsfProtocol>(new CYsfProtocol));
+		if (! m_Protocols.back()->Initialize("YSF", YSF_PORT, DMR_IPV4, DMR_IPV6))
 			return false;
-		}
 
-        // create and initialize YSF
-        auto ysf = new CYsfProtocol;
-        if (ysf->Init())
-			m_Protocols.push_back(ysf);
-		else
-		{
-			delete ysf;
+		m_Protocols.emplace_back(std::unique_ptr<CXlxProtocol>(new CXlxProtocol));
+		if (! m_Protocols.back()->Initialize("XLX", XLX_PORT, DMR_IPV4, DMR_IPV6))
 			return false;
-		}
 #endif
 
 #ifndef NO_G3
-        // create and initialize G3
-        auto g3 = new CG3Protocol;
-        if (g3->Init())
-			m_Protocols.push_back(g3);
-		else
-		{
-			delete g3;
-			return true;
-		}
+		m_Protocols.emplace_back(std::unique_ptr<CG3Protocol>(new CG3Protocol));
+		if (! m_Protocols.back()->Initialize("XLX", G3_PORT, DMR_IPV4, DMR_IPV6))
+			return false;
 #endif
 
     }
@@ -156,13 +99,6 @@ bool CProtocols::Init(void)
 void CProtocols::Close(void)
 {
     m_Mutex.lock();
-    {
-        for ( auto it=m_Protocols.begin(); it!=m_Protocols.end(); it++)
-		{
-			(*it)->Close();
-			delete *it;
-		}
-		m_Protocols.clear();
-    }
+	m_Protocols.clear();
     m_Mutex.unlock();
 }
