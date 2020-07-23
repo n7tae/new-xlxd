@@ -42,18 +42,15 @@ public:
     // constructors
     CBmPeer();
     CBmPeer(const CCallsign &, const CIp &, const char *, const CVersion &);
-    CBmPeer(const CBmPeer &);
-    
-    // destructor
-    ~CBmPeer();
-    
+    CBmPeer(const CBmPeer &) = delete;
+
     // status
     bool IsAlive(void) const;
-    
+
     // identity
     int GetProtocol(void) const                 { return PROTOCOL_XLX; }
     const char *GetProtocolName(void) const     { return "XLX"; }
-    
+
     // revision helper
     static int GetProtocolRevision(const CVersion &);
 };

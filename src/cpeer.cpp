@@ -52,17 +52,6 @@ CPeer::CPeer(const CCallsign &callsign, const CIp &ip, const char *modules, cons
     m_LastHeardTime = std::time(nullptr);
 }
 
-CPeer::CPeer(const CPeer &peer)
-{
-    m_Callsign = peer.m_Callsign;
-    m_Ip = peer.m_Ip;
-    ::memcpy(m_ReflectorModules, peer.m_ReflectorModules, sizeof(m_ReflectorModules));
-    m_Version = peer.m_Version;
-    m_LastKeepaliveTime = peer.m_LastKeepaliveTime;
-    m_ConnectTime = peer.m_ConnectTime;
-    m_LastHeardTime = peer.m_LastHeardTime;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////
 // destructors
 

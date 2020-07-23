@@ -51,24 +51,6 @@ CDextraPeer::CDextraPeer(const CCallsign &callsign, const CIp &ip, const char *m
     }
 }
 
-CDextraPeer::CDextraPeer(const CDextraPeer &peer)
-: CPeer(peer)
-{
-    for ( auto it=peer.cbegin(); it!=peer.cend(); it++ )
-    {
-        std::shared_ptr<CDextraClient> client(new CDextraClient((const CDextraClient &)*(*it)));
-        m_Clients.push_back(client);
-
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////
-// destructors
-
-CDextraPeer::~CDextraPeer()
-{
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////
 // status
 

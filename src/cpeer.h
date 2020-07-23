@@ -44,7 +44,7 @@ public:
     // constructors
     CPeer();
     CPeer(const CCallsign &, const CIp &, const char *, const CVersion &);
-    CPeer(const CPeer &);
+    CPeer(const CPeer &) = delete;
 
     // destructor
     virtual ~CPeer();

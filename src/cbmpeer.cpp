@@ -50,24 +50,6 @@ CBmPeer::CBmPeer(const CCallsign &callsign, const CIp &ip, const char *modules, 
     }
 }
 
-CBmPeer::CBmPeer(const CBmPeer &peer)
-: CPeer(peer)
-{
-    for ( auto it=peer.cbegin(); it!=peer.cend(); it++ )
-    {
-        std::shared_ptr<CBmClient> client(new CBmClient((const CBmClient &)*(*it)));
-        m_Clients.push_back(client);
-
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////
-// destructors
-
-CBmPeer::~CBmPeer()
-{
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////
 // status
 

@@ -53,23 +53,6 @@ CXlxPeer::CXlxPeer(const CCallsign &callsign, const CIp &ip, const char *modules
     }
 }
 
-CXlxPeer::CXlxPeer(const CXlxPeer &peer)
-: CPeer(peer)
-{
-    for ( auto it=peer.cbegin(); it!=peer.cend(); it++ )
-    {
-        std::shared_ptr<CXlxClient> client(new CXlxClient((const CXlxClient &)*(*it)));
-        m_Clients.push_back(client);
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////
-// destructors
-
-CXlxPeer::~CXlxPeer()
-{
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////
 // status
 
