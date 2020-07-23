@@ -132,6 +132,8 @@ do
 	echo
 	echo "        Reflector Administration, Version #200723"
 	echo
+	git status | head -1
+	echo
 	echo "ls : List the configuration file"
 	echo "cl : Clean (remove) compiled objects and executables"
 	echo "gp : Pull the latest software from the repo"
