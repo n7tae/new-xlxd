@@ -83,10 +83,10 @@ bool CG3Protocol::Initalize(const char */*type*/, const uint16 /*port*/, const b
 	}
 
 	// start helper threads
-	m_pThread = new std::thread(CProtocol::Thread, this);
-	m_pPresenceThread = new std::thread(PresenceThread, this);
-	m_pPresenceThread = new std::thread(ConfigThread, this);
-	m_pPresenceThread = new std::thread(IcmpThread, this);
+	m_Future         = std::async(std::launch::async, &CProtocol::Thread, this);
+	m_PresenceFuture = std::async(std::launch::async, &CG3Protocol::PresenceThread, this);
+	m_PresenceFuture = std::async(std::launch::async, &CG3Protocol::ConfigThread, this);
+	m_PresenceFuture = std::async(std::launch::async, &CG3Protocol::IcmpThread, this);
 
 	// update time
 	m_LastKeepaliveTime.Now();
@@ -97,25 +97,19 @@ bool CG3Protocol::Initalize(const char */*type*/, const uint16 /*port*/, const b
 
 void CG3Protocol::Close(void)
 {
-	if (m_pPresenceThread != nullptr)
+	if (m_PresenceFuture.valid())
 	{
-		m_pPresenceThread->join();
-		delete m_pPresenceThread;
-		m_pPresenceThread = nullptr;
+		m_PresenceFuture.get();
 	}
 
-	if (m_pConfigThread != nullptr)
+	if (m_ConfigFuture.valid())
 	{
-		m_pConfigThread->join();
-		delete m_pConfigThread;
-		m_pConfigThread = nullptr;
+		m_ConfigFuture.get();
 	}
 
-	if (m_pIcmpThread != nullptr)
+	if (m_IcmpFuture.valid())
 	{
-		m_pIcmpThread->join();
-		delete m_pIcmpThread;
-		m_pIcmpThread = nullptr;
+		m_IcmpFuture.get();
 	}
 }
 
@@ -123,27 +117,27 @@ void CG3Protocol::Close(void)
 ////////////////////////////////////////////////////////////////////////////////////////
 // private threads
 
-void CG3Protocol::PresenceThread(CG3Protocol *This)
+void CG3Protocol::PresenceThread()
 {
-	while (This->keep_running)
+	while (keep_running)
 	{
-		This->PresenceTask();
+		PresenceTask();
 	}
 }
 
-void CG3Protocol::ConfigThread(CG3Protocol *This)
+void CG3Protocol::ConfigThread()
 {
-	while (This->keep_running)
+	while (keep_running)
 	{
-		This->ConfigTask();
+		ConfigTask();
 	}
 }
 
-void CG3Protocol::IcmpThread(CG3Protocol *This)
+void CG3Protocol::IcmpThread()
 {
-	while (This->keep_running)
+	while (keep_running)
 	{
-		This->IcmpTask();
+		IcmpTask();
 	}
 }
 
@@ -216,11 +210,8 @@ void CG3Protocol::PresenceTask(void)
 					}
 				}
 
-				// create new client
-				CG3Client *client = new CG3Client(Terminal, Ip);
-
-				// and append
-				clients->AddClient(client);
+				// create new client and append
+				clients->AddClient(std::make_shared<CG3Client>(Terminal, Ip));
 			}
 			else
 			{
@@ -230,11 +221,8 @@ void CG3Protocol::PresenceTask(void)
 					//delete old client
 					clients->RemoveClient(extant);
 
-					// create new client
-					CG3Client *client = new CG3Client(Terminal, Ip);
-
-					// and append
-					clients->AddClient(client);
+					// create new client and append
+					clients->AddClient(std::make_shared<CG3Client>(Terminal, Ip));
 				}
 			}
 			g_Reflector.ReleaseClients();
@@ -600,7 +588,7 @@ bool CG3Protocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
 						// drop if invalid module
 						delete Header;
 						g_Reflector.ReleaseClients();
-						return nullptr;
+						return false;
 					}
 				}
 

@@ -39,7 +39,6 @@
 CCodecStream::CCodecStream(CPacketStream *PacketStream, uint16 uiId, uint8 uiCodecIn, uint8 uiCodecOut)
 {
 	keep_running = true;
-	m_pThread = nullptr;
 	m_uiStreamId = uiId;
 	m_uiPid = 0;
 	m_uiCodecIn = uiCodecIn;
@@ -64,11 +63,9 @@ CCodecStream::~CCodecStream()
 
 	// kill threads
 	keep_running = false;
-	if ( m_pThread != nullptr )
+	if ( m_Future.valid() )
 	{
-		m_pThread->join();
-		delete m_pThread;
-		m_pThread = nullptr;
+		m_Future.get();
 	}
 
 	// empty local queue
@@ -130,7 +127,7 @@ bool CCodecStream::Init(uint16 uiPort)
 	}
 
 	keep_running = m_bConnected = true;
-	m_pThread = new std::thread(CCodecStream::Thread, this);
+	m_Future = std::async(std::launch::async, &CCodecStream::Thread, this);
 
 	return true;
 }
@@ -142,11 +139,9 @@ void CCodecStream::Close(void)
 	m_Socket.Close();
 
 	// kill threads
-	if ( m_pThread != nullptr )
+	if ( m_Future.valid() )
 	{
-		m_pThread->join();
-		delete m_pThread;
-		m_pThread = nullptr;
+		m_Future.get();
 	}
 }
 
@@ -161,11 +156,11 @@ bool CCodecStream::IsEmpty(void) const
 ////////////////////////////////////////////////////////////////////////////////////////
 // thread
 
-void CCodecStream::Thread(CCodecStream *This)
+void CCodecStream::Thread()
 {
-	while (This->keep_running)
+	while (keep_running)
 	{
-		This->Task();
+		Task();
 	}
 }
 

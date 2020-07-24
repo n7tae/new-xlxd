@@ -46,7 +46,7 @@ public:
 	CTranscoder();
 
 	// destructor
-	virtual ~CTranscoder();
+	~CTranscoder();
 
 	// initialization
 	bool Init(void);
@@ -64,7 +64,7 @@ public:
 	void ReleaseStream(CCodecStream *);
 
 	// task
-	static void Thread(CTranscoder *);
+	void Thread(void);
 	void Task(void);
 
 protected:
@@ -94,7 +94,7 @@ protected:
 
 	// thread
 	std::atomic<bool> keep_running;
-	std::thread     *m_pThread;
+	std::future<void> m_Future;
 
 	// socket
 	CIp             m_Ip;

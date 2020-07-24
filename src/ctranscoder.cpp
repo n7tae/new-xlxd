@@ -47,7 +47,6 @@ CTranscoder g_Transcoder;
 CTranscoder::CTranscoder()
 {
 	keep_running = true;
-	m_pThread = nullptr;
 	m_bConnected = false;
 	m_LastKeepaliveTime.Now();
 	m_LastActivityTime.Now();
@@ -110,7 +109,7 @@ bool CTranscoder::Init(void)
 
 	// start  thread
 	keep_running = true;
-	m_pThread = new std::thread(CTranscoder::Thread, this);
+	m_Future = std::async(std::launch::async, &CTranscoder::Thread, this);
 
 	return true;
 }
@@ -134,22 +133,20 @@ void CTranscoder::Close(void)
 
 	// kill threads
 	keep_running = false;
-	if ( m_pThread != nullptr )
+	if ( m_Future.valid() )
 	{
-		m_pThread->join();
-		delete m_pThread;
-		m_pThread = nullptr;
+		m_Future.get();
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // thread
 
-void CTranscoder::Thread(CTranscoder *This)
+void CTranscoder::Thread()
 {
-	while (This->keep_running)
+	while (keep_running)
 	{
-		This->Task();
+		Task();
 	}
 }
 

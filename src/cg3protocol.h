@@ -77,9 +77,9 @@ public:
 
 protected:
 	// threads
-	static void PresenceThread(CG3Protocol *);
-	static void ConfigThread(CG3Protocol *);
-	static void IcmpThread(CG3Protocol *);
+	void PresenceThread(void);
+	void ConfigThread(void);
+	void IcmpThread(void);
 
 	// helper tasks
 	void PresenceTask(void);
@@ -113,9 +113,9 @@ protected:
 	bool                EncodeDvLastFramePacket(const CDvLastFramePacket &, CBuffer *) const;
 
 protected:
-	std::thread         *m_pPresenceThread;
-	std::thread         *m_pConfigThread;
-	std::thread         *m_pIcmpThread;
+	std::future<void> m_PresenceFuture;
+	std::future<void> m_ConfigFuture;
+	std::future<void> m_IcmpFuture;
 
 	// time
 	CTimePoint          m_LastKeepaliveTime;

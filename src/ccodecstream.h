@@ -67,7 +67,7 @@ public:
 	bool   IsEmpty(void) const;
 
 	// task
-	static void Thread(CCodecStream *);
+	void Thread(void);
 	void Task(void);
 
 
@@ -98,7 +98,7 @@ protected:
 
 	// thread
 	std::atomic<bool> keep_running;
-	std::thread     *m_pThread;
+	std::future<void> m_Future;
 	CTimePoint      m_TimeoutTimer;
 	CTimePoint      m_StatsTimer;
 

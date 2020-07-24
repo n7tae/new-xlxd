@@ -33,7 +33,7 @@
 // constructor
 
 
-CProtocol::CProtocol() : keep_running(true), m_pThread(nullptr) {}
+CProtocol::CProtocol() : keep_running(true) {}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -42,17 +42,7 @@ CProtocol::CProtocol() : keep_running(true), m_pThread(nullptr) {}
 CProtocol::~CProtocol()
 {
 	// kill threads
-	keep_running = false;
-	if ( m_pThread != nullptr )
-	{
-		m_pThread->join();
-		delete m_pThread;
-		m_pThread = nullptr;
-	}
-
-	// Close sockets
-	m_Socket6.Close();
-	m_Socket4.Close();
+	Close();
 
 	// empty queue
 	m_Queue.Lock();
@@ -107,10 +97,12 @@ bool CProtocol::Initialize(const char *type, const uint16 port, const bool has_i
 #endif
 
 	// start  thread;
-	m_pThread = new std::thread(CProtocol::Thread, this);
-	if (m_pThread == nullptr)
+	try {
+		m_Future = std::async(std::launch::async, &CProtocol::Thread, this);
+	}
+	catch (const std::exception &e)
 	{
-		std::cerr << "Could not start DCS thread!" << std::endl;
+		std::cerr << "Could not start thread: " << e.what() << std::endl;
 		m_Socket4.Close();
 		m_Socket6.Close();
 		return false;
@@ -120,22 +112,20 @@ bool CProtocol::Initialize(const char *type, const uint16 port, const bool has_i
 	return true;
 }
 
-void CProtocol::Thread(CProtocol *This)
+void CProtocol::Thread()
 {
-	while (This->keep_running)
+	while (keep_running)
 	{
-		This->Task();
+		Task();
 	}
 }
 
 void CProtocol::Close(void)
 {
 	keep_running = false;
-	if ( m_pThread != nullptr )
+	if ( m_Future.valid() )
 	{
-		m_pThread->join();
-		delete m_pThread;
-		m_pThread = nullptr;
+		m_Future.get();
 	}
 	m_Socket4.Close();
 	m_Socket6.Close();

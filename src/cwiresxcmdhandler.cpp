@@ -41,7 +41,6 @@ CWiresxCmdHandler::CWiresxCmdHandler()
 {
 	m_seqNo = 0;
 	keep_running = true;
-	m_pThread = nullptr;
 }
 
 
@@ -51,13 +50,7 @@ CWiresxCmdHandler::CWiresxCmdHandler()
 CWiresxCmdHandler::~CWiresxCmdHandler()
 {
 	// kill threads
-	keep_running = false;
-	if ( m_pThread != nullptr )
-	{
-		m_pThread->join();
-		delete m_pThread;
-		m_pThread = nullptr;
-	}
+	Close();
 
 	// empty queue
 	m_CmdQueue.Lock();
@@ -82,7 +75,7 @@ bool CWiresxCmdHandler::Init(void)
 	keep_running = true;
 
 	// start  thread;
-	m_pThread = new std::thread(CWiresxCmdHandler::Thread, this);
+	m_Future = std::async(std::launch::async, &CWiresxCmdHandler::Thread, this);
 
 	// done
 	return true;
@@ -91,22 +84,20 @@ bool CWiresxCmdHandler::Init(void)
 void CWiresxCmdHandler::Close(void)
 {
 	keep_running = false;
-	if ( m_pThread != nullptr )
+	if ( m_Future.valid() )
 	{
-		m_pThread->join();
-		delete m_pThread;
-		m_pThread = nullptr;
+		m_Future.get();
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // thread
 
-void CWiresxCmdHandler::Thread(CWiresxCmdHandler *This)
+void CWiresxCmdHandler::Thread()
 {
-	while (This->keep_running)
+	while (keep_running)
 	{
-		This->Task();
+		Task();
 	}
 }
 

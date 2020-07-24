@@ -85,7 +85,7 @@ bool CProtocols::Init(void)
 
 #ifndef NO_G3
 		m_Protocols.emplace_back(std::unique_ptr<CG3Protocol>(new CG3Protocol));
-		if (! m_Protocols.back()->Initialize("XLX", G3_PORT, DMR_IPV4, DMR_IPV6))
+		if (! m_Protocols.back()->Initialize("XLX", G3_DV_PORT, DMR_IPV4, DMR_IPV6))
 			return false;
 #endif
 

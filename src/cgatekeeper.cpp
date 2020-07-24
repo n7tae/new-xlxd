@@ -37,7 +37,6 @@ CGateKeeper g_GateKeeper;
 CGateKeeper::CGateKeeper()
 {
 	keep_running = true;
-	m_pThread = nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -45,14 +44,7 @@ CGateKeeper::CGateKeeper()
 
 CGateKeeper::~CGateKeeper()
 {
-	// kill threads
-	keep_running = false;
-	if ( m_pThread != nullptr )
-	{
-		m_pThread->join();
-		delete m_pThread;
-		m_pThread = nullptr;
-	}
+	Close();
 }
 
 
@@ -71,19 +63,18 @@ bool CGateKeeper::Init(void)
 	keep_running = true;
 
 	// start  thread;
-	m_pThread = new std::thread(CGateKeeper::Thread, this);
+	m_Future = std::async(std::launch::async, &CGateKeeper::Thread, this);
 
 	return true;
 }
 
 void CGateKeeper::Close(void)
 {
+	// kill threads
 	keep_running = false;
-	if ( m_pThread != nullptr )
+	if ( m_Future.valid() )
 	{
-		m_pThread->join();
-		delete m_pThread;
-		m_pThread = nullptr;
+		m_Future.get();
 	}
 }
 
@@ -157,14 +148,14 @@ bool CGateKeeper::MayTransmit(const CCallsign &callsign, const CIp &ip, int prot
 	case PROTOCOL_G3:
 #endif
 		// first check is IP & callsigned listed OK
-		ok &= IsNodeListedOk(callsign, ip, module);
+		ok = ok && IsNodeListedOk(callsign, ip, module);
 		// todo: then apply any protocol specific authorisation for the operation
 		break;
 
 #ifndef NO_XLX
 	// XLX interlinks
 	case PROTOCOL_XLX:
-		ok &= IsPeerListedOk(callsign, ip, module);
+		ok = ok && IsPeerListedOk(callsign, ip, module);
 		break;
 #endif
 
@@ -188,26 +179,26 @@ bool CGateKeeper::MayTransmit(const CCallsign &callsign, const CIp &ip, int prot
 ////////////////////////////////////////////////////////////////////////////////////////
 // thread
 
-void CGateKeeper::Thread(CGateKeeper *This)
+void CGateKeeper::Thread()
 {
-	while (This->keep_running)
+	while (keep_running)
 	{
 		// Wait 30 seconds
-		for (int i=0; i<15 && This->keep_running; i++)
+		for (int i=0; i<15 && keep_running; i++)
 			CTimePoint::TaskSleepFor(2000);
 
 		// have lists files changed ?
-		if ( This->m_NodeWhiteList.NeedReload() )
+		if ( m_NodeWhiteList.NeedReload() )
 		{
-			This->m_NodeWhiteList.ReloadFromFile();
+			m_NodeWhiteList.ReloadFromFile();
 		}
-		if ( This->m_NodeBlackList.NeedReload() )
+		if ( m_NodeBlackList.NeedReload() )
 		{
-			This->m_NodeBlackList.ReloadFromFile();
+			m_NodeBlackList.ReloadFromFile();
 		}
-		if ( This->m_PeerList.NeedReload() )
+		if ( m_PeerList.NeedReload() )
 		{
-			This->m_PeerList.ReloadFromFile();
+			m_PeerList.ReloadFromFile();
 		}
 	}
 }

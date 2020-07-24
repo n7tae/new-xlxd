@@ -35,19 +35,11 @@
 CDmridDir::CDmridDir()
 {
 	keep_running = true;
-	m_pThread = nullptr;
 }
 
 CDmridDir::~CDmridDir()
 {
-	// kill threads
-	keep_running = false;
-	if ( m_pThread != nullptr )
-	{
-		m_pThread->join();
-		delete m_pThread;
-		m_pThread = nullptr;
-	}
+	Close();
 }
 
 
@@ -63,7 +55,7 @@ bool CDmridDir::Init(void)
 	keep_running = true;
 
 	// start  thread;
-	m_pThread = new std::thread(CDmridDir::Thread, this);
+	m_Future = std::async(std::launch::async, &CDmridDir::Thread, this);
 
 	return true;
 }
@@ -71,29 +63,27 @@ bool CDmridDir::Init(void)
 void CDmridDir::Close(void)
 {
 	keep_running = false;
-	if ( m_pThread != nullptr )
+	if ( m_Future.valid() )
 	{
-		m_pThread->join();
-		delete m_pThread;
-		m_pThread = nullptr;
+		m_Future.get();
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // thread
 
-void CDmridDir::Thread(CDmridDir *This)
+void CDmridDir::Thread()
 {
-	while (This->keep_running)
+	while (keep_running)
 	{
 		// Wait DMRIDDB_REFRESH_RATE minutes
-		for (int i=0; i<30*DMRIDDB_REFRESH_RATE && This->keep_running; i++)
+		for (int i=0; i<30*DMRIDDB_REFRESH_RATE && keep_running; i++)
 			CTimePoint::TaskSleepFor(2000);
 
 		// have lists files changed ?
-		if ( This->NeedReload() )
+		if ( NeedReload() )
 		{
-			This->Reload();
+			Reload();
 		}
 	}
 }

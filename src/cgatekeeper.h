@@ -57,7 +57,7 @@ public:
 
 protected:
 	// thread
-	static void Thread(CGateKeeper *);
+	void Thread();
 
 	// operation helpers
 	bool IsNodeListedOk(const CCallsign &, const CIp &, char = ' ') const;
@@ -72,7 +72,7 @@ protected:
 
 	// thread
 	std::atomic<bool> keep_running;
-	std::thread         *m_pThread;
+	std::future<void> m_Future;
 };
 
 

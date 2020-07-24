@@ -43,11 +43,11 @@ public:
 	CWiresxCmdHandler();
 
 	// destructor
-	virtual ~CWiresxCmdHandler();
+	~CWiresxCmdHandler();
 
 	// initialization
-	virtual bool Init(void);
-	virtual void Close(void);
+	bool Init(void);
+	void Close(void);
 
 	// queues
 	CWiresxCmdQueue *GetCmdQueue(void)          { m_CmdQueue.Lock(); return &m_CmdQueue; }
@@ -58,8 +58,8 @@ public:
 	// get
 
 	// task
-	static void Thread(CWiresxCmdHandler *);
-	virtual void Task(void);
+	void Thread(void);
+	void Task(void);
 
 protected:
 	// packet encoding
@@ -87,7 +87,7 @@ protected:
 
 	// thread
 	std::atomic<bool> keep_running;
-	std::thread        *m_pThread;
+	std::future<void> m_Future;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

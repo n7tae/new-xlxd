@@ -70,7 +70,7 @@ public:
 
 protected:
 	// thread
-	static void Thread(CDmridDir *);
+	void Thread();
 
 	// reload helpers
 	bool Reload(void);
@@ -87,7 +87,7 @@ protected:
 
 	// thread
 	std::atomic<bool> keep_running;
-	std::thread         *m_pThread;
+	std::future<void> m_Future;
 
 };
 

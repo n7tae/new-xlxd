@@ -88,7 +88,7 @@ public:
 	const CCallsign &GetReflectorCallsign(void)const { return m_ReflectorCallsign; }
 
 	// task
-	static void Thread(CProtocol *);
+	void Thread(void);
 	virtual void Task(void) = 0;
 
 protected:
@@ -143,7 +143,7 @@ protected:
 
 	// thread
 	std::atomic<bool> keep_running;
-	std::thread     *m_pThread;
+	std::future<void> m_Future;
 
 	// identity
 	CCallsign       m_ReflectorCallsign;
