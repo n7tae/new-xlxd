@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #include "main.h"
@@ -34,13 +34,13 @@ CG3Client::CG3Client()
 }
 
 CG3Client::CG3Client(const CCallsign &callsign, const CIp &ip, char reflectorModule)
-    : CClient(callsign, ip, reflectorModule)
+	: CClient(callsign, ip, reflectorModule)
 {
 
 }
 
 CG3Client::CG3Client(const CG3Client &client)
-    : CClient(client)
+	: CClient(client)
 {
 }
 
@@ -49,6 +49,6 @@ CG3Client::CG3Client(const CG3Client &client)
 
 bool CG3Client::IsAlive(void) const
 {
-    return (m_LastKeepaliveTime.DurationSinceNow() < G3_KEEPALIVE_TIMEOUT);
+	return (m_LastKeepaliveTime.DurationSinceNow() < G3_KEEPALIVE_TIMEOUT);
 }
 

@@ -50,33 +50,33 @@ int main()
 	// remove pidfile
 	remove(PIDFILE_PATH);
 
-    // splash
-    std::cout << "Starting " << cs << " " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_REVISION << std::endl << std::endl;
+	// splash
+	std::cout << "Starting " << cs << " " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_REVISION << std::endl << std::endl;
 
-    // initialize reflector
-    g_Reflector.SetCallsign(cs.c_str());
+	// initialize reflector
+	g_Reflector.SetCallsign(cs.c_str());
 
 #ifdef LISTEN_IPV4
-    g_Reflector.SetListenIPv4(LISTEN_IPV4, INET_ADDRSTRLEN);
+	g_Reflector.SetListenIPv4(LISTEN_IPV4, INET_ADDRSTRLEN);
 #endif
 
 #ifdef LISTEN_IPV6
-    g_Reflector.SetListenIPv6(LISTEN_IPV6, INET6_ADDRSTRLEN);
+	g_Reflector.SetListenIPv6(LISTEN_IPV6, INET6_ADDRSTRLEN);
 #endif
 
 #ifdef TRANSCODER_IP
-    g_Reflector.SetTranscoderIp(TRANSCODER_IP, INET6_ADDRSTRLEN);
+	g_Reflector.SetTranscoderIp(TRANSCODER_IP, INET6_ADDRSTRLEN);
 #endif
 
 
-    // and let it run
-    if ( !g_Reflector.Start() )
-    {
-        std::cout << "Error starting reflector" << std::endl;
-        return EXIT_FAILURE;
-    }
+	// and let it run
+	if ( !g_Reflector.Start() )
+	{
+		std::cout << "Error starting reflector" << std::endl;
+		return EXIT_FAILURE;
+	}
 
-    std::cout << "Reflector " << g_Reflector.GetCallsign()  << "started and listening on ";
+	std::cout << "Reflector " << g_Reflector.GetCallsign()  << "started and listening on ";
 #if defined LISTEN_IPV4
 	std::cout << g_Reflector.GetListenIPv4() << " for IPv4";
 #ifdef LISTEN_IPV6
@@ -96,9 +96,9 @@ int main()
 
 	pause(); // wait for any signal
 
-    g_Reflector.Stop();
-    std::cout << "Reflector stopped" << std::endl;
+	g_Reflector.Stop();
+	std::cout << "Reflector stopped" << std::endl;
 
-    // done
-    return EXIT_SUCCESS;
+	// done
+	return EXIT_SUCCESS;
 }

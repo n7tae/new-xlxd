@@ -32,33 +32,33 @@
 
 CClient::CClient()
 {
-    m_ReflectorModule = ' ';
-    m_ModuleMastered = ' ';
-    m_LastKeepaliveTime.Now();
-    m_ConnectTime = std::time(nullptr);
-    m_LastHeardTime = std::time(nullptr);
+	m_ReflectorModule = ' ';
+	m_ModuleMastered = ' ';
+	m_LastKeepaliveTime.Now();
+	m_ConnectTime = std::time(nullptr);
+	m_LastHeardTime = std::time(nullptr);
 }
 
 CClient::CClient(const CCallsign &callsign, const CIp &ip, char reflectorModule)
 {
-    m_ReflectorModule = reflectorModule;
-    m_Callsign = callsign;
-    m_Ip = ip;
-    m_ModuleMastered = ' ';
-    m_LastKeepaliveTime.Now();
-    m_ConnectTime = std::time(nullptr);
-    m_LastHeardTime = std::time(nullptr);
+	m_ReflectorModule = reflectorModule;
+	m_Callsign = callsign;
+	m_Ip = ip;
+	m_ModuleMastered = ' ';
+	m_LastKeepaliveTime.Now();
+	m_ConnectTime = std::time(nullptr);
+	m_LastHeardTime = std::time(nullptr);
 }
 
 CClient::CClient(const CClient &client)
 {
-    m_Callsign = client.m_Callsign;
-    m_Ip = client.m_Ip;
-    m_ReflectorModule = client.m_ReflectorModule;
-    m_ModuleMastered = client.m_ModuleMastered;
-    m_LastKeepaliveTime = client.m_LastKeepaliveTime;
-    m_ConnectTime = client.m_ConnectTime;
-    m_LastHeardTime = client.m_LastHeardTime;
+	m_Callsign = client.m_Callsign;
+	m_Ip = client.m_Ip;
+	m_ReflectorModule = client.m_ReflectorModule;
+	m_ModuleMastered = client.m_ModuleMastered;
+	m_LastKeepaliveTime = client.m_LastKeepaliveTime;
+	m_ConnectTime = client.m_ConnectTime;
+	m_LastHeardTime = client.m_LastHeardTime;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ CClient::CClient(const CClient &client)
 
 void CClient::Alive(void)
 {
-    m_LastKeepaliveTime.Now();;
+	m_LastKeepaliveTime.Now();
 }
 
 
@@ -75,9 +75,9 @@ void CClient::Alive(void)
 
 bool CClient::operator ==(const CClient &client) const
 {
-    return ((client.m_Callsign == m_Callsign) &&
-            (client.m_Ip == m_Ip) &&
-            (client.m_ReflectorModule == m_ReflectorModule));
+	return ((client.m_Callsign == m_Callsign) &&
+			(client.m_Ip == m_Ip) &&
+			(client.m_ReflectorModule == m_ReflectorModule));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -85,38 +85,38 @@ bool CClient::operator ==(const CClient &client) const
 
 void CClient::WriteXml(std::ofstream &xmlFile)
 {
-    xmlFile << "<NODE>" << std::endl;
-    xmlFile << "\t<Callsign>" << m_Callsign << "</Callsign>" << std::endl;
-    xmlFile << "\t<IP>" << m_Ip.GetAddress() << "</IP>" << std::endl;
-    xmlFile << "\t<LinkedModule>" << m_ReflectorModule << "</LinkedModule>" << std::endl;
-    xmlFile << "\t<Protocol>" << GetProtocolName() << "</Protocol>" << std::endl;
-    char mbstr[100];
-    if (std::strftime(mbstr, sizeof(mbstr), "%A %c", std::localtime(&m_ConnectTime)))
-    {
-        xmlFile << "\t<ConnectTime>" << mbstr << "</ConnectTime>" << std::endl;
-    }
-    if (std::strftime(mbstr, sizeof(mbstr), "%A %c", std::localtime(&m_LastHeardTime)))
-    {
-        xmlFile << "\t<LastHeardTime>" << mbstr << "</LastHeardTime>" << std::endl;
-    }
-    xmlFile << "</NODE>" << std::endl;
+	xmlFile << "<NODE>" << std::endl;
+	xmlFile << "\t<Callsign>" << m_Callsign << "</Callsign>" << std::endl;
+	xmlFile << "\t<IP>" << m_Ip.GetAddress() << "</IP>" << std::endl;
+	xmlFile << "\t<LinkedModule>" << m_ReflectorModule << "</LinkedModule>" << std::endl;
+	xmlFile << "\t<Protocol>" << GetProtocolName() << "</Protocol>" << std::endl;
+	char mbstr[100];
+	if (std::strftime(mbstr, sizeof(mbstr), "%A %c", std::localtime(&m_ConnectTime)))
+	{
+		xmlFile << "\t<ConnectTime>" << mbstr << "</ConnectTime>" << std::endl;
+	}
+	if (std::strftime(mbstr, sizeof(mbstr), "%A %c", std::localtime(&m_LastHeardTime)))
+	{
+		xmlFile << "\t<LastHeardTime>" << mbstr << "</LastHeardTime>" << std::endl;
+	}
+	xmlFile << "</NODE>" << std::endl;
 }
 
 void CClient::GetJsonObject(char *Buffer)
 {
-    char sz[512];
-    char mbstr[100];
-    char cs[16];
+	char sz[512];
+	char mbstr[100];
+	char cs[16];
 
-    if (std::strftime(mbstr, sizeof(mbstr), "%A %c", std::localtime(&m_LastHeardTime)))
-    {
-        m_Callsign.GetCallsignString(cs);
+	if (std::strftime(mbstr, sizeof(mbstr), "%A %c", std::localtime(&m_LastHeardTime)))
+	{
+		m_Callsign.GetCallsignString(cs);
 
-        ::sprintf(sz, "{\"callsign\":\"%s\",\"module\":\"%c\",\"linkedto\":\"%c\",\"time\":\"%s\"}",
-                  cs,
-                  m_Callsign.GetModule(),
-                  m_ReflectorModule,
-                  mbstr);
-        ::strcat(Buffer, sz);
-    }
+		::sprintf(sz, "{\"callsign\":\"%s\",\"module\":\"%c\",\"linkedto\":\"%c\",\"time\":\"%s\"}",
+				  cs,
+				  m_Callsign.GetModule(),
+				  m_ReflectorModule,
+				  mbstr);
+		::strcat(Buffer, sz);
+	}
 }

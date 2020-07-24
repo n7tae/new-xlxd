@@ -35,22 +35,22 @@
 
 CAmbePacket::CAmbePacket()
 {
-    m_uiCodec = CODEC_NONE;
-    ::memset(m_uiAmbe, 0, AMBE_SIZE);
+	m_uiCodec = CODEC_NONE;
+	::memset(m_uiAmbe, 0, AMBE_SIZE);
 }
 
 CAmbePacket::CAmbePacket(uint8 uiPid, uint8 uiCodec, const uint8 *Ambe)
-    : CPacket(uiPid)
+	: CPacket(uiPid)
 {
-    m_uiCodec = uiCodec;
-    ::memcpy(m_uiAmbe, Ambe, AMBE_SIZE);
+	m_uiCodec = uiCodec;
+	::memcpy(m_uiAmbe, Ambe, AMBE_SIZE);
 }
 
 CAmbePacket::CAmbePacket(const CAmbePacket &packet)
-    : CPacket(packet)
+	: CPacket(packet)
 {
-    m_uiCodec = packet.m_uiCodec;
-    ::memcpy(m_uiAmbe, packet.m_uiAmbe, sizeof(m_uiAmbe));
+	m_uiCodec = packet.m_uiCodec;
+	::memcpy(m_uiAmbe, packet.m_uiAmbe, sizeof(m_uiAmbe));
 }
 
 
@@ -66,6 +66,6 @@ CAmbePacket::~CAmbePacket()
 
 void CAmbePacket::SetAmbe(const uint8 *p)
 {
-    ::memcpy(m_uiAmbe, p, AMBE_SIZE);
+	::memcpy(m_uiAmbe, p, AMBE_SIZE);
 }
 

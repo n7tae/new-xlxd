@@ -16,14 +16,15 @@
 
 #include <string>
 
-class CUtils {
+class CUtils
+{
 public:
-    static void byteToBitsBE(unsigned char byte, bool* bits);
-    static void byteToBitsLE(unsigned char byte, bool* bits);
-    
-    static void bitsToByteBE(const bool* bits, unsigned char& byte);
-    static void bitsToByteLE(const bool* bits, unsigned char& byte);
-    
+	static void byteToBitsBE(unsigned char byte, bool* bits);
+	static void byteToBitsLE(unsigned char byte, bool* bits);
+
+	static void bitsToByteBE(const bool* bits, unsigned char& byte);
+	static void bitsToByteLE(const bool* bits, unsigned char& byte);
+
 private:
 };
 

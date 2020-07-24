@@ -37,15 +37,15 @@
 class CWiresxCmdQueue
 {
 public:
-    // constructor
-    CWiresxCmdQueue() {}
+	// constructor
+	CWiresxCmdQueue() {}
 
-    // destructor
-    ~CWiresxCmdQueue() {}
+	// destructor
+	~CWiresxCmdQueue() {}
 
-    // lock
-    void Lock()                 { m_Mutex.lock(); }
-    void Unlock()               { m_Mutex.unlock(); }
+	// lock
+	void Lock()                 { m_Mutex.lock(); }
+	void Unlock()               { m_Mutex.unlock(); }
 
 	// pass thru
 	CWiresxCmd front()        { return queue.front(); }
@@ -54,8 +54,8 @@ public:
 	bool empty() const        { return queue.empty(); }
 
 protected:
-    // status
-    std::mutex  m_Mutex;
+	// status
+	std::mutex  m_Mutex;
 	std::queue<CWiresxCmd> queue;
 };
 

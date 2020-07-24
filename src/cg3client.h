@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #ifndef cg3client_h
@@ -37,25 +37,25 @@
 class CG3Client : public CClient
 {
 public:
-    // constructors
-    CG3Client();
-    CG3Client(const CCallsign &, const CIp &, char = ' ');
-    CG3Client(const CG3Client &);
-    
-    // destructor
-    virtual ~CG3Client() {};
-    
-    // identity
-    int GetProtocol(void) const                 { return PROTOCOL_G3; }
-    const char *GetProtocolName(void) const     { return "Terminal/AP"; }
-    int GetCodec(void) const                    { return CODEC_AMBEPLUS; }
-    bool IsNode(void) const                     { return true; }
-    
-    // status
-    bool IsAlive(void) const;
+	// constructors
+	CG3Client();
+	CG3Client(const CCallsign &, const CIp &, char = ' ');
+	CG3Client(const CG3Client &);
+
+	// destructor
+	virtual ~CG3Client() {};
+
+	// identity
+	int GetProtocol(void) const                 { return PROTOCOL_G3; }
+	const char *GetProtocolName(void) const     { return "Terminal/AP"; }
+	int GetCodec(void) const                    { return CODEC_AMBEPLUS; }
+	bool IsNode(void) const                     { return true; }
+
+	// status
+	bool IsAlive(void) const;
 
 protected:
-    // data
+	// data
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

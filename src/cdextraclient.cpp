@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #include "main.h"
@@ -31,19 +31,19 @@
 
 CDextraClient::CDextraClient()
 {
-    m_ProtRev = 0;
+	m_ProtRev = 0;
 }
 
 CDextraClient::CDextraClient(const CCallsign &callsign, const CIp &ip, char reflectorModule, int protRev)
-    : CClient(callsign, ip, reflectorModule)
+	: CClient(callsign, ip, reflectorModule)
 {
-    m_ProtRev = protRev;
+	m_ProtRev = protRev;
 }
 
 CDextraClient::CDextraClient(const CDextraClient &client)
-    : CClient(client)
+	: CClient(client)
 {
-    m_ProtRev = client.m_ProtRev;
+	m_ProtRev = client.m_ProtRev;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -51,6 +51,6 @@ CDextraClient::CDextraClient(const CDextraClient &client)
 
 bool CDextraClient::IsAlive(void) const
 {
-    return (m_LastKeepaliveTime.DurationSinceNow() < DEXTRA_KEEPALIVE_TIMEOUT);
+	return (m_LastKeepaliveTime.DurationSinceNow() < DEXTRA_KEEPALIVE_TIMEOUT);
 }
 

@@ -31,15 +31,15 @@
 class CFixedGain : CSampleBlockProcessor
 {
 public:
-    //Constructor
-    CFixedGain(float gaindB);
+	//Constructor
+	CFixedGain(float gaindB);
 
-    //processing
-    void ProcessSampleBlock(uint8* voice, int length);
+	//processing
+	void ProcessSampleBlock(uint8* voice, int length);
 
 private:
-    float m_gaindB; //gain in dB
-    float m_gainLinear; //linearized gain
+	float m_gaindB; //gain in dB
+	float m_gainLinear; //linearized gain
 };
 
 #endif /* cfixedgain_h */

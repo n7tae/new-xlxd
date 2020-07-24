@@ -40,15 +40,15 @@
 class CUsb3003HRInterface : public CUsb3003Interface
 {
 public:
-    // constructors
-    CUsb3003HRInterface(uint32, uint32, const char *, const char *);
-    
-    // destructor
-    virtual ~CUsb3003HRInterface() {}
-    
+	// constructors
+	CUsb3003HRInterface(uint32, uint32, const char *, const char *);
+
+	// destructor
+	virtual ~CUsb3003HRInterface() {}
+
 protected:
-    // low level
-    bool ResetDevice(void);
+	// low level
+	bool ResetDevice(void);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

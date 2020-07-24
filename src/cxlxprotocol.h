@@ -40,51 +40,51 @@ class CPeer;
 class CXlxProtocol : public CDextraProtocol
 {
 public:
-    // initialization
-    bool Initalize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6);
+	// initialization
+	bool Initalize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6);
 
-    // task
-    void Task(void);
-
-protected:
-    // queue helper
-    void HandleQueue(void);
-
-    // keepalive helpers
-    void HandlePeerLinks(void);
-    void HandleKeepalives(void);
-
-    // stream helpers
-    bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &);
-    void OnDvFramePacketIn(CDvFramePacket *, const CIp * = nullptr);
-    void OnDvLastFramePacketIn(CDvLastFramePacket *, const CIp * = nullptr);
-
-    // packet decoding helpers
-    bool IsValidKeepAlivePacket(const CBuffer &, CCallsign *);
-    bool IsValidConnectPacket(const CBuffer &, CCallsign *, char *, CVersion *);
-    bool IsValidDisconnectPacket(const CBuffer &, CCallsign *);
-    bool IsValidAckPacket(const CBuffer &, CCallsign *, char *, CVersion *);
-    bool IsValidNackPacket(const CBuffer &, CCallsign *);
-    CDvFramePacket      *IsValidDvFramePacket(const CBuffer &);
-    CDvLastFramePacket  *IsValidDvLastFramePacket(const CBuffer &);
-
-    // packet encoding helpers
-    void EncodeKeepAlivePacket(CBuffer *);
-    void EncodeConnectPacket(CBuffer *, const char *);
-    void EncodeDisconnectPacket(CBuffer *);
-    void EncodeConnectAckPacket(CBuffer *, const char *);
-    void EncodeConnectNackPacket(CBuffer *);
-    bool EncodeDvFramePacket(const CDvFramePacket &, CBuffer *) const;
-    bool EncodeDvLastFramePacket(const CDvLastFramePacket &, CBuffer *) const;
-
-    // protocol revision helper
-    int GetConnectingPeerProtocolRevision(const CCallsign &, const CVersion &);
-    std::shared_ptr<CPeer>CreateNewPeer(const CCallsign &, const CIp &, char *, const CVersion &);
+	// task
+	void Task(void);
 
 protected:
-    // time
-    CTimePoint          m_LastKeepaliveTime;
-    CTimePoint          m_LastPeersLinkTime;
+	// queue helper
+	void HandleQueue(void);
+
+	// keepalive helpers
+	void HandlePeerLinks(void);
+	void HandleKeepalives(void);
+
+	// stream helpers
+	bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &);
+	void OnDvFramePacketIn(CDvFramePacket *, const CIp * = nullptr);
+	void OnDvLastFramePacketIn(CDvLastFramePacket *, const CIp * = nullptr);
+
+	// packet decoding helpers
+	bool IsValidKeepAlivePacket(const CBuffer &, CCallsign *);
+	bool IsValidConnectPacket(const CBuffer &, CCallsign *, char *, CVersion *);
+	bool IsValidDisconnectPacket(const CBuffer &, CCallsign *);
+	bool IsValidAckPacket(const CBuffer &, CCallsign *, char *, CVersion *);
+	bool IsValidNackPacket(const CBuffer &, CCallsign *);
+	CDvFramePacket      *IsValidDvFramePacket(const CBuffer &);
+	CDvLastFramePacket  *IsValidDvLastFramePacket(const CBuffer &);
+
+	// packet encoding helpers
+	void EncodeKeepAlivePacket(CBuffer *);
+	void EncodeConnectPacket(CBuffer *, const char *);
+	void EncodeDisconnectPacket(CBuffer *);
+	void EncodeConnectAckPacket(CBuffer *, const char *);
+	void EncodeConnectNackPacket(CBuffer *);
+	bool EncodeDvFramePacket(const CDvFramePacket &, CBuffer *) const;
+	bool EncodeDvLastFramePacket(const CDvLastFramePacket &, CBuffer *) const;
+
+	// protocol revision helper
+	int GetConnectingPeerProtocolRevision(const CCallsign &, const CVersion &);
+	std::shared_ptr<CPeer>CreateNewPeer(const CCallsign &, const CIp &, char *, const CVersion &);
+
+protected:
+	// time
+	CTimePoint          m_LastKeepaliveTime;
+	CTimePoint          m_LastPeersLinkTime;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

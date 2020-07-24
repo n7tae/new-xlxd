@@ -83,7 +83,8 @@ bool CUdpSocket::Open(const CIp &Ip)
 		return false;
 	}
 
-	if (0 == m_addr.GetPort()) {	// get the assigned port for an ephemeral port request
+	if (0 == m_addr.GetPort())  	// get the assigned port for an ephemeral port request
+	{
 		CIp a;
 		socklen_t len = sizeof(struct sockaddr_storage);
 		if (getsockname(m_fd, a.GetPointer(), &len))

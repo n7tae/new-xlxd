@@ -41,39 +41,39 @@
 class CUsb3000Interface : public CUsb3xxxInterface
 {
 public:
-    // constructors
-    CUsb3000Interface(uint32, uint32, const char *, const char *);
-    
-    // destructor
-    virtual ~CUsb3000Interface() {}
-    
-    // initialization
-    bool Init(uint8);
-    
-    // manage channels
-    int GetNbChannels(void) const       { return USB3000_NB_CH; }
-    uint8 GetChannelCodec(int) const;
-    
-    // manage vocodec channels
-    CVocodecChannel *GetChannelWithChannelIn(int);
-    CVocodecChannel *GetChannelWithChannelOut(int);
-    
+	// constructors
+	CUsb3000Interface(uint32, uint32, const char *, const char *);
+
+	// destructor
+	virtual ~CUsb3000Interface() {}
+
+	// initialization
+	bool Init(uint8);
+
+	// manage channels
+	int GetNbChannels(void) const       { return USB3000_NB_CH; }
+	uint8 GetChannelCodec(int) const;
+
+	// manage vocodec channels
+	CVocodecChannel *GetChannelWithChannelIn(int);
+	CVocodecChannel *GetChannelWithChannelOut(int);
+
 protected:
-    // decoder helper
-    bool IsValidChannelPacket(const CBuffer &, int *, CAmbePacket *);
-    bool IsValidSpeechPacket(const CBuffer &, int *, CVoicePacket *);
-    
-    // encoder helpers
-    void EncodeChannelPacket(CBuffer *, int, CAmbePacket *);
-    void EncodeSpeechPacket(CBuffer *, int, CVoicePacket *);
-    
-    // low level
-    bool OpenDevice(void);
-    bool ResetDevice(void);
-    bool ConfigureDevice(void);
-    
-    // data
-    uint8   m_uiChCodec;
+	// decoder helper
+	bool IsValidChannelPacket(const CBuffer &, int *, CAmbePacket *);
+	bool IsValidSpeechPacket(const CBuffer &, int *, CVoicePacket *);
+
+	// encoder helpers
+	void EncodeChannelPacket(CBuffer *, int, CAmbePacket *);
+	void EncodeSpeechPacket(CBuffer *, int, CVoicePacket *);
+
+	// low level
+	bool OpenDevice(void);
+	bool ResetDevice(void);
+	bool ConfigureDevice(void);
+
+	// data
+	uint8   m_uiChCodec;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

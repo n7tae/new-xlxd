@@ -43,72 +43,72 @@
 class CDmrplusStreamCacheItem
 {
 public:
-    CDmrplusStreamCacheItem()     { m_uiSeqId = 0x77; }
+	CDmrplusStreamCacheItem()     { m_uiSeqId = 0x77; }
 
-    CDvHeaderPacket m_dvHeader;
-    CDvFramePacket  m_dvFrame0;
-    CDvFramePacket  m_dvFrame1;
+	CDvHeaderPacket m_dvHeader;
+	CDvFramePacket  m_dvFrame0;
+	CDvFramePacket  m_dvFrame1;
 
-    uint8   m_uiSeqId;
+	uint8   m_uiSeqId;
 };
 
 
 class CDmrplusProtocol : public CProtocol
 {
 public:
-    // initialization
-    bool Initalize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6);
+	// initialization
+	bool Initalize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6);
 
-    // task
-    void Task(void);
-
-protected:
-    // queue helper
-    void HandleQueue(void);
-    void SendBufferToClients(const CBuffer &, uint8);
-
-    // keepalive helpers
-    void HandleKeepalives(void);
-
-    // stream helpers
-    bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &);
-
-    // packet decoding helpers
-    bool IsValidConnectPacket(const CBuffer &, CCallsign *, char *, const CIp &);
-    bool IsValidDisconnectPacket(const CBuffer &, CCallsign *, char *);
-    bool IsValidDvHeaderPacket(const CIp &, const CBuffer &, CDvHeaderPacket **);
-    bool IsValidDvFramePacket(const CIp &, const CBuffer &, CDvFramePacket **);
-
-    // packet encoding helpers
-    void EncodeConnectAckPacket(CBuffer *);
-    void EncodeConnectNackPacket(CBuffer *);
-    bool EncodeDvHeaderPacket(const CDvHeaderPacket &, CBuffer *) const;
-    void EncodeDvPacket(const CDvHeaderPacket &, const CDvFramePacket &, const CDvFramePacket &, const CDvFramePacket &, uint8, CBuffer *) const;
-    void EncodeDvLastPacket(const CDvHeaderPacket &, const CDvFramePacket &, const CDvFramePacket &, const CDvFramePacket &, uint8, CBuffer *) const;
-    void SwapEndianess(uint8 *, int) const;
-
-    // dmr SeqId helper
-    uint8 GetNextSeqId(uint8) const;
-
-    // dmr DstId to Module helper
-    char DmrDstIdToModule(uint32) const;
-    uint32 ModuleToDmrDestId(char) const;
-
-    // uiStreamId helpers
-    uint32 IpToStreamId(const CIp &) const;
-
-    // Buffer & LC helpers
-    void AppendVoiceLCToBuffer(CBuffer *, uint32) const;
-    void AppendTerminatorLCToBuffer(CBuffer *, uint32) const;
-    void ReplaceEMBInBuffer(CBuffer *, uint8) const;
-
+	// task
+	void Task(void);
 
 protected:
-    // for keep alive
-    CTimePoint          m_LastKeepaliveTime;
+	// queue helper
+	void HandleQueue(void);
+	void SendBufferToClients(const CBuffer &, uint8);
 
-    // for queue header caches
-    std::array<CDmrplusStreamCacheItem, NB_OF_MODULES>    m_StreamsCache;
+	// keepalive helpers
+	void HandleKeepalives(void);
+
+	// stream helpers
+	bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &);
+
+	// packet decoding helpers
+	bool IsValidConnectPacket(const CBuffer &, CCallsign *, char *, const CIp &);
+	bool IsValidDisconnectPacket(const CBuffer &, CCallsign *, char *);
+	bool IsValidDvHeaderPacket(const CIp &, const CBuffer &, CDvHeaderPacket **);
+	bool IsValidDvFramePacket(const CIp &, const CBuffer &, CDvFramePacket **);
+
+	// packet encoding helpers
+	void EncodeConnectAckPacket(CBuffer *);
+	void EncodeConnectNackPacket(CBuffer *);
+	bool EncodeDvHeaderPacket(const CDvHeaderPacket &, CBuffer *) const;
+	void EncodeDvPacket(const CDvHeaderPacket &, const CDvFramePacket &, const CDvFramePacket &, const CDvFramePacket &, uint8, CBuffer *) const;
+	void EncodeDvLastPacket(const CDvHeaderPacket &, const CDvFramePacket &, const CDvFramePacket &, const CDvFramePacket &, uint8, CBuffer *) const;
+	void SwapEndianess(uint8 *, int) const;
+
+	// dmr SeqId helper
+	uint8 GetNextSeqId(uint8) const;
+
+	// dmr DstId to Module helper
+	char DmrDstIdToModule(uint32) const;
+	uint32 ModuleToDmrDestId(char) const;
+
+	// uiStreamId helpers
+	uint32 IpToStreamId(const CIp &) const;
+
+	// Buffer & LC helpers
+	void AppendVoiceLCToBuffer(CBuffer *, uint32) const;
+	void AppendTerminatorLCToBuffer(CBuffer *, uint32) const;
+	void ReplaceEMBInBuffer(CBuffer *, uint8) const;
+
+
+protected:
+	// for keep alive
+	CTimePoint          m_LastKeepaliveTime;
+
+	// for queue header caches
+	std::array<CDmrplusStreamCacheItem, NB_OF_MODULES>    m_StreamsCache;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

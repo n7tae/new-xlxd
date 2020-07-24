@@ -37,22 +37,22 @@
 class CYsfClient : public CClient
 {
 public:
-    // constructors
-    CYsfClient();
-    CYsfClient(const CCallsign &, const CIp &, char = ' ');
-    CYsfClient(const CYsfClient &);
-    
-    // destructor
-    virtual ~CYsfClient() {};
-    
-    // identity
-    int GetProtocol(void) const                 { return PROTOCOL_YSF; }
-    const char *GetProtocolName(void) const     { return "YSF"; }
-    int GetCodec(void) const                    { return CODEC_AMBE2PLUS; }
-    bool IsNode(void) const                     { return true; }
-    
-    // status
-    bool IsAlive(void) const;
+	// constructors
+	CYsfClient();
+	CYsfClient(const CCallsign &, const CIp &, char = ' ');
+	CYsfClient(const CYsfClient &);
+
+	// destructor
+	virtual ~CYsfClient() {};
+
+	// identity
+	int GetProtocol(void) const                 { return PROTOCOL_YSF; }
+	const char *GetProtocolName(void) const     { return "YSF"; }
+	int GetCodec(void) const                    { return CODEC_AMBE2PLUS; }
+	bool IsNode(void) const                     { return true; }
+
+	// status
+	bool IsAlive(void) const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

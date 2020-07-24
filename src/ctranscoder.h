@@ -42,68 +42,68 @@ class CPacketStream;
 class CTranscoder
 {
 public:
-    // constructor
-    CTranscoder();
+	// constructor
+	CTranscoder();
 
-    // destructor
-    virtual ~CTranscoder();
+	// destructor
+	virtual ~CTranscoder();
 
-    // initialization
-    bool Init(void);
-    void Close(void);
+	// initialization
+	bool Init(void);
+	void Close(void);
 
-    // locks
-    void Lock(void)                     { m_Mutex.lock(); }
-    void Unlock(void)                   { m_Mutex.unlock(); }
+	// locks
+	void Lock(void)                     { m_Mutex.lock(); }
+	void Unlock(void)                   { m_Mutex.unlock(); }
 
-    // status
-    bool IsConnected(void) const        { return m_bConnected; }
+	// status
+	bool IsConnected(void) const        { return m_bConnected; }
 
-    // manage streams
-    CCodecStream *GetStream(CPacketStream *, uint8);
-    void ReleaseStream(CCodecStream *);
+	// manage streams
+	CCodecStream *GetStream(CPacketStream *, uint8);
+	void ReleaseStream(CCodecStream *);
 
-    // task
-    static void Thread(CTranscoder *);
-    void Task(void);
-
-protected:
-    // keepalive helpers
-    void HandleKeepalives(void);
-
-    // packet decoding helpers
-    bool IsValidKeepAlivePacket(const CBuffer &);
-    bool IsValidStreamDescrPacket(const CBuffer &, uint16 *, uint16 *);
-    bool IsValidNoStreamAvailablePacket(const CBuffer&);
-
-    // packet encoding helpers
-    void EncodeKeepAlivePacket(CBuffer *);
-    void EncodeOpenstreamPacket(CBuffer *, uint8, uint8);
-    void EncodeClosestreamPacket(CBuffer *, uint16);
+	// task
+	static void Thread(CTranscoder *);
+	void Task(void);
 
 protected:
-    // streams
-    std::mutex                m_Mutex;
-    std::list<CCodecStream *> m_Streams;
+	// keepalive helpers
+	void HandleKeepalives(void);
 
-    // sync objects for Openstream
-    CSemaphore      m_SemaphoreOpenStream;
-    bool            m_bStreamOpened;
-    uint16          m_StreamidOpenStream;
-    uint16          m_PortOpenStream;
+	// packet decoding helpers
+	bool IsValidKeepAlivePacket(const CBuffer &);
+	bool IsValidStreamDescrPacket(const CBuffer &, uint16 *, uint16 *);
+	bool IsValidNoStreamAvailablePacket(const CBuffer&);
 
-    // thread
-    std::atomic<bool> keep_running;
-    std::thread     *m_pThread;
+	// packet encoding helpers
+	void EncodeKeepAlivePacket(CBuffer *);
+	void EncodeOpenstreamPacket(CBuffer *, uint8, uint8);
+	void EncodeClosestreamPacket(CBuffer *, uint16);
 
-    // socket
-    CIp             m_Ip;
-    CUdpSocket      m_Socket;
-    bool            m_bConnected;
+protected:
+	// streams
+	std::mutex                m_Mutex;
+	std::list<CCodecStream *> m_Streams;
 
-    // time
-    CTimePoint      m_LastKeepaliveTime;
-    CTimePoint      m_LastActivityTime;
+	// sync objects for Openstream
+	CSemaphore      m_SemaphoreOpenStream;
+	bool            m_bStreamOpened;
+	uint16          m_StreamidOpenStream;
+	uint16          m_PortOpenStream;
+
+	// thread
+	std::atomic<bool> keep_running;
+	std::thread     *m_pThread;
+
+	// socket
+	CIp             m_Ip;
+	CUdpSocket      m_Socket;
+	bool            m_bConnected;
+
+	// time
+	CTimePoint      m_LastKeepaliveTime;
+	CTimePoint      m_LastActivityTime;
 };
 
 

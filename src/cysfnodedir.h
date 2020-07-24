@@ -38,8 +38,8 @@
 
 struct CYsfNodeDirCallsignCompare
 {
-    bool operator() (const CCallsign &cs1, const CCallsign &cs2) const
-    { return cs1.HasLowerCallsign(cs2);}
+	bool operator() (const CCallsign &cs1, const CCallsign &cs2) const
+	{ return cs1.HasLowerCallsign(cs2);}
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -50,25 +50,25 @@ using CsNodeMap = std::map<CCallsign, CYsfNode, CYsfNodeDirCallsignCompare>;
 class CYsfNodeDir
 {
 public:
-    // constructor
-    CYsfNodeDir();
-    // destructor
-    virtual ~CYsfNodeDir();
+	// constructor
+	CYsfNodeDir();
+	// destructor
+	virtual ~CYsfNodeDir();
 
-     // init & close
-    virtual bool Init(void);
-    virtual void Close(void);
+	// init & close
+	virtual bool Init(void);
+	virtual void Close(void);
 
-    // locks
-    void Lock(void)                                 { m_Mutex.lock(); }
-    void Unlock(void)                               { m_Mutex.unlock(); }
+	// locks
+	void Lock(void)                                 { m_Mutex.lock(); }
+	void Unlock(void)                               { m_Mutex.unlock(); }
 
-    // refresh
-    virtual bool LoadContent(CBuffer *)             { return false; }
-    virtual bool RefreshContent(const CBuffer &)    { return false; }
+	// refresh
+	virtual bool LoadContent(CBuffer *)             { return false; }
+	virtual bool RefreshContent(const CBuffer &)    { return false; }
 
-    // find
-    bool FindFrequencies(const CCallsign &, uint32 *, uint32 *);
+	// find
+	bool FindFrequencies(const CCallsign &, uint32 *, uint32 *);
 
 	// pass-thru
 	void clear() { m_map.clear(); }
@@ -78,23 +78,23 @@ public:
 	std::pair<CsNodeMap::iterator, bool> insert(const std::pair<CCallsign, CYsfNode> &pair) { return m_map.insert(pair); }
 
 protected:
-    // thread
-    static void Thread(CYsfNodeDir *);
+	// thread
+	static void Thread(CYsfNodeDir *);
 
-    // reload helpers
-    bool Reload(void);
-    virtual bool NeedReload(void)                    { return false; }
-    //bool IsValidDmrid(const char *);
+	// reload helpers
+	bool Reload(void);
+	virtual bool NeedReload(void)                    { return false; }
+	//bool IsValidDmrid(const char *);
 
 
 protected:
-    // Lock()
-     std::mutex          m_Mutex;
+	// Lock()
+	std::mutex          m_Mutex;
 
-     // thread
-     std::atomic<bool> keep_running;
-     std::thread         *m_pThread;
-	 CsNodeMap m_map;
+	// thread
+	std::atomic<bool> keep_running;
+	std::thread         *m_pThread;
+	CsNodeMap m_map;
 };
 
 

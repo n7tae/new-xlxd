@@ -39,11 +39,11 @@ class CClient;
 class CPacketQueue
 {
 public:
-    // constructor
-    CPacketQueue() {}
+	// constructor
+	CPacketQueue() {}
 
-    // destructor
-    ~CPacketQueue()
+	// destructor
+	~CPacketQueue()
 	{
 		Lock();
 		while (! queue.empty())
@@ -54,9 +54,9 @@ public:
 		Unlock();
 	}
 
-    // lock
-    void Lock()   { m_Mutex.lock(); }
-    void Unlock() { m_Mutex.unlock(); }
+	// lock
+	void Lock()   { m_Mutex.lock(); }
+	void Unlock() { m_Mutex.unlock(); }
 
 	// pass thru
 	CPacket *front()           { return queue.front(); }
@@ -65,13 +65,13 @@ public:
 	bool empty() const         { return queue.empty(); }
 
 protected:
-    // status
-    bool        m_bOpen;
-    uint16      m_uiStreamId;
-    std::mutex  m_Mutex;
+	// status
+	bool        m_bOpen;
+	uint16      m_uiStreamId;
+	std::mutex  m_Mutex;
 
-    // owner
-    CClient              *m_Client;
+	// owner
+	CClient              *m_Client;
 	std::queue<CPacket *> queue;
 };
 

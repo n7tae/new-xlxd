@@ -32,7 +32,7 @@
 // constructor
 
 CUsb3003HRInterface::CUsb3003HRInterface(uint32 uiVid, uint32 uiPid, const char *szDeviceName, const char *szDeviceSerial)
-: CUsb3003Interface(uiVid, uiPid, szDeviceName, szDeviceSerial)
+	: CUsb3003Interface(uiVid, uiPid, szDeviceName, szDeviceSerial)
 {
 }
 
@@ -41,24 +41,24 @@ CUsb3003HRInterface::CUsb3003HRInterface(uint32 uiVid, uint32 uiPid, const char 
 
 bool CUsb3003HRInterface::ResetDevice(void)
 {
-    bool ok = false;
-    int len;
-    char rxpacket[100];
+	bool ok = false;
+	int len;
+	char rxpacket[100];
 
-    //if the device is a USB-3003, it supports reset via UART break signal
-    //printf("reset via uart break...\n");
-    FT_SetBreakOn( m_FtdiHandle );
-    CTimePoint::TaskSleepFor(10);
-    FT_SetBreakOff( m_FtdiHandle );
-    //CTimePoint::TaskSleepFor(10);
+	//if the device is a USB-3003, it supports reset via UART break signal
+	//printf("reset via uart break...\n");
+	FT_SetBreakOn( m_FtdiHandle );
+	CTimePoint::TaskSleepFor(10);
+	FT_SetBreakOff( m_FtdiHandle );
+	//CTimePoint::TaskSleepFor(10);
 
-    len = FTDI_read_packet( m_FtdiHandle, rxpacket, sizeof(rxpacket) );
-    ok = ((len == 7) && (rxpacket[4] == PKT_READY));
-    if ( !ok )
-    {
-        std::cout << "USB-3003 hard reset failed" << std::endl;
-    }
+	len = FTDI_read_packet( m_FtdiHandle, rxpacket, sizeof(rxpacket) );
+	ok = ((len == 7) && (rxpacket[4] == PKT_READY));
+	if ( !ok )
+	{
+		std::cout << "USB-3003 hard reset failed" << std::endl;
+	}
 
-    // done
-    return ok;
+	// done
+	return ok;
 }

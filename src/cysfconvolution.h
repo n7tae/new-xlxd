@@ -23,24 +23,25 @@
 
 #include <cstdint>
 
-class CYSFConvolution {
+class CYSFConvolution
+{
 public:
-    CYSFConvolution();
-    ~CYSFConvolution();
-    
-    void start();
-    void decode(uint8_t s0, uint8_t s1);
-    void chainback(unsigned char* out, unsigned int nBits);
-    
-    void encode(const unsigned char* in, unsigned char* out, unsigned int nBits) const;
-    
+	CYSFConvolution();
+	~CYSFConvolution();
+
+	void start();
+	void decode(uint8_t s0, uint8_t s1);
+	void chainback(unsigned char* out, unsigned int nBits);
+
+	void encode(const unsigned char* in, unsigned char* out, unsigned int nBits) const;
+
 private:
-    uint16_t* m_metrics1;
-    uint16_t* m_metrics2;
-    uint16_t* m_oldMetrics;
-    uint16_t* m_newMetrics;
-    uint64_t* m_decisions;
-    uint64_t* m_dp;
+	uint16_t* m_metrics1;
+	uint16_t* m_metrics2;
+	uint16_t* m_oldMetrics;
+	uint16_t* m_newMetrics;
+	uint64_t* m_decisions;
+	uint64_t* m_dp;
 };
 
 #endif

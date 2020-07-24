@@ -34,12 +34,12 @@ CDmrplusClient::CDmrplusClient()
 }
 
 CDmrplusClient::CDmrplusClient(const CCallsign &callsign, const CIp &ip, char reflectorModule)
-: CClient(callsign, ip, reflectorModule)
+	: CClient(callsign, ip, reflectorModule)
 {
 }
 
 CDmrplusClient::CDmrplusClient(const CDmrplusClient &client)
-: CClient(client)
+	: CClient(client)
 {
 }
 
@@ -48,5 +48,5 @@ CDmrplusClient::CDmrplusClient(const CDmrplusClient &client)
 
 bool CDmrplusClient::IsAlive(void) const
 {
-    return (m_LastKeepaliveTime.DurationSinceNow() < DMRPLUS_KEEPALIVE_TIMEOUT);
+	return (m_LastKeepaliveTime.DurationSinceNow() < DMRPLUS_KEEPALIVE_TIMEOUT);
 }

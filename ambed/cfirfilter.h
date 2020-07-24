@@ -31,20 +31,20 @@
 class CFIRFilter : CSampleBlockProcessor
 {
 public :
-    //Constructor
-    CFIRFilter(const float* taps, int tapsLength);
+	//Constructor
+	CFIRFilter(const float* taps, int tapsLength);
 
-    // Destructor
-    ~CFIRFilter();
+	// Destructor
+	~CFIRFilter();
 
-    // Processing
-    void ProcessSampleBlock(uint8* voice, int length);
+	// Processing
+	void ProcessSampleBlock(uint8* voice, int length);
 
 private:
-    float* m_taps;
-    int m_tapsLength;
-    float* m_buffer;
-    int m_currentBufferPosition;
+	float* m_taps;
+	int m_tapsLength;
+	float* m_buffer;
+	int m_currentBufferPosition;
 };
 
 #endif //cfirfilter_h

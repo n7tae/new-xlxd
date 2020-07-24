@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #ifndef ctimepoint_h
@@ -32,22 +32,22 @@
 class CTimePoint : public std::chrono::steady_clock::time_point
 {
 public:
-    // constructor
-    CTimePoint();
-    
-    // destructor
-    virtual ~CTimePoint() {}
-    
-    // operation
-    void   Now(void)                        { m_TimePoint = std::chrono::steady_clock::now(); }
-    double DurationSinceNow(void) const;
-    
-    // task
-    static void TaskSleepFor(uint);
-    
+	// constructor
+	CTimePoint();
+
+	// destructor
+	virtual ~CTimePoint() {}
+
+	// operation
+	void   Now(void)                        { m_TimePoint = std::chrono::steady_clock::now(); }
+	double DurationSinceNow(void) const;
+
+	// task
+	static void TaskSleepFor(uint);
+
 protected:
-    // data
-    std::chrono::steady_clock::time_point m_TimePoint;
+	// data
+	std::chrono::steady_clock::time_point m_TimePoint;
 };
 
 

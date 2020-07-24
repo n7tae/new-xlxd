@@ -41,16 +41,16 @@
 class CUsb3003DF2ETInterface : public CUsb3003Interface
 {
 public:
-    // constructors
-    CUsb3003DF2ETInterface(uint32, uint32, const char *, const char *);
-    
-    // destructor
-    virtual ~CUsb3003DF2ETInterface() {}
-    
+	// constructors
+	CUsb3003DF2ETInterface(uint32, uint32, const char *, const char *);
+
+	// destructor
+	virtual ~CUsb3003DF2ETInterface() {}
+
 protected:
-    // low level
-    bool OpenDevice(void);
-    bool ResetDevice(void);
+	// low level
+	bool OpenDevice(void);
+	bool ResetDevice(void);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

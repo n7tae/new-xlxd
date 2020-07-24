@@ -39,55 +39,55 @@
 class CWiresxCmdHandler
 {
 public:
-    // constructor
-    CWiresxCmdHandler();
+	// constructor
+	CWiresxCmdHandler();
 
-    // destructor
-    virtual ~CWiresxCmdHandler();
+	// destructor
+	virtual ~CWiresxCmdHandler();
 
-    // initialization
-    virtual bool Init(void);
-    virtual void Close(void);
+	// initialization
+	virtual bool Init(void);
+	virtual void Close(void);
 
-    // queues
-    CWiresxCmdQueue *GetCmdQueue(void)          { m_CmdQueue.Lock(); return &m_CmdQueue; }
-    void ReleaseCmdQueue(void)                  { m_CmdQueue.Unlock(); }
-    CWiresxPacketQueue *GetPacketQueue(void)    { m_PacketQueue.Lock(); return &m_PacketQueue; }
-    void ReleasePacketQueue(void)               { m_PacketQueue.Unlock(); }
+	// queues
+	CWiresxCmdQueue *GetCmdQueue(void)          { m_CmdQueue.Lock(); return &m_CmdQueue; }
+	void ReleaseCmdQueue(void)                  { m_CmdQueue.Unlock(); }
+	CWiresxPacketQueue *GetPacketQueue(void)    { m_PacketQueue.Lock(); return &m_PacketQueue; }
+	void ReleasePacketQueue(void)               { m_PacketQueue.Unlock(); }
 
-    // get
+	// get
 
-    // task
-    static void Thread(CWiresxCmdHandler *);
-    virtual void Task(void);
-
-protected:
-    // packet encoding
-    bool ReplyToWiresxDxReqPacket(const CIp &, const CWiresxInfo &, char);
-    bool ReplyToWiresxAllReqPacket(const CIp &, const CWiresxInfo &, int);
-    bool ReplyToWiresxConnReqPacket(const CIp &, const CWiresxInfo &, char);
-    bool ReplyToWiresxDiscReqPacket(const CIp &, const CWiresxInfo &);
-
-    // packet encoding helpers
-    bool EncodeAndSendWiresxPacket(const CIp &, const CBuffer &, const CWiresxInfo &);
-    uint8 WiresxCalcFt(uint, uint) const;
-    void SendPacket(const CIp &, uint8 *);
-
-    // debug
-    bool DebugTestDecodePacket(const CBuffer &);
+	// task
+	static void Thread(CWiresxCmdHandler *);
+	virtual void Task(void);
 
 protected:
-    // data
-    CWiresxInfo        m_ReflectorWiresxInfo;
-    uint8_t            m_seqNo;
+	// packet encoding
+	bool ReplyToWiresxDxReqPacket(const CIp &, const CWiresxInfo &, char);
+	bool ReplyToWiresxAllReqPacket(const CIp &, const CWiresxInfo &, int);
+	bool ReplyToWiresxConnReqPacket(const CIp &, const CWiresxInfo &, char);
+	bool ReplyToWiresxDiscReqPacket(const CIp &, const CWiresxInfo &);
 
-    // queues
-    CWiresxCmdQueue    m_CmdQueue;
-    CWiresxPacketQueue m_PacketQueue;
+	// packet encoding helpers
+	bool EncodeAndSendWiresxPacket(const CIp &, const CBuffer &, const CWiresxInfo &);
+	uint8 WiresxCalcFt(uint, uint) const;
+	void SendPacket(const CIp &, uint8 *);
 
-    // thread
-    std::atomic<bool> keep_running;
-    std::thread        *m_pThread;
+	// debug
+	bool DebugTestDecodePacket(const CBuffer &);
+
+protected:
+	// data
+	CWiresxInfo        m_ReflectorWiresxInfo;
+	uint8_t            m_seqNo;
+
+	// queues
+	CWiresxCmdQueue    m_CmdQueue;
+	CWiresxPacketQueue m_PacketQueue;
+
+	// thread
+	std::atomic<bool> keep_running;
+	std::thread        *m_pThread;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

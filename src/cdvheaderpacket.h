@@ -38,18 +38,18 @@
 
 struct __attribute__ ((__packed__))dstar_header
 {
-    // flags
-    uint8	Flag1;
-    uint8	Flag2;
-    uint8	Flag3;
-    // callsigns
-    uint8	RPT2[CALLSIGN_LEN];
-    uint8	RPT1[CALLSIGN_LEN];
-    uint8	UR[CALLSIGN_LEN];
-    uint8	MY[CALLSIGN_LEN];
-    uint8	SUFFIX[CALLSUFFIX_LEN];
-    // crc
-    uint16  Crc;
+	// flags
+	uint8	Flag1;
+	uint8	Flag2;
+	uint8	Flag3;
+	// callsigns
+	uint8	RPT2[CALLSIGN_LEN];
+	uint8	RPT1[CALLSIGN_LEN];
+	uint8	UR[CALLSIGN_LEN];
+	uint8	MY[CALLSIGN_LEN];
+	uint8	SUFFIX[CALLSUFFIX_LEN];
+	// crc
+	uint16  Crc;
 };
 
 
@@ -59,61 +59,61 @@ struct __attribute__ ((__packed__))dstar_header
 class CDvHeaderPacket : public CPacket
 {
 public:
-    // constructor
-    CDvHeaderPacket();
-    CDvHeaderPacket(const struct dstar_header *, uint16, uint8);
+	// constructor
+	CDvHeaderPacket();
+	CDvHeaderPacket(const struct dstar_header *, uint16, uint8);
 #ifndef NO_XLX
-    CDvHeaderPacket(uint32, const CCallsign &, const CCallsign &, const CCallsign &, uint16, uint8, uint8);
-    CDvHeaderPacket(const CCallsign &, const CCallsign &, const CCallsign &, const CCallsign &, uint16, uint8);
+	CDvHeaderPacket(uint32, const CCallsign &, const CCallsign &, const CCallsign &, uint16, uint8, uint8);
+	CDvHeaderPacket(const CCallsign &, const CCallsign &, const CCallsign &, const CCallsign &, uint16, uint8);
 #endif
 
-    // virtual duplication
-    CPacket *Duplicate(void) const;
+	// virtual duplication
+	CPacket *Duplicate(void) const;
 
-    // identity
-    bool IsDvHeader(void) const                     { return true; }
+	// identity
+	bool IsDvHeader(void) const                     { return true; }
 
-    // conversion
-    void ConvertToDstarStruct(struct dstar_header *) const;
+	// conversion
+	void ConvertToDstarStruct(struct dstar_header *) const;
 
-    // get valid
-    bool IsValid(void) const;
+	// get valid
+	bool IsValid(void) const;
 
-    // get callsigns
-    const CCallsign &GetUrCallsign(void) const      { return m_csUR; }
-    const CCallsign &GetRpt1Callsign(void) const    { return m_csRPT1; }
-    const CCallsign &GetRpt2Callsign(void) const    { return m_csRPT2; }
-    const CCallsign &GetMyCallsign(void) const      { return m_csMY; }
+	// get callsigns
+	const CCallsign &GetUrCallsign(void) const      { return m_csUR; }
+	const CCallsign &GetRpt1Callsign(void) const    { return m_csRPT1; }
+	const CCallsign &GetRpt2Callsign(void) const    { return m_csRPT2; }
+	const CCallsign &GetMyCallsign(void) const      { return m_csMY; }
 
-    // get modules
-    char GetUrModule(void) const                    { return m_csUR.GetModule(); }
-    char GetRpt1Module(void) const                  { return m_csRPT1.GetModule(); }
-    char GetRpt2Module(void) const                  { return m_csRPT2.GetModule(); }
-    char GetMyModule(void) const                    { return m_csMY.GetModule(); }
+	// get modules
+	char GetUrModule(void) const                    { return m_csUR.GetModule(); }
+	char GetRpt1Module(void) const                  { return m_csRPT1.GetModule(); }
+	char GetRpt2Module(void) const                  { return m_csRPT2.GetModule(); }
+	char GetMyModule(void) const                    { return m_csMY.GetModule(); }
 
-    // set callsigns
-    void SetRpt2Callsign(const CCallsign &cs)       { m_csRPT2 = cs; }
-    void SetRpt2Module(char c)                      { m_csRPT2.SetModule(c); }
+	// set callsigns
+	void SetRpt2Callsign(const CCallsign &cs)       { m_csRPT2 = cs; }
+	void SetRpt2Module(char c)                      { m_csRPT2.SetModule(c); }
 
-    // operators
-    bool operator ==(const CDvHeaderPacket &) const;
+	// operators
+	bool operator ==(const CDvHeaderPacket &) const;
 #ifdef IMPLEMENT_CDVHEADERPACKET_CONST_CHAR_OPERATOR
-    operator const char *() const;
+	operator const char *() const;
 #endif
 
 protected:
-    // data
-    uint8       m_uiFlag1;
-    uint8       m_uiFlag2;
-    uint8       m_uiFlag3;
-    CCallsign   m_csUR;
-    CCallsign   m_csRPT1;
-    CCallsign   m_csRPT2;
-    CCallsign   m_csMY;
-    uint16      m_uiCrc;
+	// data
+	uint8       m_uiFlag1;
+	uint8       m_uiFlag2;
+	uint8       m_uiFlag3;
+	CCallsign   m_csUR;
+	CCallsign   m_csRPT1;
+	CCallsign   m_csRPT2;
+	CCallsign   m_csMY;
+	uint16      m_uiCrc;
 #ifdef IMPLEMENT_CDVHEADERPACKET_CONST_CHAR_OPERATOR
-    // buffer
-    char		m_sz[256];
+	// buffer
+	char		m_sz[256];
 #endif
 };
 

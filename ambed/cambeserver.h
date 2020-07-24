@@ -35,27 +35,27 @@ class CAmbeServer
 {
 public:
 
-    // operation
-    bool Start(void);
-    void Stop(void);
+	// operation
+	bool Start(void);
+	void Stop(void);
 
-    // task
-    static void Thread(CAmbeServer *);
-    void Task(void);
+	// task
+	static void Thread(CAmbeServer *);
+	void Task(void);
 
-    // get
-    const char *GetListenIp(void) const   { return m_Controller.GetListenIp(); }
+	// get
+	const char *GetListenIp(void) const   { return m_Controller.GetListenIp(); }
 
-    // set
-    void SetListenIp(const char *ip)      { m_Controller.SetListenIp(ip); }
+	// set
+	void SetListenIp(const char *ip)      { m_Controller.SetListenIp(ip); }
 
 protected:
-    // objects
-    CController     m_Controller;
+	// objects
+	CController     m_Controller;
 
 public:
 #ifdef DEBUG_DUMPFILE
-    std::ofstream        m_DebugFile;
+	std::ofstream        m_DebugFile;
 #endif
 };
 

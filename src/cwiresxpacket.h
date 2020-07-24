@@ -34,21 +34,21 @@
 class CWiresxPacket
 {
 public:
-    // constructor
-    CWiresxPacket() {}
-    CWiresxPacket(const CBuffer &Buffer, const CIp &Ip) { m_Buffer = Buffer; m_Ip = Ip; }
-    
-    // destructor
-    virtual ~CWiresxPacket() {}
-    
-    // get
-    const CBuffer &GetBuffer(void) const        { return m_Buffer; }
-    const CIp &GetIp(void) const                { return m_Ip; }
-    
+	// constructor
+	CWiresxPacket() {}
+	CWiresxPacket(const CBuffer &Buffer, const CIp &Ip) { m_Buffer = Buffer; m_Ip = Ip; }
+
+	// destructor
+	virtual ~CWiresxPacket() {}
+
+	// get
+	const CBuffer &GetBuffer(void) const        { return m_Buffer; }
+	const CIp &GetIp(void) const                { return m_Ip; }
+
 protected:
-    // data
-    CBuffer     m_Buffer;
-    CIp         m_Ip;
+	// data
+	CBuffer     m_Buffer;
+	CIp         m_Ip;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

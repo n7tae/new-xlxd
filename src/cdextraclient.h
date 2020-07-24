@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #ifndef cdextraclient_h
@@ -37,27 +37,27 @@
 class CDextraClient : public CClient
 {
 public:
-    // constructors
-    CDextraClient();
-    CDextraClient(const CCallsign &, const CIp &, char = ' ', int = 0);
-    CDextraClient(const CDextraClient &);
-    
-    // destructor
-    virtual ~CDextraClient() {};
-    
-    // identity
-    int GetProtocol(void) const                 { return PROTOCOL_DEXTRA; }
-    int GetProtocolRevision(void) const         { return m_ProtRev; }
-    const char *GetProtocolName(void) const     { return "DExtra"; }
-    int GetCodec(void) const                    { return CODEC_AMBEPLUS; }
-    bool IsNode(void) const                     { return true; }
-    
-    // status
-    bool IsAlive(void) const;
+	// constructors
+	CDextraClient();
+	CDextraClient(const CCallsign &, const CIp &, char = ' ', int = 0);
+	CDextraClient(const CDextraClient &);
+
+	// destructor
+	virtual ~CDextraClient() {};
+
+	// identity
+	int GetProtocol(void) const                 { return PROTOCOL_DEXTRA; }
+	int GetProtocolRevision(void) const         { return m_ProtRev; }
+	const char *GetProtocolName(void) const     { return "DExtra"; }
+	int GetCodec(void) const                    { return CODEC_AMBEPLUS; }
+	bool IsNode(void) const                     { return true; }
+
+	// status
+	bool IsAlive(void) const;
 
 protected:
-    // data
-    int     m_ProtRev;
+	// data
+	int     m_ProtRev;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

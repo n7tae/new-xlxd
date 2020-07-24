@@ -72,64 +72,64 @@
 class CUsb3xxxInterface : public CVocodecInterface
 {
 public:
-    // constructors
-    CUsb3xxxInterface(uint32, uint32, const char *, const char *);
-    
-    // destructor
-    virtual ~CUsb3xxxInterface();
-    
-    // initialization
-    bool Init(void);
+	// constructors
+	CUsb3xxxInterface(uint32, uint32, const char *, const char *);
 
-    // get
-    const char *GetName(void) const     { return m_szDeviceName; }
-    const char *GetSerial(void) const   { return m_szDeviceSerial; }
+	// destructor
+	virtual ~CUsb3xxxInterface();
 
-    // task
-    void Task(void);
+	// initialization
+	bool Init(void);
+
+	// get
+	const char *GetName(void) const     { return m_szDeviceName; }
+	const char *GetSerial(void) const   { return m_szDeviceSerial; }
+
+	// task
+	void Task(void);
 
 protected:
-    // decoder helper
-    virtual bool IsValidChannelPacket(const CBuffer &, int *, CAmbePacket *)    { return false; }
-    virtual bool IsValidSpeechPacket(const CBuffer &, int *, CVoicePacket *)    { return false; }
-    
-    // encoder helpers
-    virtual void EncodeChannelPacket(CBuffer *, int, CAmbePacket *) {}
-    virtual void EncodeSpeechPacket(CBuffer *, int, CVoicePacket *) {}
-    
-    // low level
-    virtual bool OpenDevice(void)                           { return false; }
-    virtual bool ResetDevice(void)                          { return false; }
-    bool ReadDeviceVersion(void);
-    bool DisableParity(void);
-    virtual bool ConfigureDevice(void)                      { return false; }
-    bool ConfigureChannel(uint8, const uint8 *, int, int);
-    virtual int GetDeviceFifoSize(void) const              { return 1; }
-    
-    // io level
-    bool ReadBuffer(CBuffer *);
-    bool WriteBuffer(const CBuffer &);
-    int  FTDI_read_packet(FT_HANDLE, char *, int);
-    bool FTDI_read_bytes(FT_HANDLE, char *, int);
-    bool FTDI_write_packet(FT_HANDLE, const char *, int);
-    
-    // error reporting
-    void FTDI_Error(char *, FT_STATUS);
-    
+	// decoder helper
+	virtual bool IsValidChannelPacket(const CBuffer &, int *, CAmbePacket *)    { return false; }
+	virtual bool IsValidSpeechPacket(const CBuffer &, int *, CVoicePacket *)    { return false; }
+
+	// encoder helpers
+	virtual void EncodeChannelPacket(CBuffer *, int, CAmbePacket *) {}
+	virtual void EncodeSpeechPacket(CBuffer *, int, CVoicePacket *) {}
+
+	// low level
+	virtual bool OpenDevice(void)                           { return false; }
+	virtual bool ResetDevice(void)                          { return false; }
+	bool ReadDeviceVersion(void);
+	bool DisableParity(void);
+	virtual bool ConfigureDevice(void)                      { return false; }
+	bool ConfigureChannel(uint8, const uint8 *, int, int);
+	virtual int GetDeviceFifoSize(void) const              { return 1; }
+
+	// io level
+	bool ReadBuffer(CBuffer *);
+	bool WriteBuffer(const CBuffer &);
+	int  FTDI_read_packet(FT_HANDLE, char *, int);
+	bool FTDI_read_bytes(FT_HANDLE, char *, int);
+	bool FTDI_write_packet(FT_HANDLE, const char *, int);
+
+	// error reporting
+	void FTDI_Error(char *, FT_STATUS);
+
 protected:
-    // data
-    uint32                      m_uiVid;
-    uint32                      m_uiPid;
-    char                        m_szDeviceName[FTDI_MAX_STRINGLENGTH];
-    char                        m_szDeviceSerial[FTDI_MAX_STRINGLENGTH];
-    FT_HANDLE                   m_FtdiHandle;
-    
-    // queue
-    std::vector<CPacketQueue*>  m_SpeechQueues;
-    std::vector<CPacketQueue*>  m_ChannelQueues;
-    CPacketQueue                m_DeviceQueue;
-    int                         m_iSpeechFifolLevel;
-    int                         m_iChannelFifolLevel;
+	// data
+	uint32                      m_uiVid;
+	uint32                      m_uiPid;
+	char                        m_szDeviceName[FTDI_MAX_STRINGLENGTH];
+	char                        m_szDeviceSerial[FTDI_MAX_STRINGLENGTH];
+	FT_HANDLE                   m_FtdiHandle;
+
+	// queue
+	std::vector<CPacketQueue*>  m_SpeechQueues;
+	std::vector<CPacketQueue*>  m_ChannelQueues;
+	CPacketQueue                m_DeviceQueue;
+	int                         m_iSpeechFifolLevel;
+	int                         m_iChannelFifolLevel;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

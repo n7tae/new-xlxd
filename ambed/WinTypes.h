@@ -36,24 +36,28 @@ typedef void                    VOID;
 typedef USHORT                  *PUSHORT;
 typedef unsigned long long int    ULONGLONG;
 
-typedef struct _OVERLAPPED {
-    DWORD Internal;
-    DWORD InternalHigh;
-    union {
-        struct{
-            DWORD Offset;
-            DWORD OffsetHigh;
-        };
-        PVOID  Pointer;
-    };
-    HANDLE hEvent;
+typedef struct _OVERLAPPED
+{
+	DWORD Internal;
+	DWORD InternalHigh;
+	union
+	{
+		struct
+		{
+			DWORD Offset;
+			DWORD OffsetHigh;
+		};
+		PVOID  Pointer;
+	};
+	HANDLE hEvent;
 } OVERLAPPED, *LPOVERLAPPED;
 
-typedef struct _SECURITY_ATTRIBUTES {
-    DWORD nLength;
-    LPVOID lpSecurityDescriptor;
-    BOOL bInheritHandle;
-} SECURITY_ATTRIBUTES , *LPSECURITY_ATTRIBUTES;
+typedef struct _SECURITY_ATTRIBUTES
+{
+	DWORD nLength;
+	LPVOID lpSecurityDescriptor;
+	BOOL bInheritHandle;
+} SECURITY_ATTRIBUTES, *LPSECURITY_ATTRIBUTES;
 
 #include <pthread.h>
 // Substitute for HANDLE returned by Windows CreateEvent API.
@@ -61,9 +65,9 @@ typedef struct _SECURITY_ATTRIBUTES {
 // of one of these structures.
 typedef struct _EVENT_HANDLE
 {
-    pthread_cond_t  eCondVar;
-    pthread_mutex_t eMutex;
-    int             iVar;
+	pthread_cond_t  eCondVar;
+	pthread_mutex_t eMutex;
+	int             iVar;
 } EVENT_HANDLE;
 
 typedef struct timeval SYSTEMTIME;

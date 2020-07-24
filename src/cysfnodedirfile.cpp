@@ -38,7 +38,7 @@ CYsfNodeDirFile   g_YsfNodeDir;
 
 CYsfNodeDirFile::CYsfNodeDirFile()
 {
-    ::memset(&m_LastModTime, 0, sizeof(time_t));
+	::memset(&m_LastModTime, 0, sizeof(time_t));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ CYsfNodeDirFile::CYsfNodeDirFile()
 
 bool CYsfNodeDirFile::Init(void)
 {
-    return CYsfNodeDir::Init();
+	return CYsfNodeDir::Init();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -54,114 +54,114 @@ bool CYsfNodeDirFile::Init(void)
 
 bool CYsfNodeDirFile::NeedReload(void)
 {
-    bool needReload = false;
+	bool needReload = false;
 
-    time_t time;
-    if ( GetLastModTime(&time) )
-    {
-        needReload = time != m_LastModTime;
-    }
-    return needReload;
+	time_t time;
+	if ( GetLastModTime(&time) )
+	{
+		needReload = time != m_LastModTime;
+	}
+	return needReload;
 }
 
 bool CYsfNodeDirFile::LoadContent(CBuffer *buffer)
 {
-    bool ok = false;
-    std::ifstream file;
-    std::streampos size;
+	bool ok = false;
+	std::ifstream file;
+	std::streampos size;
 
-    // open file
-    file.open(YSFNODEDB_PATH, std::ios::in | std::ios::binary | std::ios::ate);
-    if ( file.is_open() )
-    {
-        // read file
-        size = file.tellg();
-        if ( size > 0 )
-        {
-            // read file into buffer
-            buffer->resize((int)size+1);
-            file.seekg (0, std::ios::beg);
-            file.read((char *)buffer->data(), (int)size);
+	// open file
+	file.open(YSFNODEDB_PATH, std::ios::in | std::ios::binary | std::ios::ate);
+	if ( file.is_open() )
+	{
+		// read file
+		size = file.tellg();
+		if ( size > 0 )
+		{
+			// read file into buffer
+			buffer->resize((int)size+1);
+			file.seekg (0, std::ios::beg);
+			file.read((char *)buffer->data(), (int)size);
 
-            // close file
-            file.close();
+			// close file
+			file.close();
 
-            // update time
-            GetLastModTime(&m_LastModTime);
+			// update time
+			GetLastModTime(&m_LastModTime);
 
-            // done
-            ok = true;
-        }
-    }
+			// done
+			ok = true;
+		}
+	}
 
-    // done
-    return ok;
+	// done
+	return ok;
 }
 
 bool CYsfNodeDirFile::RefreshContent(const CBuffer &buffer)
 {
-    bool ok = false;
+	bool ok = false;
 
-    // clear directory
-    clear();
+	// clear directory
+	clear();
 
-    // scan buffer
-    if ( buffer.size() > 0 )
-    {
-        // crack it
-        char *ptr1 = (char *)buffer.data();
-        char *ptr2;
+	// scan buffer
+	if ( buffer.size() > 0 )
+	{
+		// crack it
+		char *ptr1 = (char *)buffer.data();
+		char *ptr2;
 
-        // get next line
-        while ( (ptr2 = ::strchr(ptr1, '\n')) != nullptr )
-        {
-            *ptr2 = 0;
-            // get items
-            char *callsign;
-            char *txfreq;
-            char *rxfreq;
-            if ( ((callsign = ::strtok(ptr1, ";")) != nullptr) )
-            {
-                if ( ((txfreq = ::strtok(nullptr, ";")) != nullptr) )
-                {
-                    if ( ((rxfreq = ::strtok(nullptr, ";")) != nullptr) )
-                    {
-                        // new entry
-                        CCallsign cs(callsign);
-                        CYsfNode node(cs, atoi(txfreq), atoi(rxfreq));
-                        if ( cs.IsValid() && node.IsValid() )
-                        {
-                            insert(std::pair<CCallsign, CYsfNode>(cs, node));
-                        }
-                    }
-                }
-            }
-            // next line
-            ptr1 = ptr2+1;
-        }
+		// get next line
+		while ( (ptr2 = ::strchr(ptr1, '\n')) != nullptr )
+		{
+			*ptr2 = 0;
+			// get items
+			char *callsign;
+			char *txfreq;
+			char *rxfreq;
+			if ( ((callsign = ::strtok(ptr1, ";")) != nullptr) )
+			{
+				if ( ((txfreq = ::strtok(nullptr, ";")) != nullptr) )
+				{
+					if ( ((rxfreq = ::strtok(nullptr, ";")) != nullptr) )
+					{
+						// new entry
+						CCallsign cs(callsign);
+						CYsfNode node(cs, atoi(txfreq), atoi(rxfreq));
+						if ( cs.IsValid() && node.IsValid() )
+						{
+							insert(std::pair<CCallsign, CYsfNode>(cs, node));
+						}
+					}
+				}
+			}
+			// next line
+			ptr1 = ptr2+1;
+		}
 
-        // done
-        ok = true;
-    }
+		// done
+		ok = true;
+	}
 
 
-    // report
-    std::cout << "Read " << size() << " YSF nodes from file " << YSFNODEDB_PATH << std::endl;
+	// report
+	std::cout << "Read " << size() << " YSF nodes from file " << YSFNODEDB_PATH << std::endl;
 
-    // done
-    return ok;
+	// done
+	return ok;
 }
 
 
 bool CYsfNodeDirFile::GetLastModTime(time_t *time)
 {
-    bool ok = false;
+	bool ok = false;
 
-    struct stat fileStat;
-    if( ::stat(YSFNODEDB_PATH, &fileStat) != -1 )
-    {
-        *time = fileStat.st_mtime;
-        ok = true;
-    }
-    return ok;
+	struct stat fileStat;
+	if( ::stat(YSFNODEDB_PATH, &fileStat) != -1 )
+	{
+		*time = fileStat.st_mtime;
+		ok = true;
+	}
+	return ok;
 }

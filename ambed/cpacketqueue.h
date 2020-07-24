@@ -33,22 +33,22 @@
 class CPacketQueue : public std::queue<CPacket *>
 {
 public:
-    // constructor
-    CPacketQueue();
-    
-    // destructor
-    ~CPacketQueue();
-    
-    // lock
-    void Lock()                 { m_Mutex.lock(); }
-    void Unlock()               { m_Mutex.unlock(); }
-    
-    // purge
-    void Purge(void);
-    
+	// constructor
+	CPacketQueue();
+
+	// destructor
+	~CPacketQueue();
+
+	// lock
+	void Lock()                 { m_Mutex.lock(); }
+	void Unlock()               { m_Mutex.unlock(); }
+
+	// purge
+	void Purge(void);
+
 protected:
-    // status
-    std::mutex  m_Mutex;
+	// status
+	std::mutex  m_Mutex;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

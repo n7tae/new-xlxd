@@ -31,19 +31,19 @@
 
 CPacket::CPacket()
 {
-    m_iCh = 0;
-    m_uiPid = 0;
+	m_iCh = 0;
+	m_uiPid = 0;
 };
 
 CPacket::CPacket(uint8 uiPid)
 {
-    m_iCh = 0;
-    m_uiPid = uiPid;
+	m_iCh = 0;
+	m_uiPid = uiPid;
 }
 
 CPacket::CPacket(const CPacket &packet)
 {
-    m_iCh = packet.m_iCh;
-    m_uiPid = packet.m_uiPid;
+	m_iCh = packet.m_iCh;
+	m_uiPid = packet.m_uiPid;
 };
 

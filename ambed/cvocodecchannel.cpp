@@ -32,13 +32,13 @@
 
 CVocodecChannel::CVocodecChannel(CVocodecInterface *InterfaceIn, int iChIn, CVocodecInterface *InterfaceOut, int iChOut, int iSpeechGain)
 {
-    m_bOpen = false;
-    m_InterfaceIn = InterfaceIn;
-    m_iChannelIn = iChIn;
-    m_InterfaceOut = InterfaceOut;
-    m_iChannelOut = iChOut;
-    m_iSpeechGain = iSpeechGain;
-    m_signalProcessor = new CSignalProcessor((float)m_iSpeechGain);
+	m_bOpen = false;
+	m_InterfaceIn = InterfaceIn;
+	m_iChannelIn = iChIn;
+	m_InterfaceOut = InterfaceOut;
+	m_iChannelOut = iChOut;
+	m_iSpeechGain = iSpeechGain;
+	m_signalProcessor = new CSignalProcessor((float)m_iSpeechGain);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -46,8 +46,8 @@ CVocodecChannel::CVocodecChannel(CVocodecInterface *InterfaceIn, int iChIn, CVoc
 
 CVocodecChannel::~CVocodecChannel()
 {
-    PurgeAllQueues();
-    delete m_signalProcessor;
+	PurgeAllQueues();
+	delete m_signalProcessor;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -55,29 +55,29 @@ CVocodecChannel::~CVocodecChannel()
 
 bool CVocodecChannel::Open(void)
 {
-    bool ok = false;
-    if ( !m_bOpen )
-    {
-        m_bOpen = true;
-        ok = true;
-        PurgeAllQueues();
-        std::cout << "Vocodec channel " <<
-            m_InterfaceIn->GetName() << ":" << (int)m_iChannelIn << " -> " <<
-            m_InterfaceOut->GetName() << ":" << (int)m_iChannelOut << " open" << std::endl;
-    }
-    return ok;
+	bool ok = false;
+	if ( !m_bOpen )
+	{
+		m_bOpen = true;
+		ok = true;
+		PurgeAllQueues();
+		std::cout << "Vocodec channel " <<
+				  m_InterfaceIn->GetName() << ":" << (int)m_iChannelIn << " -> " <<
+				  m_InterfaceOut->GetName() << ":" << (int)m_iChannelOut << " open" << std::endl;
+	}
+	return ok;
 }
 
 void CVocodecChannel::Close(void)
 {
-    if ( m_bOpen )
-    {
-        m_bOpen = false;
-        PurgeAllQueues();
-        std::cout << "Vocodec channel " <<
-        m_InterfaceIn->GetName() << ":" << (int)m_iChannelIn << " -> " <<
-        m_InterfaceOut->GetName() << ":" << (int)m_iChannelOut << " closed" << std::endl;
-    }
+	if ( m_bOpen )
+	{
+		m_bOpen = false;
+		PurgeAllQueues();
+		std::cout << "Vocodec channel " <<
+				  m_InterfaceIn->GetName() << ":" << (int)m_iChannelIn << " -> " <<
+				  m_InterfaceOut->GetName() << ":" << (int)m_iChannelOut << " closed" << std::endl;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -85,12 +85,12 @@ void CVocodecChannel::Close(void)
 
 uint8 CVocodecChannel::GetCodecIn(void) const
 {
-    return m_InterfaceIn->GetChannelCodec(m_iChannelIn);
+	return m_InterfaceIn->GetChannelCodec(m_iChannelIn);
 }
 
 uint8 CVocodecChannel::GetCodecOut(void) const
 {
-    return m_InterfaceOut->GetChannelCodec(m_iChannelOut);
+	return m_InterfaceOut->GetChannelCodec(m_iChannelOut);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -98,7 +98,7 @@ uint8 CVocodecChannel::GetCodecOut(void) const
 
 void CVocodecChannel::ProcessSignal(CVoicePacket& voicePacket)
 {
-    m_signalProcessor->Process(voicePacket.GetVoice(), voicePacket.GetVoiceSize());
+	m_signalProcessor->Process(voicePacket.GetVoice(), voicePacket.GetVoiceSize());
 }
 
 
@@ -107,12 +107,12 @@ void CVocodecChannel::ProcessSignal(CVoicePacket& voicePacket)
 
 void CVocodecChannel::PurgeAllQueues(void)
 {
-    GetPacketQueueIn()->Purge();
-    ReleasePacketQueueIn();
-    GetPacketQueueOut()->Purge();
-    ReleasePacketQueueOut();
-    GetVoiceQueue()->Purge();
-    ReleaseVoiceQueue();
+	GetPacketQueueIn()->Purge();
+	ReleasePacketQueueIn();
+	GetPacketQueueOut()->Purge();
+	ReleasePacketQueueOut();
+	GetVoiceQueue()->Purge();
+	ReleaseVoiceQueue();
 }
 
 

@@ -34,9 +34,9 @@
 class CYsfUtils
 {
 public:
-    // operation
-    static void DecodeVD2Vchs(uint8 *, uint8 **);
-    static void EncodeVD2Vch(uint8 *, uint8 *);
+	// operation
+	static void DecodeVD2Vchs(uint8 *, uint8 **);
+	static void EncodeVD2Vch(uint8 *, uint8 *);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

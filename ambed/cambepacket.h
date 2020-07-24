@@ -40,30 +40,30 @@
 class CAmbePacket : public CPacket
 {
 public:
-    // constructors
-    CAmbePacket();
-    CAmbePacket(uint8, uint8, const uint8 *);
-    CAmbePacket(const CAmbePacket &);
-    
-    // destructor
-    virtual ~CAmbePacket();
-    
-    // identity
-    bool IsAmbe(void) const         { return true; }
-    
-    // get
-    uint8  GetCodec(void) const     { return m_uiCodec; }
-    uint8 *GetAmbe(void)            { return m_uiAmbe; }
-    int   GetAmbeSize(void) const   { return AMBE_SIZE; }
-    
-    // set
-    void   SetCodec(uint8 c)        { m_uiCodec = c; }
-    void   SetAmbe(const uint8 *);
-    
+	// constructors
+	CAmbePacket();
+	CAmbePacket(uint8, uint8, const uint8 *);
+	CAmbePacket(const CAmbePacket &);
+
+	// destructor
+	virtual ~CAmbePacket();
+
+	// identity
+	bool IsAmbe(void) const         { return true; }
+
+	// get
+	uint8  GetCodec(void) const     { return m_uiCodec; }
+	uint8 *GetAmbe(void)            { return m_uiAmbe; }
+	int   GetAmbeSize(void) const   { return AMBE_SIZE; }
+
+	// set
+	void   SetCodec(uint8 c)        { m_uiCodec = c; }
+	void   SetAmbe(const uint8 *);
+
 protected:
-    // data
-    uint8   m_uiCodec;
-    uint8   m_uiAmbe[AMBE_SIZE];
+	// data
+	uint8   m_uiCodec;
+	uint8   m_uiAmbe[AMBE_SIZE];
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

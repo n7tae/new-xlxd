@@ -35,24 +35,24 @@
 
 int main()
 {
-    // initialize ambeserver
-    g_AmbeServer.SetListenIp(TRANSCODER_IP);
+	// initialize ambeserver
+	g_AmbeServer.SetListenIp(TRANSCODER_IP);
 
-    // and let it run
-    std::cout << "Starting AMBEd " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_REVISION << std::endl << std::endl;
-    if ( ! g_AmbeServer.Start() )
-    {
-        std::cout << "Error starting AMBEd" << std::endl;
-        return EXIT_FAILURE;
-    }
-    std::cout << "AMBEd started and listening on " << g_AmbeServer.GetListenIp() << std::endl;
+	// and let it run
+	std::cout << "Starting AMBEd " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_REVISION << std::endl << std::endl;
+	if ( ! g_AmbeServer.Start() )
+	{
+		std::cout << "Error starting AMBEd" << std::endl;
+		return EXIT_FAILURE;
+	}
+	std::cout << "AMBEd started and listening on " << g_AmbeServer.GetListenIp() << std::endl;
 
 	pause(); // wait for any signal
 
-    // and wait for end
-    g_AmbeServer.Stop();
-    std::cout << "AMBEd stopped" << std::endl;
+	// and wait for end
+	g_AmbeServer.Stop();
+	std::cout << "AMBEd stopped" << std::endl;
 
-    // done
-    return EXIT_SUCCESS;
+	// done
+	return EXIT_SUCCESS;
 }

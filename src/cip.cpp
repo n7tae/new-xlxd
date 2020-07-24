@@ -39,7 +39,8 @@ CIp::CIp(const char *address, int family, int type, uint16_t port) : is_set(true
 	bzero(&hints, sizeof(struct addrinfo));
 	hints.ai_family = family;
 	hints.ai_socktype = type;
-	if (0 == getaddrinfo(address, (port ? std::to_string(port).c_str() : nullptr), &hints, &result)) {
+	if (0 == getaddrinfo(address, (port ? std::to_string(port).c_str() : nullptr), &hints, &result))
+	{
 		memcpy(&addr, result->ai_addr, result->ai_addrlen);
 		addr.ss_family = result->ai_family;
 		freeaddrinfo(result);
@@ -248,7 +249,8 @@ uint16_t CIp::GetPort() const
 	{
 		auto addr6 = (struct sockaddr_in6 *)&addr;
 		return ntohs(addr6->sin6_port);
-	} else
+	}
+	else
 		return 0;
 }
 

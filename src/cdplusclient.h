@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #ifndef cdplusclient_h
@@ -37,29 +37,29 @@
 class CDplusClient : public CClient
 {
 public:
-    // constructors
-    CDplusClient();
-    CDplusClient(const CCallsign &, const CIp &, char = ' ');
-    CDplusClient(const CDplusClient &);
-    
-    // destructor
-    virtual ~CDplusClient() {};
-    
-    // identity
-    int GetProtocol(void) const                 { return PROTOCOL_DPLUS; }
-    const char *GetProtocolName(void) const     { return "DPlus"; }
-    int GetCodec(void) const                    { return CODEC_AMBEPLUS; }
-    bool IsNode(void) const                     { return true; }
-    bool IsDextraDongle(void) const             { return m_bDextraDongle; }
-    void SetDextraDongle(void)                  { m_bDextraDongle = true; }
-    
-    // status
-    bool IsAlive(void) const;
-    void SetMasterOfModule(char);
-    
+	// constructors
+	CDplusClient();
+	CDplusClient(const CCallsign &, const CIp &, char = ' ');
+	CDplusClient(const CDplusClient &);
+
+	// destructor
+	virtual ~CDplusClient() {};
+
+	// identity
+	int GetProtocol(void) const                 { return PROTOCOL_DPLUS; }
+	const char *GetProtocolName(void) const     { return "DPlus"; }
+	int GetCodec(void) const                    { return CODEC_AMBEPLUS; }
+	bool IsNode(void) const                     { return true; }
+	bool IsDextraDongle(void) const             { return m_bDextraDongle; }
+	void SetDextraDongle(void)                  { m_bDextraDongle = true; }
+
+	// status
+	bool IsAlive(void) const;
+	void SetMasterOfModule(char);
+
 protected:
-    // data
-    bool m_bDextraDongle;
+	// data
+	bool m_bDextraDongle;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

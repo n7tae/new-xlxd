@@ -39,20 +39,20 @@
 class CPeers
 {
 public:
-    // constructors
-    CPeers();
+	// constructors
+	CPeers();
 
-    // destructors
-    virtual ~CPeers();
+	// destructors
+	virtual ~CPeers();
 
-    // locks
-    void Lock(void)                     { m_Mutex.lock(); }
-    void Unlock(void)                   { m_Mutex.unlock(); }
+	// locks
+	void Lock(void)   { m_Mutex.lock(); }
+	void Unlock(void) { m_Mutex.unlock(); }
 
-    // manage peers
-    int     GetSize(void) const         { return (int)m_Peers.size(); }
-    void    AddPeer(std::shared_ptr<CPeer>);
-    void    RemovePeer(std::shared_ptr<CPeer>);
+	// manage peers
+	int  GetSize(void) const { return (int)m_Peers.size(); }
+	void AddPeer(std::shared_ptr<CPeer>);
+	void RemovePeer(std::shared_ptr<CPeer>);
 
 	// pass-thru
 	std::list<std::shared_ptr<CPeer>>::iterator begin()              { return m_Peers.begin(); }
@@ -60,18 +60,18 @@ public:
 	std::list<std::shared_ptr<CPeer>>::const_iterator cbegin() const { return m_Peers.cbegin(); }
 	std::list<std::shared_ptr<CPeer>>::const_iterator cend() const   { return m_Peers.cend(); }
 
-    // find peers
-    std::shared_ptr<CPeer> FindPeer(const CIp &, int);
-    std::shared_ptr<CPeer> FindPeer(const CCallsign &, const CIp &, int);
-    std::shared_ptr<CPeer> FindPeer(const CCallsign &, int);
+	// find peers
+	std::shared_ptr<CPeer> FindPeer(const CIp &, int);
+	std::shared_ptr<CPeer> FindPeer(const CCallsign &, const CIp &, int);
+	std::shared_ptr<CPeer> FindPeer(const CCallsign &, int);
 
-    // iterate on peers
-    std::shared_ptr<CPeer> FindNextPeer(int, std::list<std::shared_ptr<CPeer>>::iterator &);
+	// iterate on peers
+	std::shared_ptr<CPeer> FindNextPeer(int, std::list<std::shared_ptr<CPeer>>::iterator &);
 
 protected:
-    // data
-    std::mutex         m_Mutex;
-    std::list<std::shared_ptr<CPeer>> m_Peers;
+	// data
+	std::mutex         m_Mutex;
+	std::list<std::shared_ptr<CPeer>> m_Peers;
 };
 
 

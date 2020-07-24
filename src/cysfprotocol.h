@@ -58,86 +58,86 @@
 class CYsfStreamCacheItem
 {
 public:
-    CYsfStreamCacheItem()     {}
-    ~CYsfStreamCacheItem()    {}
+	CYsfStreamCacheItem()     {}
+	~CYsfStreamCacheItem()    {}
 
-    CDvHeaderPacket m_dvHeader;
-    CDvFramePacket  m_dvFrames[5];
+	CDvHeaderPacket m_dvHeader;
+	CDvFramePacket  m_dvFrames[5];
 
-    //uint8  m_uiSeqId;
+	//uint8  m_uiSeqId;
 };
 
 class CYsfProtocol : public CProtocol
 {
 public:
-    // constructor
-    CYsfProtocol();
+	// constructor
+	CYsfProtocol();
 
-    // destructor
-    ~CYsfProtocol() {}
+	// destructor
+	~CYsfProtocol() {}
 
-    // initialization
-    bool Initalize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6);
-    void Close(void);
+	// initialization
+	bool Initalize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6);
+	void Close(void);
 
-    // task
-    void Task(void);
-
-protected:
-    // queue helper
-    void HandleQueue(void);
-
-    // keepalive helpers
-    void HandleKeepalives(void);
-
-    // stream helpers
-    bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &);
-
-    // DV packet decoding helpers
-    bool IsValidConnectPacket(const CBuffer &, CCallsign *);
-    //bool IsValidDisconnectPacket(const CBuffer &, CCallsign *);
-    bool IsValidDvPacket(const CBuffer &, CYSFFICH *);
-    bool IsValidDvHeaderPacket(const CIp &, const CYSFFICH &, const CBuffer &, CDvHeaderPacket **, CDvFramePacket **);
-    bool IsValidDvFramePacket(const CIp &, const CYSFFICH &, const CBuffer &, CDvFramePacket **);
-    bool IsValidDvLastFramePacket(const CIp &, const CYSFFICH &, const CBuffer &, CDvFramePacket **);
-
-    // DV packet encoding helpers
-    void EncodeConnectAckPacket(CBuffer *) const;
-    //void EncodeConnectNackPacket(const CCallsign &, char, CBuffer *);
-    //void EncodeDisconnectPacket(CBuffer *, std::shared_ptr<CClient>);
-    bool EncodeDvHeaderPacket(const CDvHeaderPacket &, CBuffer *) const;
-    bool EncodeDvPacket(const CDvHeaderPacket &, const CDvFramePacket *, CBuffer *) const;
-    bool EncodeDvLastPacket(const CDvHeaderPacket &, CBuffer *) const;
-
-    // Wires-X packet decoding helpers
-    bool IsValidwirexPacket(const CBuffer &, CYSFFICH *, CCallsign *, int *, int*);
-
-    // server status packet decoding helpers
-    bool IsValidServerStatusPacket(const CBuffer &) const;
-    uint32 CalcHash(const uint8 *, int) const;
-
-    // server status packet encoding helpers
-    bool EncodeServerStatusPacket(CBuffer *) const;
-
-    // uiStreamId helpers
-    uint32 IpToStreamId(const CIp &) const;
-
-    // debug
-    bool DebugTestDecodePacket(const CBuffer &);
-    bool DebugDumpHeaderPacket(const CBuffer &);
-    bool DebugDumpDvPacket(const CBuffer &);
-    bool DebugDumpLastDvPacket(const CBuffer &);
+	// task
+	void Task(void);
 
 protected:
-    // for keep alive
-    CTimePoint          m_LastKeepaliveTime;
+	// queue helper
+	void HandleQueue(void);
 
-    // for queue header caches
-    std::array<CYsfStreamCacheItem, NB_OF_MODULES>    m_StreamsCache;
+	// keepalive helpers
+	void HandleKeepalives(void);
 
-    // for wires-x
-    CWiresxCmdHandler   m_WiresxCmdHandler;
-    unsigned char m_seqNo;
+	// stream helpers
+	bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &);
+
+	// DV packet decoding helpers
+	bool IsValidConnectPacket(const CBuffer &, CCallsign *);
+	//bool IsValidDisconnectPacket(const CBuffer &, CCallsign *);
+	bool IsValidDvPacket(const CBuffer &, CYSFFICH *);
+	bool IsValidDvHeaderPacket(const CIp &, const CYSFFICH &, const CBuffer &, CDvHeaderPacket **, CDvFramePacket **);
+	bool IsValidDvFramePacket(const CIp &, const CYSFFICH &, const CBuffer &, CDvFramePacket **);
+	bool IsValidDvLastFramePacket(const CIp &, const CYSFFICH &, const CBuffer &, CDvFramePacket **);
+
+	// DV packet encoding helpers
+	void EncodeConnectAckPacket(CBuffer *) const;
+	//void EncodeConnectNackPacket(const CCallsign &, char, CBuffer *);
+	//void EncodeDisconnectPacket(CBuffer *, std::shared_ptr<CClient>);
+	bool EncodeDvHeaderPacket(const CDvHeaderPacket &, CBuffer *) const;
+	bool EncodeDvPacket(const CDvHeaderPacket &, const CDvFramePacket *, CBuffer *) const;
+	bool EncodeDvLastPacket(const CDvHeaderPacket &, CBuffer *) const;
+
+	// Wires-X packet decoding helpers
+	bool IsValidwirexPacket(const CBuffer &, CYSFFICH *, CCallsign *, int *, int*);
+
+	// server status packet decoding helpers
+	bool IsValidServerStatusPacket(const CBuffer &) const;
+	uint32 CalcHash(const uint8 *, int) const;
+
+	// server status packet encoding helpers
+	bool EncodeServerStatusPacket(CBuffer *) const;
+
+	// uiStreamId helpers
+	uint32 IpToStreamId(const CIp &) const;
+
+	// debug
+	bool DebugTestDecodePacket(const CBuffer &);
+	bool DebugDumpHeaderPacket(const CBuffer &);
+	bool DebugDumpDvPacket(const CBuffer &);
+	bool DebugDumpLastDvPacket(const CBuffer &);
+
+protected:
+	// for keep alive
+	CTimePoint          m_LastKeepaliveTime;
+
+	// for queue header caches
+	std::array<CYsfStreamCacheItem, NB_OF_MODULES>    m_StreamsCache;
+
+	// for wires-x
+	CWiresxCmdHandler   m_WiresxCmdHandler;
+	unsigned char m_seqNo;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

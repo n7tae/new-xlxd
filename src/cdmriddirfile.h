@@ -32,28 +32,28 @@
 class CDmridDirFile : public CDmridDir
 {
 public:
-    // constructor
-    CDmridDirFile();
-    
-    // destructor
-    ~CDmridDirFile() {}
-    
-    // init & close
-    bool Init(void);
-    
-    // refresh
-    bool LoadContent(CBuffer *);
-    bool RefreshContent(const CBuffer &);
-    
+	// constructor
+	CDmridDirFile();
+
+	// destructor
+	~CDmridDirFile() {}
+
+	// init & close
+	bool Init(void);
+
+	// refresh
+	bool LoadContent(CBuffer *);
+	bool RefreshContent(const CBuffer &);
+
 protected:
-    // reload helpers
-    bool NeedReload(void);
-    bool GetLastModTime(time_t *);
-    
+	// reload helpers
+	bool NeedReload(void);
+	bool GetLastModTime(time_t *);
+
 protected:
-    // data
-    time_t      m_LastModTime;
- };
+	// data
+	time_t      m_LastModTime;
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////
 #endif /* cdmrididirfile_h */

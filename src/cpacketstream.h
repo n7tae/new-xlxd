@@ -41,39 +41,39 @@
 class CPacketStream : public CPacketQueue
 {
 public:
-    // constructor
-    CPacketStream();
+	// constructor
+	CPacketStream();
 
-    // destructor
-    virtual ~CPacketStream() {}
+	// destructor
+	virtual ~CPacketStream() {}
 
-    // open / close
-    bool Open(const CDvHeaderPacket &, std::shared_ptr<CClient>);
-    void Close(void);
+	// open / close
+	bool Open(const CDvHeaderPacket &, std::shared_ptr<CClient>);
+	void Close(void);
 
-    // push & pop
-    void Push(CPacket *);
-    void Tickle(void)                               { m_LastPacketTime.Now(); }
-    bool IsEmpty(void) const;
+	// push & pop
+	void Push(CPacket *);
+	void Tickle(void)                               { m_LastPacketTime.Now(); }
+	bool IsEmpty(void) const;
 
-    // get
-    std::shared_ptr<CClient> GetOwnerClient(void)   { return m_OwnerClient; }
-    const CIp       *GetOwnerIp(void);
-    bool            IsExpired(void) const           { return (m_LastPacketTime.DurationSinceNow() > STREAM_TIMEOUT); }
-    bool            IsOpen(void) const              { return m_bOpen; }
-    uint16          GetStreamId(void) const         { return m_uiStreamId; }
-    const CCallsign &GetUserCallsign(void) const    { return m_DvHeader.GetMyCallsign(); }
+	// get
+	std::shared_ptr<CClient> GetOwnerClient(void)   { return m_OwnerClient; }
+	const CIp       *GetOwnerIp(void);
+	bool            IsExpired(void) const           { return (m_LastPacketTime.DurationSinceNow() > STREAM_TIMEOUT); }
+	bool            IsOpen(void) const              { return m_bOpen; }
+	uint16          GetStreamId(void) const         { return m_uiStreamId; }
+	const CCallsign &GetUserCallsign(void) const    { return m_DvHeader.GetMyCallsign(); }
 
 protected:
-    // data
-    bool                m_bOpen;
-    uint16              m_uiStreamId;
-    uint32              m_uiPacketCntr;
-    std::shared_ptr<CClient> m_OwnerClient;
-    CTimePoint          m_LastPacketTime;
-    CDvHeaderPacket     m_DvHeader;
+	// data
+	bool                m_bOpen;
+	uint16              m_uiStreamId;
+	uint32              m_uiPacketCntr;
+	std::shared_ptr<CClient> m_OwnerClient;
+	CTimePoint          m_LastPacketTime;
+	CDvHeaderPacket     m_DvHeader;
 #ifdef TRANSCODER_IP
-    CCodecStream        *m_CodecStream;
+	CCodecStream        *m_CodecStream;
 #endif
 };
 

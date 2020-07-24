@@ -30,16 +30,16 @@
 
 CVersion::CVersion()
 {
-    m_iMajor = 0;
-    m_iMinor = 0;
-    m_iRevision = 0;
+	m_iMajor = 0;
+	m_iMinor = 0;
+	m_iRevision = 0;
 }
 
 CVersion::CVersion(int iMajor, int iMinor, int iRevision)
 {
-    m_iMajor = iMajor;
-    m_iMinor = iMinor;
-    m_iRevision = iRevision;
+	m_iMajor = iMajor;
+	m_iMinor = iMinor;
+	m_iRevision = iRevision;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -47,25 +47,25 @@ CVersion::CVersion(int iMajor, int iMinor, int iRevision)
 
 bool CVersion::IsEqualOrHigherTo(const CVersion &version) const
 {
-    if ( m_iMajor > version.m_iMajor )
-    {
-        return true;
-    }
-    else if ( m_iMajor == version.m_iMajor )
-    {
-        if ( m_iMinor > version.m_iMinor )
-        {
-            return true;
-        }
-        else if ( m_iMinor == version.m_iMinor )
-        {
-            if ( m_iRevision >= version.m_iRevision )
-            {
-                return true;
-            }
-        }
-    }
-    return false;
+	if ( m_iMajor > version.m_iMajor )
+	{
+		return true;
+	}
+	else if ( m_iMajor == version.m_iMajor )
+	{
+		if ( m_iMinor > version.m_iMinor )
+		{
+			return true;
+		}
+		else if ( m_iMinor == version.m_iMinor )
+		{
+			if ( m_iRevision >= version.m_iRevision )
+			{
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ bool CVersion::IsEqualOrHigherTo(const CVersion &version) const
 
 bool CVersion::operator ==(const CVersion &Version) const
 {
-    return ( (Version.m_iMajor == m_iMajor) &&
-             (Version.m_iMinor == m_iMinor) &&
-             (Version.m_iRevision == m_iRevision )) ;
+	return ( (Version.m_iMajor == m_iMajor) &&
+			 (Version.m_iMinor == m_iMinor) &&
+			 (Version.m_iRevision == m_iRevision )) ;
 }

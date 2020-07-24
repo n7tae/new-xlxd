@@ -39,17 +39,17 @@
 class CUdpMsgSocket : public CUdpSocket
 {
 public:
-    // open
-    bool Open(const CIp &ip);
+	// open
+	bool Open(const CIp &ip);
 
-    // read
-    int Receive(CBuffer *, CIp *, int);
+	// read
+	int Receive(CBuffer *, CIp *, int);
 
-    struct in_addr *GetLocalAddr(void)   { return &m_LocalAddr; }
+	struct in_addr *GetLocalAddr(void)   { return &m_LocalAddr; }
 
 protected:
-    // data
-    struct in_addr      m_LocalAddr;
+	// data
+	struct in_addr      m_LocalAddr;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

@@ -46,69 +46,69 @@ class CPacketStream;
 class CCodecStream : public CPacketQueue
 {
 public:
-    // constructor
-    CCodecStream(CPacketStream *, uint16, uint8, uint8);
+	// constructor
+	CCodecStream(CPacketStream *, uint16, uint8, uint8);
 
-    // destructor
-    virtual ~CCodecStream();
+	// destructor
+	virtual ~CCodecStream();
 
-    // initialization
-    bool Init(uint16);
-    void Close(void);
+	// initialization
+	bool Init(uint16);
+	void Close(void);
 
-    // get
-    bool   IsConnected(void) const          { return m_bConnected; }
-    uint16 GetStreamId(void) const          { return m_uiStreamId; }
-    double GetPingMin(void) const           { return m_fPingMin; }
-    double GetPingMax(void) const           { return m_fPingMax; }
-    double GetPingAve(void) const           { return (m_fPingCount != 0) ? m_fPingSum/m_fPingCount : 0; }
-    uint32 GetTotalPackets(void) const      { return m_uiTotalPackets; }
-    uint32 GetTimeoutPackets(void) const    { return m_uiTimeoutPackets; }
-    bool   IsEmpty(void) const;
+	// get
+	bool   IsConnected(void) const          { return m_bConnected; }
+	uint16 GetStreamId(void) const          { return m_uiStreamId; }
+	double GetPingMin(void) const           { return m_fPingMin; }
+	double GetPingMax(void) const           { return m_fPingMax; }
+	double GetPingAve(void) const           { return (m_fPingCount != 0) ? m_fPingSum/m_fPingCount : 0; }
+	uint32 GetTotalPackets(void) const      { return m_uiTotalPackets; }
+	uint32 GetTimeoutPackets(void) const    { return m_uiTimeoutPackets; }
+	bool   IsEmpty(void) const;
 
-    // task
-    static void Thread(CCodecStream *);
-    void Task(void);
-
-
-protected:
-    // packet decoding helpers
-    bool IsValidAmbePacket(const CBuffer &, uint8 *);
-
-    // packet encoding helpers
-    void EncodeAmbePacket(CBuffer *, const uint8 *);
+	// task
+	static void Thread(CCodecStream *);
+	void Task(void);
 
 
 protected:
-    // data
-    uint16          m_uiStreamId;
-    uint16          m_uiPort;
-    uint8           m_uiPid;
-    uint8           m_uiCodecIn;
-    uint8           m_uiCodecOut;
+	// packet decoding helpers
+	bool IsValidAmbePacket(const CBuffer &, uint8 *);
 
-    // socket
-    CIp             m_Ip;
-    CUdpSocket      m_Socket;
-    bool            m_bConnected;
+	// packet encoding helpers
+	void EncodeAmbePacket(CBuffer *, const uint8 *);
 
-    // associated packet stream
-    CPacketStream   *m_PacketStream;
-    CPacketQueue    m_LocalQueue;
 
-    // thread
-    std::atomic<bool> keep_running;
-    std::thread     *m_pThread;
-    CTimePoint      m_TimeoutTimer;
-    CTimePoint      m_StatsTimer;
+protected:
+	// data
+	uint16          m_uiStreamId;
+	uint16          m_uiPort;
+	uint8           m_uiPid;
+	uint8           m_uiCodecIn;
+	uint8           m_uiCodecOut;
 
-    // statistics
-    double          m_fPingMin;
-    double          m_fPingMax;
-    double          m_fPingSum;
-    double          m_fPingCount;
-    uint32          m_uiTotalPackets;
-    uint32          m_uiTimeoutPackets;
+	// socket
+	CIp             m_Ip;
+	CUdpSocket      m_Socket;
+	bool            m_bConnected;
+
+	// associated packet stream
+	CPacketStream   *m_PacketStream;
+	CPacketQueue    m_LocalQueue;
+
+	// thread
+	std::atomic<bool> keep_running;
+	std::thread     *m_pThread;
+	CTimePoint      m_TimeoutTimer;
+	CTimePoint      m_StatsTimer;
+
+	// statistics
+	double          m_fPingMin;
+	double          m_fPingMax;
+	double          m_fPingSum;
+	double          m_fPingCount;
+	uint32          m_uiTotalPackets;
+	uint32          m_uiTimeoutPackets;
 };
 
 

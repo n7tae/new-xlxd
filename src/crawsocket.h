@@ -19,11 +19,11 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 // Description:
-//    Raw socket access class with protocol specific 
+//    Raw socket access class with protocol specific
 
 
 #ifndef crawsocket_h
@@ -53,46 +53,46 @@
 class CRawSocket
 {
 public:
-    // constructor
-    CRawSocket();
-    
-    // destructor
-    ~CRawSocket();
-    
-    // open & close
-    bool Open(uint16);
-    void Close(void);
-    int  GetSocket(void)        { return m_Socket; }
-    
-    // read
+	// constructor
+	CRawSocket();
 
-    // if ETH_P_ALL is used, the received data buffer will hold
-    // the ethernet header (struct ethhdr) followed by the IP header (struct iphdr),
-    // the protocol header (e.g tcp, udp, icmp) and the data.
-    // For specific protocols, the data content may vary depending on the protocol
-    // Returns the number of received bytes in buffer
+	// destructor
+	~CRawSocket();
 
-    int Receive(CBuffer *, CIp *, int);
+	// open & close
+	bool Open(uint16);
+	void Close(void);
+	int  GetSocket(void)        { return m_Socket; }
 
-    // ICMP receive helper
-    // parameters:
-    //   buffer - packet receive buffer (starting with ip header)
-    //   ip - remote address (filled in on receive)
-    //   timeout - receive timeout in msec
-    // return value:
-    //   ICMP type, -1 if nothing was received
+	// read
 
-    int IcmpReceive(CBuffer *, CIp *, int);
+	// if ETH_P_ALL is used, the received data buffer will hold
+	// the ethernet header (struct ethhdr) followed by the IP header (struct iphdr),
+	// the protocol header (e.g tcp, udp, icmp) and the data.
+	// For specific protocols, the data content may vary depending on the protocol
+	// Returns the number of received bytes in buffer
 
-    // write
-    // no write support - complexity makes it out of scope for now
-    // to be added if needed
+	int Receive(CBuffer *, CIp *, int);
+
+	// ICMP receive helper
+	// parameters:
+	//   buffer - packet receive buffer (starting with ip header)
+	//   ip - remote address (filled in on receive)
+	//   timeout - receive timeout in msec
+	// return value:
+	//   ICMP type, -1 if nothing was received
+
+	int IcmpReceive(CBuffer *, CIp *, int);
+
+	// write
+	// no write support - complexity makes it out of scope for now
+	// to be added if needed
 
 protected:
-    // data
-    int                 m_Socket;
-    int                 m_Proto;
-    struct sockaddr_in  m_SocketAddr;
+	// data
+	int                 m_Socket;
+	int                 m_Proto;
+	struct sockaddr_in  m_SocketAddr;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

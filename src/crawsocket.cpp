@@ -33,7 +33,7 @@
 
 CRawSocket::CRawSocket()
 {
-    m_Socket = -1;
+	m_Socket = -1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -41,10 +41,10 @@ CRawSocket::CRawSocket()
 
 CRawSocket::~CRawSocket()
 {
-    if ( m_Socket != -1 )
-    {
-        Close();
-    }
+	if ( m_Socket != -1 )
+	{
+		Close();
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -52,29 +52,29 @@ CRawSocket::~CRawSocket()
 
 bool CRawSocket::Open(uint16 uiProto)
 {
-    bool open = false;
-    int on = 1;
+	bool open = false;
+	int on = 1;
 
-    // create socket
-    m_Socket = socket(AF_INET,SOCK_RAW,uiProto);
-    if ( m_Socket != -1 )
-    {
-        fcntl(m_Socket, F_SETFL, O_NONBLOCK);
-        open = true;
-        m_Proto = uiProto;
-    }
+	// create socket
+	m_Socket = socket(AF_INET,SOCK_RAW,uiProto);
+	if ( m_Socket != -1 )
+	{
+		fcntl(m_Socket, F_SETFL, O_NONBLOCK);
+		open = true;
+		m_Proto = uiProto;
+	}
 
-    // done
-    return open;
+	// done
+	return open;
 }
 
 void CRawSocket::Close(void)
 {
-    if ( m_Socket != -1 )
-    {
-        close(m_Socket);
-        m_Socket = -1;
-    }
+	if ( m_Socket != -1 )
+	{
+		close(m_Socket);
+		m_Socket = -1;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -82,43 +82,43 @@ void CRawSocket::Close(void)
 
 int CRawSocket::Receive(CBuffer *Buffer, CIp *Ip, int timeout)
 {
-    struct sockaddr_in Sin;
-    fd_set FdSet;
-    unsigned int uiFromLen = sizeof(struct sockaddr_in);
-    int iRecvLen = -1;
-    struct timeval tv;
+	struct sockaddr_in Sin;
+	fd_set FdSet;
+	unsigned int uiFromLen = sizeof(struct sockaddr_in);
+	int iRecvLen = -1;
+	struct timeval tv;
 
-    // socket valid ?
-    if ( m_Socket != -1 )
-    {
-        // allocate buffer
-        Buffer->resize(UDP_BUFFER_LENMAX);
+	// socket valid ?
+	if ( m_Socket != -1 )
+	{
+		// allocate buffer
+		Buffer->resize(UDP_BUFFER_LENMAX);
 
-        // control socket
-        FD_ZERO(&FdSet);
-        FD_SET(m_Socket, &FdSet);
-        tv.tv_sec = timeout / 1000;
-        tv.tv_usec = (timeout % 1000) * 1000;
-        select(m_Socket + 1, &FdSet, 0, 0, &tv);
+		// control socket
+		FD_ZERO(&FdSet);
+		FD_SET(m_Socket, &FdSet);
+		tv.tv_sec = timeout / 1000;
+		tv.tv_usec = (timeout % 1000) * 1000;
+		select(m_Socket + 1, &FdSet, 0, 0, &tv);
 
-        // read
-        iRecvLen = (int)recvfrom(m_Socket,
-            (void *)Buffer->data(), RAW_BUFFER_LENMAX,
-            0, (struct sockaddr *)&Sin, &uiFromLen);
+		// read
+		iRecvLen = (int)recvfrom(m_Socket,
+								 (void *)Buffer->data(), RAW_BUFFER_LENMAX,
+								 0, (struct sockaddr *)&Sin, &uiFromLen);
 
-        // handle
-        if ( iRecvLen != -1 )
-        {
-            // adjust buffer size
-            Buffer->resize(iRecvLen);
+		// handle
+		if ( iRecvLen != -1 )
+		{
+			// adjust buffer size
+			Buffer->resize(iRecvLen);
 
-            // get IP
-            memcpy(Ip->GetPointer(), &Sin, sizeof(struct sockaddr_in));
-        }
-    }
+			// get IP
+			memcpy(Ip->GetPointer(), &Sin, sizeof(struct sockaddr_in));
+		}
+	}
 
-    // done
-    return iRecvLen;
+	// done
+	return iRecvLen;
 }
 
 // protocol specific
@@ -127,30 +127,30 @@ int CRawSocket::Receive(CBuffer *Buffer, CIp *Ip, int timeout)
 
 int CRawSocket::IcmpReceive(CBuffer *Buffer, CIp *Ip, int timeout)
 {
-    int iIcmpType = -1;
-    int iRecv;
+	int iIcmpType = -1;
+	int iRecv;
 
-    if (m_Proto == IPPROTO_ICMP)
-    {
-        iRecv = Receive(Buffer, Ip, timeout);
+	if (m_Proto == IPPROTO_ICMP)
+	{
+		iRecv = Receive(Buffer, Ip, timeout);
 
-        if (iRecv >= (int)(sizeof(struct ip) + sizeof(struct icmp)))
-        {
-            struct ip *iph = (struct ip *)Buffer->data();
-            int iphdrlen = iph->ip_hl * 4;
-            struct icmp *icmph = (struct icmp *)((unsigned char *)iph + iphdrlen);
-            struct ip *remote_iph = (struct ip *)((unsigned char *)icmph + 8);
+		if (iRecv >= (int)(sizeof(struct ip) + sizeof(struct icmp)))
+		{
+			struct ip *iph = (struct ip *)Buffer->data();
+			int iphdrlen = iph->ip_hl * 4;
+			struct icmp *icmph = (struct icmp *)((unsigned char *)iph + iphdrlen);
+			struct ip *remote_iph = (struct ip *)((unsigned char *)icmph + 8);
 
-            iIcmpType = icmph->icmp_type;
+			iIcmpType = icmph->icmp_type;
 
-            struct sockaddr_in Sin;
-            bzero(&Sin, sizeof(Sin));
-            Sin.sin_family = AF_INET;
-            Sin.sin_addr.s_addr = remote_iph->ip_dst.s_addr;
+			struct sockaddr_in Sin;
+			bzero(&Sin, sizeof(Sin));
+			Sin.sin_family = AF_INET;
+			Sin.sin_addr.s_addr = remote_iph->ip_dst.s_addr;
 
-        	memcpy(Ip->GetPointer(), &Sin, sizeof(struct sockaddr_in));
+			memcpy(Ip->GetPointer(), &Sin, sizeof(struct sockaddr_in));
 
-        }
-    }
-    return iIcmpType;
+		}
+	}
+	return iIcmpType;
 }

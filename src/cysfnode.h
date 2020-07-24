@@ -38,24 +38,24 @@
 class CYsfNode
 {
 public:
-    // constructor
-    CYsfNode();
-    CYsfNode(const CCallsign &, uint32, uint32);
-    CYsfNode(const CYsfNode &);
-    
-    // destructor
-    virtual ~CYsfNode() {}
-    
-    // get
-    uint32  GetTxFrequency(void) const          { return m_uiTxFreq; }
-    uint32  GetRxFrequency(void) const          { return m_uiRxFreq; }
-    bool       IsValid(void) const;
-    
+	// constructor
+	CYsfNode();
+	CYsfNode(const CCallsign &, uint32, uint32);
+	CYsfNode(const CYsfNode &);
+
+	// destructor
+	virtual ~CYsfNode() {}
+
+	// get
+	uint32  GetTxFrequency(void) const          { return m_uiTxFreq; }
+	uint32  GetRxFrequency(void) const          { return m_uiRxFreq; }
+	bool       IsValid(void) const;
+
 protected:
-    // data
-    CCallsign   m_Callsign;
-    uint32      m_uiTxFreq;
-    uint32      m_uiRxFreq;
+	// data
+	CCallsign   m_Callsign;
+	uint32      m_uiTxFreq;
+	uint32      m_uiRxFreq;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

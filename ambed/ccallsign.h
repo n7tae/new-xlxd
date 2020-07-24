@@ -37,42 +37,42 @@
 class CCallsign
 {
 public:
-    // contructors
-    CCallsign();
-    CCallsign(const char *);
+	// contructors
+	CCallsign();
+	CCallsign(const char *);
 
-    // status
-    bool IsValid(void) const;
+	// status
+	bool IsValid(void) const;
 
-    // set
-    void SetCallsign(const char *);
-    void SetCallsign(const uint8 *, int);
+	// set
+	void SetCallsign(const char *);
+	void SetCallsign(const uint8 *, int);
 
-    // modify
-    void PatchCallsign(int, const uint8 *, int);
+	// modify
+	void PatchCallsign(int, const uint8 *, int);
 
-    // get
-    void GetCallsign(uint8 *) const;
-    void GetCallsignString(char *) const;
+	// get
+	void GetCallsign(uint8 *) const;
+	void GetCallsignString(char *) const;
 
-    // compare
-    bool HasSameCallsign(const CCallsign &) const;
-    bool HasSameCallsignWithWildcard(const CCallsign &) const;
+	// compare
+	bool HasSameCallsign(const CCallsign &) const;
+	bool HasSameCallsignWithWildcard(const CCallsign &) const;
 
-    // operators
-    bool operator ==(const CCallsign &) const;
-    operator const char *() const;
-
-protected:
-    // helper
-    bool IsNumber(char) const;
-    bool IsLetter(char) const;
-    bool IsSpace(char) const;
+	// operators
+	bool operator ==(const CCallsign &) const;
+	operator const char *() const;
 
 protected:
-    // data
-    char    m_Callsign[CALLSIGN_LEN];
-    char	m_sz[CALLSIGN_LEN+1];
+	// helper
+	bool IsNumber(char) const;
+	bool IsLetter(char) const;
+	bool IsSpace(char) const;
+
+protected:
+	// data
+	char    m_Callsign[CALLSIGN_LEN];
+	char	m_sz[CALLSIGN_LEN+1];
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

@@ -38,20 +38,20 @@
 class CDextraPeer : public CPeer
 {
 public:
-    // constructors
-    CDextraPeer();
-    CDextraPeer(const CCallsign &, const CIp &, const char *, const CVersion &);
-    CDextraPeer(const CDextraPeer &) = delete;
+	// constructors
+	CDextraPeer();
+	CDextraPeer(const CCallsign &, const CIp &, const char *, const CVersion &);
+	CDextraPeer(const CDextraPeer &) = delete;
 
-    // status
-    bool IsAlive(void) const;
+	// status
+	bool IsAlive(void) const;
 
-    // identity
-    int GetProtocol(void) const                 { return PROTOCOL_DEXTRA; }
-    const char *GetProtocolName(void) const     { return "DExtra"; }
+	// identity
+	int GetProtocol(void) const                 { return PROTOCOL_DEXTRA; }
+	const char *GetProtocolName(void) const     { return "DExtra"; }
 
-    // revision helper
-    static int GetProtocolRevision(const CVersion &);
+	// revision helper
+	static int GetProtocolRevision(const CVersion &);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

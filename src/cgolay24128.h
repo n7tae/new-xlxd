@@ -19,14 +19,15 @@
 #ifndef Golay24128_H
 #define Golay24128_H
 
-class CGolay24128 {
+class CGolay24128
+{
 public:
-    static unsigned int encode23127(unsigned int data);
-    static unsigned int encode24128(unsigned int data);
-    
-    static unsigned int decode23127(unsigned int code);
-    static unsigned int decode24128(unsigned int code);
-    static unsigned int decode24128(unsigned char* bytes);
+	static unsigned int encode23127(unsigned int data);
+	static unsigned int encode24128(unsigned int data);
+
+	static unsigned int decode23127(unsigned int code);
+	static unsigned int decode24128(unsigned int code);
+	static unsigned int decode24128(unsigned char* bytes);
 };
 
 #endif

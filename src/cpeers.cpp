@@ -39,9 +39,9 @@ CPeers::CPeers() {}
 
 CPeers::~CPeers()
 {
-    m_Mutex.lock();
-    m_Peers.clear();
-    m_Mutex.unlock();
+	m_Mutex.lock();
+	m_Peers.clear();
+	m_Mutex.unlock();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -49,23 +49,22 @@ CPeers::~CPeers()
 
 void CPeers::AddPeer(std::shared_ptr<CPeer> peer)
 {
-    // first check if peer already exists
-    for ( auto it=begin(); it!=end(); it++ )
-    {
-        if (*peer == *(*it))
-        // if found, just do nothing
-        // so *peer keep pointing on a valid object
-        // on function return
-        {
-            // delete new one
-            return;
-        }
-    }
+	// first check if peer already exists
+	for ( auto it=begin(); it!=end(); it++ )
+	{
+		if (*peer == *(*it))
+			// if found, just do nothing
+			// so *peer keep pointing on a valid object
+			// on function return
+		{
+			// delete new one
+			return;
+		}
+	}
 
-    // if not, append to the vector
+	// if not, append to the vector
 	m_Peers.push_back(peer);
-	std::cout << "New peer " << peer->GetCallsign() << " at " << peer->GetIp()
-				<< " added with protocol " << peer->GetProtocolName()  << std::endl;
+	std::cout << "New peer " << peer->GetCallsign() << " at " << peer->GetIp() << " added with protocol " << peer->GetProtocolName()  << std::endl;
 	// and append all peer's client to reflector client list
 	// it is double lock safe to lock Clients list after Peers list
 	CClients *clients = g_Reflector.GetClients();
@@ -81,11 +80,11 @@ void CPeers::AddPeer(std::shared_ptr<CPeer> peer)
 
 void CPeers::RemovePeer(std::shared_ptr<CPeer> peer)
 {
-    // look for the client
-    for ( auto pit=begin(); pit!=end(); /*increment done in body */ )
-    {
-        // compare object pointers
-        if (( *pit == peer ) && ( !(*pit)->IsAMaster() ))
+	// look for the client
+	for ( auto pit=begin(); pit!=end(); /*increment done in body */ )
+	{
+		// compare object pointers
+		if (( *pit == peer ) && ( !(*pit)->IsAMaster() ))
 		{
 			// remove all clients from reflector client list
 			// it is double lock safe to lock Clients list after Peers list
@@ -109,7 +108,7 @@ void CPeers::RemovePeer(std::shared_ptr<CPeer> peer)
 		{
 			pit++;
 		}
-    }
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -117,44 +116,41 @@ void CPeers::RemovePeer(std::shared_ptr<CPeer> peer)
 
 std::shared_ptr<CPeer> CPeers::FindPeer(const CIp &Ip, int Protocol)
 {
-    for ( auto it=begin(); it!=end(); it++ )
-    {
-        if ( ((*it)->GetIp() == Ip)  && ((*it)->GetProtocol() == Protocol))
-        {
-            return *it;
-        }
-    }
+	for ( auto it=begin(); it!=end(); it++ )
+	{
+		if ( ((*it)->GetIp() == Ip)  && ((*it)->GetProtocol() == Protocol))
+		{
+			return *it;
+		}
+	}
 
-    return nullptr;
+	return nullptr;
 }
 
 std::shared_ptr<CPeer> CPeers::FindPeer(const CCallsign &Callsign, const CIp &Ip, int Protocol)
 {
-    for ( auto it=begin(); it!=end(); it++ )
-    {
-        if ( (*it)->GetCallsign().HasSameCallsign(Callsign) &&
-            ((*it)->GetIp() == Ip)  &&
-            ((*it)->GetProtocol() == Protocol) )
-        {
-            return *it;
-        }
-    }
+	for ( auto it=begin(); it!=end(); it++ )
+	{
+		if ( (*it)->GetCallsign().HasSameCallsign(Callsign) && ((*it)->GetIp() == Ip)  && ((*it)->GetProtocol() == Protocol) )
+		{
+			return *it;
+		}
+	}
 
-    return nullptr;
+	return nullptr;
 }
 
 std::shared_ptr<CPeer> CPeers::FindPeer(const CCallsign &Callsign, int Protocol)
 {
-    for ( auto it=begin(); it!=end(); it++ )
-    {
-        if ( ((*it)->GetProtocol() == Protocol) &&
-            (*it)->GetCallsign().HasSameCallsign(Callsign) )
-        {
-            return *it;
-        }
-    }
+	for ( auto it=begin(); it!=end(); it++ )
+	{
+		if ( ((*it)->GetProtocol() == Protocol) && (*it)->GetCallsign().HasSameCallsign(Callsign) )
+		{
+			return *it;
+		}
+	}
 
-    return nullptr;
+	return nullptr;
 }
 
 
@@ -163,13 +159,13 @@ std::shared_ptr<CPeer> CPeers::FindPeer(const CCallsign &Callsign, int Protocol)
 
 std::shared_ptr<CPeer> CPeers::FindNextPeer(int Protocol, std::list<std::shared_ptr<CPeer>>::iterator &it)
 {
-    while ( it!=end() )
-    {
-        if ( (*it)->GetProtocol() == Protocol )
-        {
-            return *it++;
-        }
+	while ( it!=end() )
+	{
+		if ( (*it)->GetProtocol() == Protocol )
+		{
+			return *it++;
+		}
 		it++;
-    }
-    return nullptr;
+	}
+	return nullptr;
 }

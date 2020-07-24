@@ -243,19 +243,19 @@ extern CGateKeeper g_GateKeeper;
 
 #ifndef NO_XLX
 #if (DMRIDDB_USE_RLX_SERVER == 1)
-    class CDmridDirHttp;
-    extern CDmridDirHttp   g_DmridDir;
+class CDmridDirHttp;
+extern CDmridDirHttp   g_DmridDir;
 #else
-    class CDmridDirFile;
-    extern CDmridDirFile   g_DmridDir;
+class CDmridDirFile;
+extern CDmridDirFile   g_DmridDir;
 #endif
 
 #if (YSFNODEDB_USE_RLX_SERVER == 1)
-    class CYsfNodeDirHttp;
-    extern CYsfNodeDirHttp   g_YsfNodeDir;
+class CYsfNodeDirHttp;
+extern CYsfNodeDirHttp   g_YsfNodeDir;
 #else
-    class CYsfNodeDirFile;
-    extern CYsfNodeDirFile   g_YsfNodeDir;
+class CYsfNodeDirFile;
+extern CYsfNodeDirFile   g_YsfNodeDir;
 #endif
 
 class CTranscoder;

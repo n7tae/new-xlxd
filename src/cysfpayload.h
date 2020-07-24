@@ -21,37 +21,38 @@
 
 #include <string>
 
-class CYSFPayload {
+class CYSFPayload
+{
 public:
-    CYSFPayload();
-    ~CYSFPayload();
-    
-    bool processHeaderData(unsigned char* bytes);
-    
-    void writeVDMode2Data(unsigned char* data, const unsigned char* dt);
-    bool readVDMode1Data(const unsigned char* data, unsigned char* dt);
-    bool readVDMode2Data(const unsigned char* data, unsigned char* dt);
-    
-    void writeHeader(unsigned char* data, const unsigned char* csd1, const unsigned char* csd2);
-    
-    void writeDataFRModeData1(const unsigned char* dt, unsigned char* data);
-    void writeDataFRModeData2(const unsigned char* dt, unsigned char* data);
-    bool readDataFRModeData1(const unsigned char* data, unsigned char* dt);
-    bool readDataFRModeData2(const unsigned char* data, unsigned char* dt);
-    
-    std::string getSource();
-    std::string getDest();
-    
-    void setUplink(const std::string& callsign);
-    void setDownlink(const std::string& callsign);
-    
-    void reset();
-    
+	CYSFPayload();
+	~CYSFPayload();
+
+	bool processHeaderData(unsigned char* bytes);
+
+	void writeVDMode2Data(unsigned char* data, const unsigned char* dt);
+	bool readVDMode1Data(const unsigned char* data, unsigned char* dt);
+	bool readVDMode2Data(const unsigned char* data, unsigned char* dt);
+
+	void writeHeader(unsigned char* data, const unsigned char* csd1, const unsigned char* csd2);
+
+	void writeDataFRModeData1(const unsigned char* dt, unsigned char* data);
+	void writeDataFRModeData2(const unsigned char* dt, unsigned char* data);
+	bool readDataFRModeData1(const unsigned char* data, unsigned char* dt);
+	bool readDataFRModeData2(const unsigned char* data, unsigned char* dt);
+
+	std::string getSource();
+	std::string getDest();
+
+	void setUplink(const std::string& callsign);
+	void setDownlink(const std::string& callsign);
+
+	void reset();
+
 private:
-    unsigned char* m_uplink;
-    unsigned char* m_downlink;
-    unsigned char* m_source;
-    unsigned char* m_dest;
+	unsigned char* m_uplink;
+	unsigned char* m_downlink;
+	unsigned char* m_source;
+	unsigned char* m_dest;
 };
 
 #endif

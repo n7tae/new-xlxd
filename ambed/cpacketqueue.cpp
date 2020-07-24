@@ -38,12 +38,12 @@ CPacketQueue::CPacketQueue()
 
 CPacketQueue::~CPacketQueue()
 {
-    // empty codec queue
-    while ( !empty() )
-    {
-        delete front();
-        pop();
-    }
+	// empty codec queue
+	while ( !empty() )
+	{
+		delete front();
+		pop();
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -51,10 +51,10 @@ CPacketQueue::~CPacketQueue()
 
 void CPacketQueue::Purge(void)
 {
-    // this assume queue is already locked
-    while ( !empty() )
-    {
-        delete front();
-        pop();
-    }
+	// this assume queue is already locked
+	while ( !empty() )
+	{
+		delete front();
+		pop();
+	}
 }

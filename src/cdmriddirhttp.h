@@ -32,20 +32,20 @@
 class CDmridDirHttp : public CDmridDir
 {
 public:
-    // constructor
-    CDmridDirHttp() {}
-    
-    // destructor
-    ~CDmridDirHttp() {}
-    
-    // refresh
-    bool LoadContent(CBuffer *);
-    bool RefreshContent(const CBuffer &);
-    
+	// constructor
+	CDmridDirHttp() {}
+
+	// destructor
+	~CDmridDirHttp() {}
+
+	// refresh
+	bool LoadContent(CBuffer *);
+	bool RefreshContent(const CBuffer &);
+
 protected:
-    // reload helpers
-    bool NeedReload(void)  { return true; }
-    bool HttpGet(const char *, const char *, int, CBuffer *);
+	// reload helpers
+	bool NeedReload(void)  { return true; }
+	bool HttpGet(const char *, const char *, int, CBuffer *);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

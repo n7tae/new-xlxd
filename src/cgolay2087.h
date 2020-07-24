@@ -19,14 +19,15 @@
 #ifndef Golay2087_H
 #define Golay2087_H
 
-class CGolay2087 {
+class CGolay2087
+{
 public:
-    static void encode(unsigned char* data);
-    
-    static unsigned char decode(const unsigned char* data);
-    
+	static void encode(unsigned char* data);
+
+	static unsigned char decode(const unsigned char* data);
+
 private:
-    static unsigned int getSyndrome1987(unsigned int pattern);
+	static unsigned int getSyndrome1987(unsigned int pattern);
 };
 
 #endif

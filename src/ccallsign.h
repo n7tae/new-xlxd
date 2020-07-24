@@ -38,62 +38,62 @@
 class CCallsign
 {
 public:
-    // contructors
-    CCallsign();
-    CCallsign(const char *, uint32 = 0);
+	// contructors
+	CCallsign();
+	CCallsign(const char *, uint32 = 0);
 
-    // status
-    bool IsValid(void) const;
-    bool HasSuffix(void) const;
-    bool HasModule(void) const                { return m_Module != ' '; }
+	// status
+	bool IsValid(void) const;
+	bool HasSuffix(void) const;
+	bool HasModule(void) const                { return m_Module != ' '; }
 
-    // set
-    void SetCallsign(const char *, bool = true);
-    void SetCallsign(const uint8 *, int, bool = true);
+	// set
+	void SetCallsign(const char *, bool = true);
+	void SetCallsign(const uint8 *, int, bool = true);
 #ifndef NO_XLX
-    void SetDmrid(uint32, bool = true);
-    void SetDmrid(const uint8 *, bool = true);
+	void SetDmrid(uint32, bool = true);
+	void SetDmrid(const uint8 *, bool = true);
 #endif
-    void SetModule(char);
-    void SetSuffix(const char *);
-    void SetSuffix(const uint8 *, int);
+	void SetModule(char);
+	void SetSuffix(const char *);
+	void SetSuffix(const uint8 *, int);
 
-    // modify
-    void PatchCallsign(int, const uint8 *, int);
+	// modify
+	void PatchCallsign(int, const uint8 *, int);
 
-    // get
-    void GetCallsign(uint8 *) const;
-    void GetCallsignString(char *) const;
+	// get
+	void GetCallsign(uint8 *) const;
+	void GetCallsignString(char *) const;
 #ifndef NO_XLX
-    uint32 GetDmrid(void) const             { return m_uiDmrid; }
+	uint32 GetDmrid(void) const             { return m_uiDmrid; }
 #endif
-    void GetSuffix(uint8 *) const;
-    char GetModule(void) const              { return m_Module; }
+	void GetSuffix(uint8 *) const;
+	char GetModule(void) const              { return m_Module; }
 
-    // compare
-    bool HasSameCallsign(const CCallsign &) const;
-    bool HasSameCallsignWithWildcard(const CCallsign &) const;
-    bool HasLowerCallsign(const CCallsign &) const;
-    bool HasSameModule(const CCallsign &) const;
+	// compare
+	bool HasSameCallsign(const CCallsign &) const;
+	bool HasSameCallsignWithWildcard(const CCallsign &) const;
+	bool HasLowerCallsign(const CCallsign &) const;
+	bool HasSameModule(const CCallsign &) const;
 
-    // operators
-    bool operator ==(const CCallsign &) const;
-    operator const char *() const;
+	// operators
+	bool operator ==(const CCallsign &) const;
+	operator const char *() const;
 
 protected:
-    // helper
-    bool IsNumber(char) const;
-    bool IsLetter(char) const;
-    bool IsSpace(char) const;
+	// helper
+	bool IsNumber(char) const;
+	bool IsLetter(char) const;
+	bool IsSpace(char) const;
 
 protected:
-    // data
-    char    m_Callsign[CALLSIGN_LEN];
-    char    m_Suffix[CALLSUFFIX_LEN];
-    char    m_Module;
-    char	m_sz[CALLSIGN_LEN+CALLSUFFIX_LEN+5];
+	// data
+	char    m_Callsign[CALLSIGN_LEN];
+	char    m_Suffix[CALLSUFFIX_LEN];
+	char    m_Module;
+	char	m_sz[CALLSIGN_LEN+CALLSUFFIX_LEN+5];
 #ifndef NO_XLX
-    uint32  m_uiDmrid;
+	uint32  m_uiDmrid;
 #endif
 };
 

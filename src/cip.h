@@ -52,7 +52,7 @@ public:
 	const char *GetAddress() const;
 	operator const char *() const { return GetAddress(); }
 	friend std::ostream &operator<<(std::ostream &stream, const CIp &Ip);
-    int GetFamily() const;
+	int GetFamily() const;
 	uint16_t GetPort() const;
 	size_t GetSize() const;
 	uint32_t GetAddr() const;

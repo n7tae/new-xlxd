@@ -39,21 +39,21 @@
 class CClients
 {
 public:
-    // constructors
-    CClients();
+	// constructors
+	CClients();
 
-    // destructors
-    virtual ~CClients();
+	// destructors
+	virtual ~CClients();
 
-    // locks
-    void Lock(void)                     { m_Mutex.lock(); }
-    void Unlock(void)                   { m_Mutex.unlock(); }
+	// locks
+	void Lock(void)                     { m_Mutex.lock(); }
+	void Unlock(void)                   { m_Mutex.unlock(); }
 
-    // manage Clients
-    int     GetSize(void) const         { return (int)m_Clients.size(); }
-    void    AddClient(std::shared_ptr<CClient>);
-    void    RemoveClient(std::shared_ptr<CClient>);
-    bool    IsClient(std::shared_ptr<CClient>) const;
+	// manage Clients
+	int     GetSize(void) const         { return (int)m_Clients.size(); }
+	void    AddClient(std::shared_ptr<CClient>);
+	void    RemoveClient(std::shared_ptr<CClient>);
+	bool    IsClient(std::shared_ptr<CClient>) const;
 
 	// pass-thru
 	std::list<std::shared_ptr<CClient>>::iterator begin()              { return m_Clients.begin(); }
@@ -61,23 +61,23 @@ public:
 	std::list<std::shared_ptr<CClient>>::const_iterator cbegin() const { return m_Clients.cbegin(); }
 	std::list<std::shared_ptr<CClient>>::const_iterator cend()   const { return m_Clients.cend(); }
 
-    // find clients
-    std::shared_ptr<CClient> FindClient(const CIp &);
-    std::shared_ptr<CClient> FindClient(const CIp &, int);
-    std::shared_ptr<CClient> FindClient(const CIp &, int, char);
-    std::shared_ptr<CClient> FindClient(const CCallsign &, const CIp &, int);
-    std::shared_ptr<CClient> FindClient(const CCallsign &, char, const CIp &, int);
-    std::shared_ptr<CClient> FindClient(const CCallsign &, int);
+	// find clients
+	std::shared_ptr<CClient> FindClient(const CIp &);
+	std::shared_ptr<CClient> FindClient(const CIp &, int);
+	std::shared_ptr<CClient> FindClient(const CIp &, int, char);
+	std::shared_ptr<CClient> FindClient(const CCallsign &, const CIp &, int);
+	std::shared_ptr<CClient> FindClient(const CCallsign &, char, const CIp &, int);
+	std::shared_ptr<CClient> FindClient(const CCallsign &, int);
 
-    // iterate on clients
-    std::shared_ptr<CClient> FindNextClient(int, std::list<std::shared_ptr<CClient>>::iterator &);
-    std::shared_ptr<CClient> FindNextClient(const CIp &, int, std::list<std::shared_ptr<CClient>>::iterator &);
-    std::shared_ptr<CClient> FindNextClient(const CCallsign &, const CIp &, int, std::list<std::shared_ptr<CClient>>::iterator &);
+	// iterate on clients
+	std::shared_ptr<CClient> FindNextClient(int, std::list<std::shared_ptr<CClient>>::iterator &);
+	std::shared_ptr<CClient> FindNextClient(const CIp &, int, std::list<std::shared_ptr<CClient>>::iterator &);
+	std::shared_ptr<CClient> FindNextClient(const CCallsign &, const CIp &, int, std::list<std::shared_ptr<CClient>>::iterator &);
 
 protected:
-    // data
-    std::mutex           m_Mutex;
-    std::list<std::shared_ptr<CClient>> m_Clients;
+	// data
+	std::mutex           m_Mutex;
+	std::list<std::shared_ptr<CClient>> m_Clients;
 };
 
 

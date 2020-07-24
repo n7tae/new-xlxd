@@ -37,17 +37,17 @@ CUsers::CUsers() {}
 
 void CUsers::AddUser(const CUser &user)
 {
-    // add
-    m_Users.push_front(user);
+	// add
+	m_Users.push_front(user);
 
-    // if list size too big, remove oldest
-    if ( m_Users.size() >= (LASTHEARD_USERS_MAX_SIZE-1) )
-    {
-        m_Users.resize(m_Users.size()-1);
-    }
+	// if list size too big, remove oldest
+	if ( m_Users.size() >= (LASTHEARD_USERS_MAX_SIZE-1) )
+	{
+		m_Users.resize(m_Users.size()-1);
+	}
 
-    // notify
-    g_Reflector.OnUsersChanged();
+	// notify
+	g_Reflector.OnUsersChanged();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -55,22 +55,22 @@ void CUsers::AddUser(const CUser &user)
 
 void CUsers::Hearing(const CCallsign &my, const CCallsign &rpt1, const CCallsign &rpt2)
 {
-    Hearing(my, rpt1, rpt2, g_Reflector.GetCallsign());
+	Hearing(my, rpt1, rpt2, g_Reflector.GetCallsign());
 }
 
 void CUsers::Hearing(const CCallsign &my, const CCallsign &rpt1, const CCallsign &rpt2, const CCallsign &xlx)
 {
-    CUser heard(my, rpt1, rpt2, xlx);
+	CUser heard(my, rpt1, rpt2, xlx);
 
-    // first check if this user is already listed. If so, erase him.
-    for ( auto it=begin(); it!=end(); it++ )
-    {
-        if (*it == heard)
-        {
-            m_Users.erase(it);
+	// first check if this user is already listed. If so, erase him.
+	for ( auto it=begin(); it!=end(); it++ )
+	{
+		if (*it == heard)
+		{
+			m_Users.erase(it);
 			break;
-        }
-    }
+		}
+	}
 
-    AddUser(heard);
+	AddUser(heard);
 }

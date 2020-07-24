@@ -43,12 +43,12 @@
 CSignalProcessor::CSignalProcessor(float gaindB)
 {
 #if USE_BANDPASSFILTER
-    m_sampleProcessors.push_back((CSampleBlockProcessor*)new CFIRFilter(FILTER_TAPS, FILTER_TAPS_LENGTH));
+	m_sampleProcessors.push_back((CSampleBlockProcessor*)new CFIRFilter(FILTER_TAPS, FILTER_TAPS_LENGTH));
 #endif
 #if USE_AGC == 1
-    m_sampleProcessors.push_back((CSampleBlockProcessor*)new CAGC(gaindB));
+	m_sampleProcessors.push_back((CSampleBlockProcessor*)new CAGC(gaindB));
 #else
-    m_sampleProcessors.push_back((CSampleBlockProcessor*)new CFixedGain(gaindB));
+	m_sampleProcessors.push_back((CSampleBlockProcessor*)new CFixedGain(gaindB));
 #endif
 }
 
@@ -57,10 +57,10 @@ CSignalProcessor::CSignalProcessor(float gaindB)
 
 CSignalProcessor::~CSignalProcessor()
 {
-    for(auto it=m_sampleProcessors.begin(); it!=m_sampleProcessors.end(); it++)
-    {
-        delete *it;
-    }
+	for(auto it=m_sampleProcessors.begin(); it!=m_sampleProcessors.end(); it++)
+	{
+		delete *it;
+	}
 	m_sampleProcessors.clear();
 }
 
@@ -69,26 +69,26 @@ CSignalProcessor::~CSignalProcessor()
 
 void CSignalProcessor::Process(uint8* voice, int length)
 {
-    /*float sample;
-    int j;*/
+	/*float sample;
+	int j;*/
 
-    for(auto it=m_sampleProcessors.begin(); it!=m_sampleProcessors.end(); it++)
-    {
-        (*it)->ProcessSampleBlock(voice, length);
-    }
+	for(auto it=m_sampleProcessors.begin(); it!=m_sampleProcessors.end(); it++)
+	{
+		(*it)->ProcessSampleBlock(voice, length);
+	}
 
-    /*for(int i = 0; i < length; i += 2)
-    {
-        //Get the sample
-        sample = (float)(short)MAKEWORD(voice[i+1], voice[i]);
+	/*for(int i = 0; i < length; i += 2)
+	{
+	    //Get the sample
+	    sample = (float)(short)MAKEWORD(voice[i+1], voice[i]);
 
-        for(j = 0; j < processorsSize; j++)
-        {
-            sample = m_sampleProcessors[j]->ProcessSample(sample);
-        }
+	    for(j = 0; j < processorsSize; j++)
+	    {
+	        sample = m_sampleProcessors[j]->ProcessSample(sample);
+	    }
 
-        //write processed sample back
-        voice[i] = HIBYTE((short)sample);
-        voice[i+1] = LOBYTE((short)sample);
-    }*/
+	    //write processed sample back
+	    voice[i] = HIBYTE((short)sample);
+	    voice[i+1] = LOBYTE((short)sample);
+	}*/
 }

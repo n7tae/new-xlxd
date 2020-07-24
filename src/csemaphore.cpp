@@ -30,8 +30,8 @@
 
 CSemaphore::CSemaphore()
 {
-    // Initialized as locked.
-    m_Count = 0;
+	// Initialized as locked.
+	m_Count = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -39,34 +39,34 @@ CSemaphore::CSemaphore()
 
 void CSemaphore::Reset(void)
 {
-    std::unique_lock<decltype(m_Mutex)> lock(m_Mutex);
-    m_Count = 0;
+	std::unique_lock<decltype(m_Mutex)> lock(m_Mutex);
+	m_Count = 0;
 }
 
 void CSemaphore::Notify(void)
 {
-    std::unique_lock<std::mutex> lock(m_Mutex);
-    m_Count++;
-    m_Condition.notify_one();
+	std::unique_lock<std::mutex> lock(m_Mutex);
+	m_Count++;
+	m_Condition.notify_one();
 }
 
 void CSemaphore::Wait(void)
 {
-    std::unique_lock<std::mutex> lock(m_Mutex);
-    m_Condition.wait(lock, [&]{ return m_Count > 0; });
-    m_Count--;
+	std::unique_lock<std::mutex> lock(m_Mutex);
+	m_Condition.wait(lock, [&] { return m_Count > 0; });
+	m_Count--;
 }
 
 bool CSemaphore::WaitFor(uint ms)
 {
-    std::chrono::milliseconds timespan(ms);
-    std::unique_lock<decltype(m_Mutex)> lock(m_Mutex);
-    auto ok = m_Condition.wait_for(lock, timespan, [&]{ return m_Count > 0; });
-    if ( ok )
-    {
-        m_Count--;
-    }
-    return ok;
-    
+	std::chrono::milliseconds timespan(ms);
+	std::unique_lock<decltype(m_Mutex)> lock(m_Mutex);
+	auto ok = m_Condition.wait_for(lock, timespan, [&] { return m_Count > 0; });
+	if ( ok )
+	{
+		m_Count--;
+	}
+	return ok;
+
 }
 

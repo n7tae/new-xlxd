@@ -48,95 +48,95 @@
 class CReflector
 {
 public:
-    // constructor
-    CReflector();
-    CReflector(const CCallsign &);
+	// constructor
+	CReflector();
+	CReflector(const CCallsign &);
 
-    // destructor
-    virtual ~CReflector();
+	// destructor
+	virtual ~CReflector();
 
-    // settings
-    void SetCallsign(const CCallsign &callsign)      { m_Callsign = callsign; }
-    const CCallsign &GetCallsign(void) const         { return m_Callsign; }
+	// settings
+	void SetCallsign(const CCallsign &callsign)      { m_Callsign = callsign; }
+	const CCallsign &GetCallsign(void) const         { return m_Callsign; }
 
 #ifdef LISTEN_IPV4
-    void SetListenIPv4(const char *a, const int n)   { memset(m_IPv4, 0, n);    strncpy(m_IPv4, a, n-1); }
-    const char *GetListenIPv4(void) const            { return m_IPv4; }
+	void SetListenIPv4(const char *a, const int n)   { memset(m_IPv4, 0, n);    strncpy(m_IPv4, a, n-1); }
+	const char *GetListenIPv4(void) const            { return m_IPv4; }
 #endif
 
 #ifdef LISTEN_IPV6
-    void SetListenIPv6(const char *a, const int n)   { memset(m_IPv6, 0, n);    strncpy(m_IPv6, a, n-1); }
-    const char *GetListenIPv6(void) const            { return m_IPv6; }
+	void SetListenIPv6(const char *a, const int n)   { memset(m_IPv6, 0, n);    strncpy(m_IPv6, a, n-1); }
+	const char *GetListenIPv6(void) const            { return m_IPv6; }
 #endif
 
 #ifdef TRANSCODER_IP
-    void SetTranscoderIp(const char *a, const int n) { memset(m_AmbedIp, 0, n); strncpy(m_AmbedIp, a, n-1); }
-    const char *GetTranscoderIp(void) const          { return m_AmbedIp; }
+	void SetTranscoderIp(const char *a, const int n) { memset(m_AmbedIp, 0, n); strncpy(m_AmbedIp, a, n-1); }
+	const char *GetTranscoderIp(void) const          { return m_AmbedIp; }
 #endif
 
-    // operation
-    bool Start(void);
-    void Stop(void);
+	// operation
+	bool Start(void);
+	void Stop(void);
 
-    // clients
-    CClients  *GetClients(void)                     { m_Clients.Lock(); return &m_Clients; }
-    void      ReleaseClients(void)                  { m_Clients.Unlock(); }
+	// clients
+	CClients  *GetClients(void)                     { m_Clients.Lock(); return &m_Clients; }
+	void      ReleaseClients(void)                  { m_Clients.Unlock(); }
 
-    // peers
-    CPeers   *GetPeers(void)                        { m_Peers.Lock(); return &m_Peers; }
-    void      ReleasePeers(void)                    { m_Peers.Unlock(); }
+	// peers
+	CPeers   *GetPeers(void)                        { m_Peers.Lock(); return &m_Peers; }
+	void      ReleasePeers(void)                    { m_Peers.Unlock(); }
 
-    // stream opening & closing
-    CPacketStream *OpenStream(CDvHeaderPacket *, std::shared_ptr<CClient>);
-    bool IsStreaming(char);
-    void CloseStream(CPacketStream *);
+	// stream opening & closing
+	CPacketStream *OpenStream(CDvHeaderPacket *, std::shared_ptr<CClient>);
+	bool IsStreaming(char);
+	void CloseStream(CPacketStream *);
 
-    // users
-    CUsers  *GetUsers(void)                         { m_Users.Lock(); return &m_Users; }
-    void    ReleaseUsers(void)                      { m_Users.Unlock(); }
+	// users
+	CUsers  *GetUsers(void)                         { m_Users.Lock(); return &m_Users; }
+	void    ReleaseUsers(void)                      { m_Users.Unlock(); }
 
-    // get
-    bool IsValidModule(char c) const                { return (GetModuleIndex(c) >= 0); }
-    int  GetModuleIndex(char) const;
-    char GetModuleLetter(int i) const               { return 'A' + (char)i; }
+	// get
+	bool IsValidModule(char c) const                { return (GetModuleIndex(c) >= 0); }
+	int  GetModuleIndex(char) const;
+	char GetModuleLetter(int i) const               { return 'A' + (char)i; }
 
-    // notifications
-    void OnPeersChanged(void);
-    void OnClientsChanged(void);
-    void OnUsersChanged(void);
-    void OnStreamOpen(const CCallsign &);
-    void OnStreamClose(const CCallsign &);
+	// notifications
+	void OnPeersChanged(void);
+	void OnClientsChanged(void);
+	void OnUsersChanged(void);
+	void OnStreamOpen(const CCallsign &);
+	void OnStreamClose(const CCallsign &);
 
 protected:
-    // threads
-    static void RouterThread(CReflector *, CPacketStream *);
-    static void XmlReportThread(CReflector *);
+	// threads
+	static void RouterThread(CReflector *, CPacketStream *);
+	static void XmlReportThread(CReflector *);
 #ifdef JSON_MONITOR
-    static void JsonReportThread(CReflector *);
+	static void JsonReportThread(CReflector *);
 #endif
 
-    // streams
-    CPacketStream *GetStream(char);
-    bool          IsStreamOpen(const CDvHeaderPacket *);
-    char          GetStreamModule(CPacketStream *);
+	// streams
+	CPacketStream *GetStream(char);
+	bool          IsStreamOpen(const CDvHeaderPacket *);
+	char          GetStreamModule(CPacketStream *);
 
-    // xml helpers
-    void WriteXmlFile(std::ofstream &);
+	// xml helpers
+	void WriteXmlFile(std::ofstream &);
 
 #ifdef JSON_MONITOR
-    // json helpers
-    void SendJsonReflectorObject(CUdpSocket &, CIp &);
-    void SendJsonNodesObject(CUdpSocket &, CIp &);
-    void SendJsonStationsObject(CUdpSocket &, CIp &);
-    void SendJsonOnairObject(CUdpSocket &, CIp &, const CCallsign &);
-    void SendJsonOffairObject(CUdpSocket &, CIp &, const CCallsign &);
+	// json helpers
+	void SendJsonReflectorObject(CUdpSocket &, CIp &);
+	void SendJsonNodesObject(CUdpSocket &, CIp &);
+	void SendJsonStationsObject(CUdpSocket &, CIp &);
+	void SendJsonOnairObject(CUdpSocket &, CIp &, const CCallsign &);
+	void SendJsonOffairObject(CUdpSocket &, CIp &, const CCallsign &);
 #endif
 
 protected:
-    // identity
-    CCallsign m_Callsign;
+	// identity
+	CCallsign m_Callsign;
 #ifdef LISTEN_IPV4
-    char      m_IPv4[INET_ADDRSTRLEN];
+	char      m_IPv4[INET_ADDRSTRLEN];
 #endif
 #ifdef LISTEN_IPV6
 	char      m_IPv6[INET6_ADDRSTRLEN];
@@ -145,27 +145,27 @@ protected:
 	char      m_AmbedIp[INET6_ADDRSTRLEN];
 #endif
 
-    // objects
-    CUsers          m_Users;            // sorted list of lastheard stations
-    CClients        m_Clients;          // list of linked repeaters/nodes/peers's modules
-    CPeers          m_Peers;            // list of linked peers
-    CProtocols      m_Protocols;        // list of supported protocol handlers
+	// objects
+	CUsers          m_Users;            // sorted list of lastheard stations
+	CClients        m_Clients;          // list of linked repeaters/nodes/peers's modules
+	CPeers          m_Peers;            // list of linked peers
+	CProtocols      m_Protocols;        // list of supported protocol handlers
 
-    // queues
-    std::array<CPacketStream, NB_OF_MODULES> m_Streams;
+	// queues
+	std::array<CPacketStream, NB_OF_MODULES> m_Streams;
 
-    // threads
-    std::atomic<bool> keep_running;
-    std::array<std::thread *, NB_OF_MODULES> m_RouterThreads;
-    std::thread    *m_XmlReportThread;
-    std::thread    *m_JsonReportThread;
+	// threads
+	std::atomic<bool> keep_running;
+	std::array<std::thread *, NB_OF_MODULES> m_RouterThreads;
+	std::thread    *m_XmlReportThread;
+	std::thread    *m_JsonReportThread;
 
-    // notifications
-    CNotificationQueue  m_Notifications;
+	// notifications
+	CNotificationQueue  m_Notifications;
 
 public:
 #ifdef DEBUG_DUMPFILE
-    std::ofstream        m_DebugFile;
+	std::ofstream        m_DebugFile;
 #endif
 };
 

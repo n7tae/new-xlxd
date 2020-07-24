@@ -41,26 +41,26 @@ CProtocol::CProtocol() : keep_running(true), m_pThread(nullptr) {}
 
 CProtocol::~CProtocol()
 {
-    // kill threads
-    keep_running = false;
-    if ( m_pThread != nullptr )
-    {
-        m_pThread->join();
-        delete m_pThread;
+	// kill threads
+	keep_running = false;
+	if ( m_pThread != nullptr )
+	{
+		m_pThread->join();
+		delete m_pThread;
 		m_pThread = nullptr;
-    }
+	}
 
 	// Close sockets
 	m_Socket6.Close();
 	m_Socket4.Close();
 
-    // empty queue
-    m_Queue.Lock();
-    while ( !m_Queue.empty() )
-    {
-        m_Queue.pop();
-    }
-    m_Queue.Unlock();
+	// empty queue
+	m_Queue.Lock();
+	while ( !m_Queue.empty() )
+	{
+		m_Queue.pop();
+	}
+	m_Queue.Unlock();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -68,17 +68,17 @@ CProtocol::~CProtocol()
 
 bool CProtocol::Initialize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6)
 {
-    // init reflector apparent callsign
-    m_ReflectorCallsign = g_Reflector.GetCallsign();
+	// init reflector apparent callsign
+	m_ReflectorCallsign = g_Reflector.GetCallsign();
 
-    // reset stop flag
-    keep_running = true;
+	// reset stop flag
+	keep_running = true;
 
-    // update the reflector callsign
+	// update the reflector callsign
 	if (type)
-	    m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)type, 3);
+		m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)type, 3);
 
-    // create our sockets
+	// create our sockets
 #ifdef LISTEN_IPV4
 	if (has_ipv4)
 	{
@@ -106,7 +106,7 @@ bool CProtocol::Initialize(const char *type, const uint16 port, const bool has_i
 	}
 #endif
 
-    // start  thread;
+	// start  thread;
 	m_pThread = new std::thread(CProtocol::Thread, this);
 	if (m_pThread == nullptr)
 	{
@@ -116,8 +116,8 @@ bool CProtocol::Initialize(const char *type, const uint16 port, const bool has_i
 		return false;
 	}
 
-    // done
-    return true;
+	// done
+	return true;
 }
 
 void CProtocol::Thread(CProtocol *This)
@@ -130,13 +130,13 @@ void CProtocol::Thread(CProtocol *This)
 
 void CProtocol::Close(void)
 {
-    keep_running = false;
-    if ( m_pThread != nullptr )
-    {
-        m_pThread->join();
-        delete m_pThread;
-        m_pThread = nullptr;
-    }
+	keep_running = false;
+	if ( m_pThread != nullptr )
+	{
+		m_pThread->join();
+		delete m_pThread;
+		m_pThread = nullptr;
+	}
 	m_Socket4.Close();
 	m_Socket6.Close();
 }
@@ -146,27 +146,27 @@ void CProtocol::Close(void)
 
 bool CProtocol::EncodeDvPacket(const CPacket &packet, CBuffer *buffer) const
 {
-    bool ok = false;
-    if ( packet.IsDvFrame() )
-    {
-        if ( packet.IsLastPacket() )
-        {
-            ok = EncodeDvLastFramePacket((const CDvLastFramePacket &)packet, buffer);
-        }
-        else
-        {
-            ok = EncodeDvFramePacket((const CDvFramePacket &)packet, buffer);
-        }
-    }
-    else if ( packet.IsDvHeader() )
-    {
-        ok = EncodeDvHeaderPacket((const CDvHeaderPacket &)packet, buffer);
-    }
-    else
-    {
-        buffer->clear();
-    }
-    return ok;
+	bool ok = false;
+	if ( packet.IsDvFrame() )
+	{
+		if ( packet.IsLastPacket() )
+		{
+			ok = EncodeDvLastFramePacket((const CDvLastFramePacket &)packet, buffer);
+		}
+		else
+		{
+			ok = EncodeDvFramePacket((const CDvFramePacket &)packet, buffer);
+		}
+	}
+	else if ( packet.IsDvHeader() )
+	{
+		ok = EncodeDvHeaderPacket((const CDvHeaderPacket &)packet, buffer);
+	}
+	else
+	{
+		buffer->clear();
+	}
+	return ok;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -174,42 +174,42 @@ bool CProtocol::EncodeDvPacket(const CPacket &packet, CBuffer *buffer) const
 
 void CProtocol::OnDvFramePacketIn(CDvFramePacket *Frame, const CIp *Ip)
 {
-    // find the stream
-    CPacketStream *stream = GetStream(Frame->GetStreamId(), Ip);
-    if ( stream == nullptr )
+	// find the stream
+	CPacketStream *stream = GetStream(Frame->GetStreamId(), Ip);
+	if ( stream == nullptr )
 	{
 		std::cout << "Deleting orphaned Frame with ID " << Frame->GetStreamId() << " on " << *Ip << std::endl;
 		delete Frame;
 	}
 	else
-    {
-        //std::cout << "DV frame" << "from "  << *Ip << std::endl;
-        // and push
-        stream->Lock();
-        stream->Push(Frame);
-        stream->Unlock();
-    }
+	{
+		//std::cout << "DV frame" << "from "  << *Ip << std::endl;
+		// and push
+		stream->Lock();
+		stream->Push(Frame);
+		stream->Unlock();
+	}
 }
 
 void CProtocol::OnDvLastFramePacketIn(CDvLastFramePacket *Frame, const CIp *Ip)
 {
-    // find the stream
-    CPacketStream *stream = GetStream(Frame->GetStreamId(), Ip);
-    if ( stream == nullptr )
+	// find the stream
+	CPacketStream *stream = GetStream(Frame->GetStreamId(), Ip);
+	if ( stream == nullptr )
 	{
 		std::cout << "Deleting orphaned Last Frame with ID " << Frame->GetStreamId() << " on " << *Ip << std::endl;
 		delete Frame;
 	}
 	else
-    {
-        // push
-        stream->Lock();
-        stream->Push(Frame);
-        stream->Unlock();
+	{
+		// push
+		stream->Lock();
+		stream->Push(Frame);
+		stream->Unlock();
 
-        // and close the stream
-        g_Reflector.CloseStream(stream);
-    }
+		// and close the stream
+		g_Reflector.CloseStream(stream);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -217,43 +217,43 @@ void CProtocol::OnDvLastFramePacketIn(CDvLastFramePacket *Frame, const CIp *Ip)
 
 CPacketStream *CProtocol::GetStream(uint16 uiStreamId, const CIp *Ip)
 {
-    for ( auto it=m_Streams.begin(); it!=m_Streams.end(); it++ )
-    {
-        if ( (*it)->GetStreamId() == uiStreamId )
-        {
-            // if Ip not nullptr, also check if IP match
-            if ( (Ip != nullptr) && ((*it)->GetOwnerIp() != nullptr) )
-            {
-                if ( *Ip == *((*it)->GetOwnerIp()) )
-                {
-                	return *it;
-                }
-            }
-        }
-    }
-    // done
-    return nullptr;
+	for ( auto it=m_Streams.begin(); it!=m_Streams.end(); it++ )
+	{
+		if ( (*it)->GetStreamId() == uiStreamId )
+		{
+			// if Ip not nullptr, also check if IP match
+			if ( (Ip != nullptr) && ((*it)->GetOwnerIp() != nullptr) )
+			{
+				if ( *Ip == *((*it)->GetOwnerIp()) )
+				{
+					return *it;
+				}
+			}
+		}
+	}
+	// done
+	return nullptr;
 }
 
 void CProtocol::CheckStreamsTimeout(void)
 {
-    for ( auto it=m_Streams.begin(); it!=m_Streams.end(); )
-    {
-        // time out ?
-        (*it)->Lock();
-        if ( (*it)->IsExpired() )
-        {
-            // yes, close it
-            (*it)->Unlock();
-            g_Reflector.CloseStream(*it);
-            // and remove it
-            it = m_Streams.erase(it);
-        }
-        else
-        {
-            (*it++)->Unlock();
-        }
-    }
+	for ( auto it=m_Streams.begin(); it!=m_Streams.end(); )
+	{
+		// time out ?
+		(*it)->Lock();
+		if ( (*it)->IsExpired() )
+		{
+			// yes, close it
+			(*it)->Unlock();
+			g_Reflector.CloseStream(*it);
+			// and remove it
+			it = m_Streams.erase(it);
+		}
+		else
+		{
+			(*it++)->Unlock();
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -261,14 +261,14 @@ void CProtocol::CheckStreamsTimeout(void)
 
 void CProtocol::HandleQueue(void)
 {
-    // the default protocol just keep queue empty
-    m_Queue.Lock();
-    while ( !m_Queue.empty() )
-    {
-        delete m_Queue.front();
-        m_Queue.pop();
-    }
-    m_Queue.Unlock();
+	// the default protocol just keep queue empty
+	m_Queue.Lock();
+	while ( !m_Queue.empty() )
+	{
+		delete m_Queue.front();
+		m_Queue.pop();
+	}
+	m_Queue.Unlock();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -276,17 +276,17 @@ void CProtocol::HandleQueue(void)
 
 bool CProtocol::IsNumber(char c) const
 {
-    return ((c >= '0') && (c <= '9'));
+	return ((c >= '0') && (c <= '9'));
 }
 
 bool CProtocol::IsLetter(char c) const
 {
-    return ((c >= 'A') && (c <= 'Z'));
+	return ((c >= 'A') && (c <= 'Z'));
 }
 
 bool CProtocol::IsSpace(char c) const
 {
-    return (c == ' ');
+	return (c == ' ');
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -294,12 +294,12 @@ bool CProtocol::IsSpace(char c) const
 
 char CProtocol::DmrDstIdToModule(uint32 tg) const
 {
-    return ((char)((tg % 26)-1) + 'A');
+	return ((char)((tg % 26)-1) + 'A');
 }
 
 uint32 CProtocol::ModuleToDmrDestId(char m) const
 {
-    return (uint32)(m - 'A')+1;
+	return (uint32)(m - 'A')+1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -357,60 +357,64 @@ bool CProtocol::ReceiveDS(CBuffer &buf, CIp &ip, int time_ms)
 
 void CProtocol::Send(const CBuffer &buf, const CIp &Ip) const
 {
-	switch (Ip.GetFamily()) {
-		case AF_INET:
-			m_Socket4.Send(buf, Ip);
-			break;
-		case AF_INET6:
-			m_Socket6.Send(buf, Ip);
-			break;
-		default:
-			std::cerr << "Wrong family: " << Ip.GetFamily() << std::endl;
-			break;
+	switch (Ip.GetFamily())
+	{
+	case AF_INET:
+		m_Socket4.Send(buf, Ip);
+		break;
+	case AF_INET6:
+		m_Socket6.Send(buf, Ip);
+		break;
+	default:
+		std::cerr << "Wrong family: " << Ip.GetFamily() << std::endl;
+		break;
 	}
 }
 
 void CProtocol::Send(const char *buf, const CIp &Ip) const
 {
-	switch (Ip.GetFamily()) {
-		case AF_INET:
-			m_Socket4.Send(buf, Ip);
-			break;
-		case AF_INET6:
-			m_Socket6.Send(buf, Ip);
-			break;
-		default:
-			std::cerr << "ERROR: wrong family: " << Ip.GetFamily() << std::endl;
-			break;
+	switch (Ip.GetFamily())
+	{
+	case AF_INET:
+		m_Socket4.Send(buf, Ip);
+		break;
+	case AF_INET6:
+		m_Socket6.Send(buf, Ip);
+		break;
+	default:
+		std::cerr << "ERROR: wrong family: " << Ip.GetFamily() << std::endl;
+		break;
 	}
 }
 
 void CProtocol::Send(const CBuffer &buf, const CIp &Ip, uint16_t port) const
 {
-	switch (Ip.GetFamily()) {
-		case AF_INET:
-			m_Socket4.Send(buf, Ip, port);
-			break;
-		case AF_INET6:
-			m_Socket6.Send(buf, Ip, port);
-			break;
-		default:
-			std::cerr << "Wrong family: " << Ip.GetFamily() << " on port " << port << std::endl;
-			break;
+	switch (Ip.GetFamily())
+	{
+	case AF_INET:
+		m_Socket4.Send(buf, Ip, port);
+		break;
+	case AF_INET6:
+		m_Socket6.Send(buf, Ip, port);
+		break;
+	default:
+		std::cerr << "Wrong family: " << Ip.GetFamily() << " on port " << port << std::endl;
+		break;
 	}
 }
 
 void CProtocol::Send(const char *buf, const CIp &Ip, uint16_t port) const
 {
-	switch (Ip.GetFamily()) {
-		case AF_INET:
-			m_Socket4.Send(buf, Ip, port);
-			break;
-		case AF_INET6:
-			m_Socket6.Send(buf, Ip, port);
-			break;
-		default:
-			std::cerr << "Wrong family: " << Ip.GetFamily() << " on port " << port << std::endl;
-			break;
+	switch (Ip.GetFamily())
+	{
+	case AF_INET:
+		m_Socket4.Send(buf, Ip, port);
+		break;
+	case AF_INET6:
+		m_Socket6.Send(buf, Ip, port);
+		break;
+	default:
+		std::cerr << "Wrong family: " << Ip.GetFamily() << " on port " << port << std::endl;
+		break;
 	}
 }

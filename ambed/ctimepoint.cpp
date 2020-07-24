@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #include "main.h"
@@ -30,7 +30,7 @@
 
 CTimePoint::CTimePoint()
 {
-    m_TimePoint = std::chrono::steady_clock::now();
+	m_TimePoint = std::chrono::steady_clock::now();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -38,9 +38,9 @@ CTimePoint::CTimePoint()
 
 double CTimePoint::DurationSinceNow(void) const
 {
-    std::chrono::steady_clock::time_point Now = std::chrono::steady_clock::now();
-    std::chrono::steady_clock::duration time_span = (Now - m_TimePoint);
-    return double(time_span.count()) * std::chrono::steady_clock::period::num / std::chrono::steady_clock::period::den;
+	std::chrono::steady_clock::time_point Now = std::chrono::steady_clock::now();
+	std::chrono::steady_clock::duration time_span = (Now - m_TimePoint);
+	return double(time_span.count()) * std::chrono::steady_clock::period::num / std::chrono::steady_clock::period::den;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,6 @@ double CTimePoint::DurationSinceNow(void) const
 
 void CTimePoint::TaskSleepFor(uint ms)
 {
-    std::chrono::milliseconds timespan(ms);
-    std::this_thread::sleep_for(timespan);
+	std::chrono::milliseconds timespan(ms);
+	std::this_thread::sleep_for(timespan);
 }

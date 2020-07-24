@@ -23,7 +23,7 @@
 // ----------------------------------------------------------------------------
 // Geoffrey Merck F4FXL / KC3FRA AGC code largely inspired by Liquid DSP
 // Only took the parts we need qnd recoeded it to be close the XLX coding style
-// https://github.com/jgaeddert/liquid-dsp/blob/master/src/agc/src/agc.c 
+// https://github.com/jgaeddert/liquid-dsp/blob/master/src/agc/src/agc.c
 
 #ifndef cagc_h
 #define cagc_h
@@ -33,24 +33,24 @@
 class CAGC : CSampleBlockProcessor
 {
 public:
-    //Constructor
-    CAGC(float initialLeveldB);
+	//Constructor
+	CAGC(float initialLeveldB);
 
-    //methods
-    void ProcessSampleBlock(uint8* voice, int length) ;
-    float GetGain();//gets current gain 
-    
+	//methods
+	void ProcessSampleBlock(uint8* voice, int length) ;
+	float GetGain();//gets current gain
+
 private:
-    float m_Gain;            // current gain value
-    float m_GainMax, m_GainMin;       //gain clamping
-    float m_targetEnergy;        // scale value for target energy
+	float m_Gain;            // current gain value
+	float m_GainMax, m_GainMin;       //gain clamping
+	float m_targetEnergy;        // scale value for target energy
 
-    // gain control loop filter parameters
-    float m_Bandwidth;    // bandwidth-time constant
-    float m_Alpha;        // feed-back gain
+	// gain control loop filter parameters
+	float m_Bandwidth;    // bandwidth-time constant
+	float m_Alpha;        // feed-back gain
 
-    // signal level estimate
-    float m_EnergyPrime;     // filtered output signal energy estimate
+	// signal level estimate
+	float m_EnergyPrime;     // filtered output signal energy estimate
 };
 
 #endif /* cgc_h */

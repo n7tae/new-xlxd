@@ -33,32 +33,32 @@
 class CUser
 {
 public:
-    // constructor
-    CUser();
-    CUser(const CCallsign &, const CCallsign &, const CCallsign &, const CCallsign &);
-    CUser(const CUser &);
+	// constructor
+	CUser();
+	CUser(const CCallsign &, const CCallsign &, const CCallsign &, const CCallsign &);
+	CUser(const CUser &);
 
-    // destructor
-    ~CUser() {}
+	// destructor
+	~CUser() {}
 
-    // operation
-    void HeardNow(void)     { m_LastHeardTime = std::time(nullptr); }
+	// operation
+	void HeardNow(void)     { m_LastHeardTime = std::time(nullptr); }
 
-    // operators
-    bool operator ==(const CUser &) const;
-    bool operator <(const CUser &) const;
+	// operators
+	bool operator ==(const CUser &) const;
+	bool operator <(const CUser &) const;
 
-    // reporting
-    void WriteXml(std::ofstream &);
-    void GetJsonObject(char *);
+	// reporting
+	void WriteXml(std::ofstream &);
+	void GetJsonObject(char *);
 
 protected:
-    // data
-    CCallsign   m_My;
-    CCallsign   m_Rpt1;
-    CCallsign   m_Rpt2;
-    CCallsign   m_Xlx;
-    std::time_t m_LastHeardTime;
+	// data
+	CCallsign   m_My;
+	CCallsign   m_Rpt1;
+	CCallsign   m_Rpt2;
+	CCallsign   m_Xlx;
+	std::time_t m_LastHeardTime;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

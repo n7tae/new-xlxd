@@ -33,20 +33,20 @@
 class CYsfNodeDirHttp : public CYsfNodeDir
 {
 public:
-    // constructor
-    CYsfNodeDirHttp() {}
-    
-    // destructor
-    ~CYsfNodeDirHttp() {}
-    
-    // refresh
-    bool LoadContent(CBuffer *);
-    bool RefreshContent(const CBuffer &);
-    
+	// constructor
+	CYsfNodeDirHttp() {}
+
+	// destructor
+	~CYsfNodeDirHttp() {}
+
+	// refresh
+	bool LoadContent(CBuffer *);
+	bool RefreshContent(const CBuffer &);
+
 protected:
-    // reload helpers
-    bool NeedReload(void)  { return true; }
-    bool HttpGet(const char *, const char *, int, CBuffer *);
+	// reload helpers
+	bool NeedReload(void)  { return true; }
+	bool HttpGet(const char *, const char *, int, CBuffer *);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

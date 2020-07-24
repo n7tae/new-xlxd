@@ -47,24 +47,24 @@
 class CWiresxCmd
 {
 public:
-    // constructor
-    CWiresxCmd();
-    CWiresxCmd(const CIp &, const CCallsign &, int, int);
+	// constructor
+	CWiresxCmd();
+	CWiresxCmd(const CIp &, const CCallsign &, int, int);
 
-    // get
-    const CCallsign &GetCallsign(void) const        { return m_Callsign; }
-    const CIp &GetIp(void) const                    { return m_Ip; }
-    int   GetCmd(void) const                        { return m_iCmd; }
-    int   GetArg(void) const                        { return m_iArg; }
-    const CTimePoint &GetTime(void) const           { return m_Time; }
+	// get
+	const CCallsign &GetCallsign(void) const        { return m_Callsign; }
+	const CIp &GetIp(void) const                    { return m_Ip; }
+	int   GetCmd(void) const                        { return m_iCmd; }
+	int   GetArg(void) const                        { return m_iArg; }
+	const CTimePoint &GetTime(void) const           { return m_Time; }
 
 protected:
-    // data
-    CIp         m_Ip;
-    CCallsign   m_Callsign;
-    int         m_iCmd;
-    int         m_iArg;
-    CTimePoint  m_Time;
+	// data
+	CIp         m_Ip;
+	CCallsign   m_Callsign;
+	int         m_iCmd;
+	int         m_iArg;
+	CTimePoint  m_Time;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

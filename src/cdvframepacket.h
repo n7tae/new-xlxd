@@ -40,8 +40,8 @@
 
 struct __attribute__ ((__packed__))dstar_dvframe
 {
-    uint8	AMBE[AMBE_SIZE];
-    uint8	DVDATA[DVDATA_SIZE];
+	uint8	AMBE[AMBE_SIZE];
+	uint8	DVDATA[DVDATA_SIZE];
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -49,57 +49,57 @@ struct __attribute__ ((__packed__))dstar_dvframe
 
 class CDvFramePacket : public CPacket
 {
-friend class CCodecStream;
+	friend class CCodecStream;
 public:
-    // constructor
-    CDvFramePacket();
-    CDvFramePacket(const struct dstar_dvframe *, uint16, uint8);
+	// constructor
+	CDvFramePacket();
+	CDvFramePacket(const struct dstar_dvframe *, uint16, uint8);
 #ifndef NO_XLX
-    CDvFramePacket(const uint8 *, const uint8 *, uint16, uint8, uint8);
-    CDvFramePacket(const uint8 *, uint16, uint8, uint8, uint8);
-    CDvFramePacket(uint16, uint8, const uint8 *, const uint8 *, uint8, uint8, const uint8 *, const uint8 *);
+	CDvFramePacket(const uint8 *, const uint8 *, uint16, uint8, uint8);
+	CDvFramePacket(const uint8 *, uint16, uint8, uint8, uint8);
+	CDvFramePacket(uint16, uint8, const uint8 *, const uint8 *, uint8, uint8, const uint8 *, const uint8 *);
 #endif
 
-    // virtual duplication
-    CPacket *Duplicate(void) const;
+	// virtual duplication
+	CPacket *Duplicate(void) const;
 
-    // identity
-    bool IsDvFrame(void) const              { return true; }
+	// identity
+	bool IsDvFrame(void) const              { return true; }
 #ifndef NO_XLX
-    bool HaveTranscodableAmbe(void) const   { return true; }
+	bool HaveTranscodableAmbe(void) const   { return true; }
 #endif
 
-    // get
-    const uint8 *GetAmbe(uint8) const;
-    const uint8 *GetAmbe(void) const        { return m_uiAmbe; }
+	// get
+	const uint8 *GetAmbe(uint8) const;
+	const uint8 *GetAmbe(void) const        { return m_uiAmbe; }
 #ifndef NO_XLX
-    const uint8 *GetAmbePlus(void) const    { return m_uiAmbePlus; }
-    const uint8 *GetDvSync(void) const      { return m_uiDvSync; }
+	const uint8 *GetAmbePlus(void) const    { return m_uiAmbePlus; }
+	const uint8 *GetDvSync(void) const      { return m_uiDvSync; }
 #endif
-    const uint8 *GetDvData(void) const      { return m_uiDvData; }
+	const uint8 *GetDvData(void) const      { return m_uiDvData; }
 
-    // set
-    void SetDvData(uint8 *);
-    void SetAmbe(uint8, uint8 *);
+	// set
+	void SetDvData(uint8 *);
+	void SetAmbe(uint8, uint8 *);
 
-    // operators
-    bool operator ==(const CDvFramePacket &) const;
+	// operators
+	bool operator ==(const CDvFramePacket &) const;
 
 protected:
-    // get
-    uint8 *GetAmbeData(void)                { return m_uiAmbe; }
+	// get
+	uint8 *GetAmbeData(void)                { return m_uiAmbe; }
 #ifndef NO_XLX
-    uint8 *GetAmbePlusData(void)            { return m_uiAmbePlus; }
+	uint8 *GetAmbePlusData(void)            { return m_uiAmbePlus; }
 #endif
 
 protected:
-    // data (dstar)
-    uint8       m_uiAmbe[AMBE_SIZE];
-    uint8       m_uiDvData[DVDATA_SIZE];
+	// data (dstar)
+	uint8       m_uiAmbe[AMBE_SIZE];
+	uint8       m_uiDvData[DVDATA_SIZE];
 #ifndef NO_XLX
-    // data (dmr)
-    uint8       m_uiAmbePlus[AMBEPLUS_SIZE];
-    uint8       m_uiDvSync[DVSYNC_SIZE];
+	// data (dmr)
+	uint8       m_uiAmbePlus[AMBEPLUS_SIZE];
+	uint8       m_uiDvSync[DVSYNC_SIZE];
 #endif
 };
 

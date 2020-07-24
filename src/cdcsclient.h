@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #ifndef cdcsclient_h
@@ -37,22 +37,22 @@
 class CDcsClient : public CClient
 {
 public:
-    // constructors
-    CDcsClient();
-    CDcsClient(const CCallsign &, const CIp &, char = ' ');
-    CDcsClient(const CDcsClient &);
-    
-    // destructor
-    virtual ~CDcsClient() {};
-    
-    // identity
-    int GetProtocol(void) const                 { return PROTOCOL_DCS; }
-    const char *GetProtocolName(void) const     { return "DCS"; }
-    int GetCodec(void) const                    { return CODEC_AMBEPLUS; }
-    bool IsNode(void) const                     { return true; }
-    
-    // status
-    bool IsAlive(void) const;
+	// constructors
+	CDcsClient();
+	CDcsClient(const CCallsign &, const CIp &, char = ' ');
+	CDcsClient(const CDcsClient &);
+
+	// destructor
+	virtual ~CDcsClient() {};
+
+	// identity
+	int GetProtocol(void) const                 { return PROTOCOL_DCS; }
+	const char *GetProtocolName(void) const     { return "DCS"; }
+	int GetCodec(void) const                    { return CODEC_AMBEPLUS; }
+	bool IsNode(void) const                     { return true; }
+
+	// status
+	bool IsAlive(void) const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

@@ -31,76 +31,76 @@
 
 CCallsignListItem::CCallsignListItem()
 {
-    ::memset(m_Modules, 0, sizeof(m_Modules));
-    ::memset(m_szUrl, 0, sizeof(m_szUrl));
+	::memset(m_Modules, 0, sizeof(m_Modules));
+	::memset(m_szUrl, 0, sizeof(m_szUrl));
 }
 
 CCallsignListItem::CCallsignListItem(const CCallsign &callsign, const CIp &ip, const char *modules)
 {
-    m_Callsign = callsign;
-    ::memset(m_szUrl, 0, sizeof(m_szUrl));
-    m_Ip = ip;
-    if ( modules != nullptr )
-    {
-        ::memset(m_Modules, 0, sizeof(m_Modules));
-        if ( modules[0] == '*' )
-        {
-            for ( char i = 0; i < NB_OF_MODULES; i++ )
-            {
-                m_Modules[i] = 'A' + i;
-            }
-        }
-        else
-        {
-            int n = MIN((int)::strlen(modules), sizeof(m_Modules)-1);
-            int j = 0;
-            for ( int i = 0; i < n; i++ )
-            {
-                if ( (modules[i] - 'A') < NB_OF_MODULES )
-                {
-                    m_Modules[j++] = modules[i];
-                }
-            }
-        }
-    }
+	m_Callsign = callsign;
+	::memset(m_szUrl, 0, sizeof(m_szUrl));
+	m_Ip = ip;
+	if ( modules != nullptr )
+	{
+		::memset(m_Modules, 0, sizeof(m_Modules));
+		if ( modules[0] == '*' )
+		{
+			for ( char i = 0; i < NB_OF_MODULES; i++ )
+			{
+				m_Modules[i] = 'A' + i;
+			}
+		}
+		else
+		{
+			int n = MIN((int)::strlen(modules), sizeof(m_Modules)-1);
+			int j = 0;
+			for ( int i = 0; i < n; i++ )
+			{
+				if ( (modules[i] - 'A') < NB_OF_MODULES )
+				{
+					m_Modules[j++] = modules[i];
+				}
+			}
+		}
+	}
 }
 
 CCallsignListItem::CCallsignListItem(const CCallsign &callsign, const char *url, const char *modules)
 {
-    m_Callsign = callsign;
-    ::strncpy(m_szUrl, url, URL_MAXLEN);
-    m_Ip = CIp(m_szUrl);
-    if ( modules != nullptr )
-    {
-        ::memset(m_Modules, 0, sizeof(m_Modules));
-        if ( modules[0] == '*' )
-        {
-            for ( char i = 0; i < NB_OF_MODULES; i++ )
-            {
-                m_Modules[i] = 'A' + i;
-            }
-        }
-        else
-        {
-            int n = MIN((int)::strlen(modules), sizeof(m_Modules)-1);
-            int j = 0;
-            for ( int i = 0; i < n; i++ )
-            {
-                if ( (modules[i] - 'A') < NB_OF_MODULES )
-                {
-                    m_Modules[j++] = modules[i];
-                }
-            }
-        }
-    }
+	m_Callsign = callsign;
+	::strncpy(m_szUrl, url, URL_MAXLEN);
+	m_Ip = CIp(m_szUrl);
+	if ( modules != nullptr )
+	{
+		::memset(m_Modules, 0, sizeof(m_Modules));
+		if ( modules[0] == '*' )
+		{
+			for ( char i = 0; i < NB_OF_MODULES; i++ )
+			{
+				m_Modules[i] = 'A' + i;
+			}
+		}
+		else
+		{
+			int n = MIN((int)::strlen(modules), sizeof(m_Modules)-1);
+			int j = 0;
+			for ( int i = 0; i < n; i++ )
+			{
+				if ( (modules[i] - 'A') < NB_OF_MODULES )
+				{
+					m_Modules[j++] = modules[i];
+				}
+			}
+		}
+	}
 }
 
 CCallsignListItem::CCallsignListItem(const CCallsignListItem &item)
 {
-    m_Callsign = item.m_Callsign;
-    ::memcpy(m_szUrl, item.m_szUrl, sizeof(m_szUrl));
-    m_Ip = item.m_Ip;
-    ::memcpy(m_Modules, item.m_Modules, sizeof(m_Modules));
+	m_Callsign = item.m_Callsign;
+	::memcpy(m_szUrl, item.m_szUrl, sizeof(m_szUrl));
+	m_Ip = item.m_Ip;
+	::memcpy(m_Modules, item.m_Modules, sizeof(m_Modules));
 }
 
 
@@ -109,38 +109,38 @@ CCallsignListItem::CCallsignListItem(const CCallsignListItem &item)
 
 bool CCallsignListItem::HasSameCallsign(const CCallsign &callsign) const
 {
-    return m_Callsign.HasSameCallsign(callsign);
+	return m_Callsign.HasSameCallsign(callsign);
 }
 
 bool CCallsignListItem::HasSameCallsignWithWildcard(const CCallsign &callsign) const
 {
-    return m_Callsign.HasSameCallsignWithWildcard(callsign);
+	return m_Callsign.HasSameCallsignWithWildcard(callsign);
 }
 
 bool CCallsignListItem::HasModuleListed(char module) const
 {
-    return (::strchr(m_Modules, (int)module) != nullptr);
+	return (::strchr(m_Modules, (int)module) != nullptr);
 }
 
 bool CCallsignListItem::CheckListedModules(char *Modules) const
 {
-    bool listed = false;
+	bool listed = false;
 
-    if ( Modules != nullptr )
-    {
-        // build a list of common modules
-        char list[27];
-        list[0] = 0;
-        //
-        for ( unsigned i = 0; i < ::strlen(Modules); i++ )
-        {
-            if ( HasModuleListed(Modules[i]) )
-            {
-                ::strncat(list, &(Modules[i]), 1);
-                listed = true;
-            }
-        }
-        ::strcpy(Modules, list);
-    }
-    return listed;
+	if ( Modules != nullptr )
+	{
+		// build a list of common modules
+		char list[27];
+		list[0] = 0;
+		//
+		for ( unsigned i = 0; i < ::strlen(Modules); i++ )
+		{
+			if ( HasModuleListed(Modules[i]) )
+			{
+				::strncat(list, &(Modules[i]), 1);
+				listed = true;
+			}
+		}
+		::strcpy(Modules, list);
+	}
+	return listed;
 }

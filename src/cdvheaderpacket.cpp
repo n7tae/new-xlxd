@@ -33,57 +33,57 @@
 
 CDvHeaderPacket::CDvHeaderPacket()
 {
-    m_uiFlag1 = 0;
-    m_uiFlag2 = 0;
-    m_uiFlag3 = 0;
-    m_uiCrc = 0;
+	m_uiFlag1 = 0;
+	m_uiFlag2 = 0;
+	m_uiFlag3 = 0;
+	m_uiCrc = 0;
 }
 
 // dstar constructor
 
 CDvHeaderPacket::CDvHeaderPacket(const struct dstar_header *buffer, uint16 sid, uint8 pid)
-    : CPacket(sid, pid)
+	: CPacket(sid, pid)
 {
-    m_uiFlag1 = buffer->Flag1;
-    m_uiFlag2 = buffer->Flag2;
-    m_uiFlag3 = buffer->Flag3;
-    m_csUR.SetCallsign(buffer->UR, CALLSIGN_LEN);
-    m_csRPT1.SetCallsign(buffer->RPT1, CALLSIGN_LEN);
-    m_csRPT2.SetCallsign(buffer->RPT2, CALLSIGN_LEN);
-    m_csMY.SetCallsign(buffer->MY, CALLSIGN_LEN);
-    m_csMY.SetSuffix(buffer->SUFFIX, CALLSUFFIX_LEN);
-    m_uiCrc = buffer->Crc;
+	m_uiFlag1 = buffer->Flag1;
+	m_uiFlag2 = buffer->Flag2;
+	m_uiFlag3 = buffer->Flag3;
+	m_csUR.SetCallsign(buffer->UR, CALLSIGN_LEN);
+	m_csRPT1.SetCallsign(buffer->RPT1, CALLSIGN_LEN);
+	m_csRPT2.SetCallsign(buffer->RPT2, CALLSIGN_LEN);
+	m_csMY.SetCallsign(buffer->MY, CALLSIGN_LEN);
+	m_csMY.SetSuffix(buffer->SUFFIX, CALLSUFFIX_LEN);
+	m_uiCrc = buffer->Crc;
 }
 
 #ifndef NO_XLX
 // dmr constructor
 
 CDvHeaderPacket::CDvHeaderPacket(uint32 my, const CCallsign &ur, const CCallsign &rpt1, const CCallsign &rpt2, uint16 sid, uint8 pid, uint8 spid)
-    : CPacket(sid, pid, spid)
+	: CPacket(sid, pid, spid)
 {
-    m_uiFlag1 = 0;
-    m_uiFlag2 = 0;
-    m_uiFlag3 = 0;
-    m_uiCrc = 0;
-    m_csUR = ur;
-    m_csRPT1 = rpt1;
-    m_csRPT2 = rpt2;
-    m_csMY = CCallsign("", my);
+	m_uiFlag1 = 0;
+	m_uiFlag2 = 0;
+	m_uiFlag3 = 0;
+	m_uiCrc = 0;
+	m_csUR = ur;
+	m_csRPT1 = rpt1;
+	m_csRPT2 = rpt2;
+	m_csMY = CCallsign("", my);
 }
 
 // YSF constructor
 
 CDvHeaderPacket::CDvHeaderPacket(const CCallsign &my, const CCallsign &ur, const CCallsign &rpt1, const CCallsign &rpt2, uint16 sid, uint8 pid)
-: CPacket(sid, pid, 0, 0)
+	: CPacket(sid, pid, 0, 0)
 {
-    m_uiFlag1 = 0;
-    m_uiFlag2 = 0;
-    m_uiFlag3 = 0;
-    m_uiCrc = 0;
-    m_csUR = ur;
-    m_csRPT1 = rpt1;
-    m_csRPT2 = rpt2;
-    m_csMY = my;
+	m_uiFlag1 = 0;
+	m_uiFlag2 = 0;
+	m_uiFlag3 = 0;
+	m_uiCrc = 0;
+	m_csUR = ur;
+	m_csRPT1 = rpt1;
+	m_csRPT2 = rpt2;
+	m_csMY = my;
 }
 #endif
 
@@ -92,7 +92,7 @@ CDvHeaderPacket::CDvHeaderPacket(const CCallsign &my, const CCallsign &ur, const
 
 CPacket *CDvHeaderPacket::Duplicate(void) const
 {
-    return new CDvHeaderPacket(*this);
+	return new CDvHeaderPacket(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -100,16 +100,16 @@ CPacket *CDvHeaderPacket::Duplicate(void) const
 
 void CDvHeaderPacket::ConvertToDstarStruct(struct dstar_header *buffer) const
 {
-    ::memset(buffer, 0, sizeof(struct dstar_header));
-    buffer->Flag1 = m_uiFlag1;
-    buffer->Flag2 = m_uiFlag2;
-    buffer->Flag3 = m_uiFlag3;
-    m_csUR.GetCallsign(buffer->UR);
-    m_csRPT1.GetCallsign(buffer->RPT1);
-    m_csRPT2.GetCallsign(buffer->RPT2);
-    m_csMY.GetCallsign(buffer->MY);
-    m_csMY.GetSuffix(buffer->SUFFIX);
-    buffer->Crc = m_uiCrc;
+	::memset(buffer, 0, sizeof(struct dstar_header));
+	buffer->Flag1 = m_uiFlag1;
+	buffer->Flag2 = m_uiFlag2;
+	buffer->Flag3 = m_uiFlag3;
+	m_csUR.GetCallsign(buffer->UR);
+	m_csRPT1.GetCallsign(buffer->RPT1);
+	m_csRPT2.GetCallsign(buffer->RPT2);
+	m_csMY.GetCallsign(buffer->MY);
+	m_csMY.GetSuffix(buffer->SUFFIX);
+	buffer->Crc = m_uiCrc;
 }
 
 
@@ -118,13 +118,13 @@ void CDvHeaderPacket::ConvertToDstarStruct(struct dstar_header *buffer) const
 
 bool CDvHeaderPacket::IsValid(void) const
 {
-    bool valid = CPacket::IsValid();
+	bool valid = CPacket::IsValid();
 
-    valid &= m_csRPT1.IsValid();
-    valid &= m_csRPT2.IsValid();
-    valid &= m_csMY.IsValid();
+	valid &= m_csRPT1.IsValid();
+	valid &= m_csRPT2.IsValid();
+	valid &= m_csMY.IsValid();
 
-    return valid;
+	return valid;
 }
 
 
@@ -133,13 +133,13 @@ bool CDvHeaderPacket::IsValid(void) const
 
 bool CDvHeaderPacket::operator ==(const CDvHeaderPacket &Header) const
 {
-    return ( (m_uiFlag1 == Header.m_uiFlag1) &&
-             (m_uiFlag2 == Header.m_uiFlag2) &&
-             (m_uiFlag3 == Header.m_uiFlag3) &&
-             (m_csUR == Header.m_csUR) &&
-             (m_csRPT1 == Header.m_csRPT1) &&
-             (m_csRPT2 == Header.m_csRPT2) &&
-             (m_csMY == Header.m_csMY) );
+	return ( (m_uiFlag1 == Header.m_uiFlag1) &&
+			 (m_uiFlag2 == Header.m_uiFlag2) &&
+			 (m_uiFlag3 == Header.m_uiFlag3) &&
+			 (m_csUR == Header.m_csUR) &&
+			 (m_csRPT1 == Header.m_csRPT1) &&
+			 (m_csRPT2 == Header.m_csRPT2) &&
+			 (m_csMY == Header.m_csMY) );
 }
 
 #ifdef IMPLEMENT_CDVHEADERPACKET_CONST_CHAR_OPERATOR
@@ -147,13 +147,13 @@ CDvHeaderPacket::operator const char *() const
 {
 	char *sz = (char *)(const char *)m_sz;
 
-    std::sprintf(sz, "%02X %02X %02X\n%s\n%s\n%s\n%s",
-        m_uiFlag1, m_uiFlag2, m_uiFlag3,
-        (const char *)m_csUR,
-        (const char *)m_csRPT1,
-        (const char *)m_csRPT2,
-        (const char *)m_csMY);
+	std::sprintf(sz, "%02X %02X %02X\n%s\n%s\n%s\n%s",
+				 m_uiFlag1, m_uiFlag2, m_uiFlag3,
+				 (const char *)m_csUR,
+				 (const char *)m_csRPT1,
+				 (const char *)m_csRPT2,
+				 (const char *)m_csMY);
 
-    return m_sz;
+	return m_sz;
 }
 #endif

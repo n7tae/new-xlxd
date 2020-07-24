@@ -41,30 +41,30 @@
 
 CStream::CStream()
 {
-    m_uiId = 0;
-    m_uiPort = 0;
-    m_bStopThread = false;
-    m_pThread = NULL;
-    m_VocodecChannel = NULL;
-    m_LastActivity.Now();
-    m_iTotalPackets = 0;
-    m_iLostPackets = 0;
+	m_uiId = 0;
+	m_uiPort = 0;
+	m_bStopThread = false;
+	m_pThread = NULL;
+	m_VocodecChannel = NULL;
+	m_LastActivity.Now();
+	m_iTotalPackets = 0;
+	m_iLostPackets = 0;
 }
 
 CStream::CStream(uint16 uiId, const CCallsign &Callsign, const CIp &Ip, uint8 uiCodecIn, uint8 uiCodecOut)
 {
-    m_uiId = uiId;
-    m_Callsign = Callsign;
-    m_Ip = Ip;
-    m_uiPort = 0;
-    m_uiCodecIn = uiCodecIn;
-    m_uiCodecOut = uiCodecOut;
-    m_bStopThread = false;
-    m_pThread = NULL;
-    m_VocodecChannel = NULL;
-    m_LastActivity.Now();
-    m_iTotalPackets = 0;
-    m_iLostPackets = 0;
+	m_uiId = uiId;
+	m_Callsign = Callsign;
+	m_Ip = Ip;
+	m_uiPort = 0;
+	m_uiCodecIn = uiCodecIn;
+	m_uiCodecOut = uiCodecOut;
+	m_bStopThread = false;
+	m_pThread = NULL;
+	m_VocodecChannel = NULL;
+	m_LastActivity.Now();
+	m_iTotalPackets = 0;
+	m_iLostPackets = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -72,21 +72,21 @@ CStream::CStream(uint16 uiId, const CCallsign &Callsign, const CIp &Ip, uint8 ui
 
 CStream::~CStream()
 {
-    // stop thread first
-    m_bStopThread = true;
-    if ( m_pThread != NULL )
-    {
-        m_pThread->join();
-        delete m_pThread;
-        m_pThread = NULL;
-    }
+	// stop thread first
+	m_bStopThread = true;
+	if ( m_pThread != NULL )
+	{
+		m_pThread->join();
+		delete m_pThread;
+		m_pThread = NULL;
+	}
 
-    // then close everything
-    m_Socket.Close();
-    if ( m_VocodecChannel != NULL )
-    {
-        m_VocodecChannel->Close();
-    }
+	// then close everything
+	m_Socket.Close();
+	if ( m_VocodecChannel != NULL )
+	{
+		m_VocodecChannel->Close();
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -94,10 +94,10 @@ CStream::~CStream()
 
 bool CStream::Init(uint16 uiPort)
 {
-    // reset stop flag
-    m_bStopThread = false;
+	// reset stop flag
+	m_bStopThread = false;
 
-    // create our socket
+	// create our socket
 	auto s = g_AmbeServer.GetListenIp();
 	CIp ip(strchr(s, ':') ? AF_INET6 : AF_INET, uiPort, s);
 	if (! ip.IsSet())
@@ -106,7 +106,7 @@ bool CStream::Init(uint16 uiPort)
 		return false;
 	}
 
-    if (! m_Socket.Open(ip))
+	if (! m_Socket.Open(ip))
 	{
 		std::cout << "Error opening stream stream socket on " << ip << std::endl;
 		return false;
@@ -133,32 +133,32 @@ bool CStream::Init(uint16 uiPort)
 	m_iLostPackets = 0;
 
 
-    // done
-    return true;
+	// done
+	return true;
 
 }
 
 void CStream::Close(void)
 {
-    // stop thread first
-    m_bStopThread = true;
-    if ( m_pThread != NULL )
-    {
-        m_pThread->join();
-        delete m_pThread;
-        m_pThread = NULL;
-    }
+	// stop thread first
+	m_bStopThread = true;
+	if ( m_pThread != NULL )
+	{
+		m_pThread->join();
+		delete m_pThread;
+		m_pThread = NULL;
+	}
 
-    // then close everything
-    m_Socket.Close();
-    if ( m_VocodecChannel != NULL )
-    {
-        m_VocodecChannel->Close();
-    }
+	// then close everything
+	m_Socket.Close();
+	if ( m_VocodecChannel != NULL )
+	{
+		m_VocodecChannel->Close();
+	}
 
 
-    // report
-    std::cout << m_iLostPackets << " of " << m_iTotalPackets << " packets lost" << std::endl;
+	// report
+	std::cout << m_iLostPackets << " of " << m_iTotalPackets << " packets lost" << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -166,10 +166,10 @@ void CStream::Close(void)
 
 void CStream::Thread(CStream *This)
 {
-    while ( !This->m_bStopThread )
-    {
-        This->Task();
-    }
+	while ( !This->m_bStopThread )
+	{
+		This->Task();
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -177,45 +177,45 @@ void CStream::Thread(CStream *This)
 
 void CStream::Task(void)
 {
-    CBuffer     Buffer;
-    static CIp  Ip;
-    uint8       uiPid;
-    uint8       Ambe[AMBE_FRAME_SIZE];
-    CAmbePacket *packet;
-    CPacketQueue *queue;
+	CBuffer     Buffer;
+	static CIp  Ip;
+	uint8       uiPid;
+	uint8       Ambe[AMBE_FRAME_SIZE];
+	CAmbePacket *packet;
+	CPacketQueue *queue;
 
-    // anything coming in from codec client ?
-    if ( m_Socket.Receive(Buffer, Ip, 1) )
-    {
-        // crack packet
-        if ( IsValidDvFramePacket(Buffer, &uiPid, Ambe) )
-        {
-            // transcode AMBE here
-            m_LastActivity.Now();
-            m_iTotalPackets++;
+	// anything coming in from codec client ?
+	if ( m_Socket.Receive(Buffer, Ip, 1) )
+	{
+		// crack packet
+		if ( IsValidDvFramePacket(Buffer, &uiPid, Ambe) )
+		{
+			// transcode AMBE here
+			m_LastActivity.Now();
+			m_iTotalPackets++;
 
-            // post packet to VocoderChannel
-            packet = new CAmbePacket(uiPid, m_uiCodecIn, Ambe);
-            queue = m_VocodecChannel->GetPacketQueueIn();
-            queue->push(packet);
-            m_VocodecChannel->ReleasePacketQueueIn();
-        }
-    }
+			// post packet to VocoderChannel
+			packet = new CAmbePacket(uiPid, m_uiCodecIn, Ambe);
+			queue = m_VocodecChannel->GetPacketQueueIn();
+			queue->push(packet);
+			m_VocodecChannel->ReleasePacketQueueIn();
+		}
+	}
 
-    // anything in our queue ?
-    queue = m_VocodecChannel->GetPacketQueueOut();
-    while ( !queue->empty() )
-    {
-        // get the packet
-        packet = (CAmbePacket *)queue->front();
-        queue->pop();
-        // send it to client
-        EncodeDvFramePacket(&Buffer, packet->GetPid(), packet->GetAmbe());
-        m_Socket.Send(Buffer, Ip, m_uiPort);
-        // and done
-        delete packet;
-    }
-    m_VocodecChannel->ReleasePacketQueueOut();
+	// anything in our queue ?
+	queue = m_VocodecChannel->GetPacketQueueOut();
+	while ( !queue->empty() )
+	{
+		// get the packet
+		packet = (CAmbePacket *)queue->front();
+		queue->pop();
+		// send it to client
+		EncodeDvFramePacket(&Buffer, packet->GetPid(), packet->GetAmbe());
+		m_Socket.Send(Buffer, Ip, m_uiPort);
+		// and done
+		delete packet;
+	}
+	m_VocodecChannel->ReleasePacketQueueOut();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -223,17 +223,17 @@ void CStream::Task(void)
 
 bool CStream::IsValidDvFramePacket(const CBuffer &Buffer, uint8 *pid, uint8 *ambe)
 {
-    bool valid = false;
+	bool valid = false;
 
-    if ( Buffer.size() == 11 )
-    {
-        uint8 codec = Buffer.data()[0];
-        *pid = Buffer.data()[1];
-        ::memcpy(ambe, &(Buffer.data()[2]), 9);
-        valid = (codec == GetCodecIn());
-    }
+	if ( Buffer.size() == 11 )
+	{
+		uint8 codec = Buffer.data()[0];
+		*pid = Buffer.data()[1];
+		::memcpy(ambe, &(Buffer.data()[2]), 9);
+		valid = (codec == GetCodecIn());
+	}
 
-    return valid;
+	return valid;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -241,8 +241,8 @@ bool CStream::IsValidDvFramePacket(const CBuffer &Buffer, uint8 *pid, uint8 *amb
 
 void CStream::EncodeDvFramePacket(CBuffer *Buffer, uint8 Pid, uint8 *Ambe)
 {
-    Buffer->clear();
-    Buffer->Append((uint8)GetCodecOut());
-    Buffer->Append((uint8)Pid);
-    Buffer->Append(Ambe, 9);
+	Buffer->clear();
+	Buffer->Append((uint8)GetCodecOut());
+	Buffer->Append((uint8)Pid);
+	Buffer->Append(Ambe, 9);
 }

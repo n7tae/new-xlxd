@@ -38,22 +38,22 @@
 class CDvLastFramePacket : public CDvFramePacket
 {
 public:
-    // constructor
-    CDvLastFramePacket();
-    CDvLastFramePacket(const struct dstar_dvframe *, uint16, uint8);
+	// constructor
+	CDvLastFramePacket();
+	CDvLastFramePacket(const struct dstar_dvframe *, uint16, uint8);
 #ifndef NO_XLX
-    CDvLastFramePacket(const uint8 *, const uint8 *, uint16, uint8, uint8);
-    CDvLastFramePacket(const uint8 *, uint16, uint8, uint8, uint8);
-    CDvLastFramePacket(uint16, uint8, const uint8 *, const uint8 *, uint8, uint8, const uint8 *, const uint8 *);
+	CDvLastFramePacket(const uint8 *, const uint8 *, uint16, uint8, uint8);
+	CDvLastFramePacket(const uint8 *, uint16, uint8, uint8, uint8);
+	CDvLastFramePacket(uint16, uint8, const uint8 *, const uint8 *, uint8, uint8, const uint8 *, const uint8 *);
 #endif
-    CDvLastFramePacket(const CDvLastFramePacket &);
+	CDvLastFramePacket(const CDvLastFramePacket &);
 
-    // virtual duplication
-    CPacket *Duplicate(void) const;
+	// virtual duplication
+	CPacket *Duplicate(void) const;
 
-    // identity
-    bool IsLastPacket(void) const           { return true; }
-    bool HaveTranscodableAmbe(void) const   { return false; }
+	// identity
+	bool IsLastPacket(void) const           { return true; }
+	bool HaveTranscodableAmbe(void) const   { return false; }
 };
 
 

@@ -42,57 +42,57 @@ class CDplusClient;
 class CDPlusStreamCacheItem
 {
 public:
-    CDPlusStreamCacheItem()     { m_iSeqCounter = 0; }
+	CDPlusStreamCacheItem()     { m_iSeqCounter = 0; }
 
-    CDvHeaderPacket m_dvHeader;
-    uint8           m_iSeqCounter;
+	CDvHeaderPacket m_dvHeader;
+	uint8           m_iSeqCounter;
 };
 
 class CDplusProtocol : public CProtocol
 {
 public:
-    // initialization
-    bool Initalize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6);
+	// initialization
+	bool Initalize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6);
 
-    // task
-    void Task(void);
-
-protected:
-    // queue helper
-    void HandleQueue(void);
-    void SendDvHeader(CDvHeaderPacket *, CDplusClient *);
-
-    // keepalive helpers
-    void HandleKeepalives(void);
-
-    // stream helpers
-    bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &);
-
-    // packet decoding helpers
-    bool                IsValidConnectPacket(const CBuffer &);
-    bool                IsValidLoginPacket(const CBuffer &, CCallsign *);
-    bool                IsValidDisconnectPacket(const CBuffer &);
-    bool                IsValidKeepAlivePacket(const CBuffer &);
-    CDvHeaderPacket     *IsValidDvHeaderPacket(const CBuffer &);
-    CDvFramePacket      *IsValidDvFramePacket(const CBuffer &);
-    CDvLastFramePacket  *IsValidDvLastFramePacket(const CBuffer &);
-
-    // packet encoding helpers
-    void                EncodeKeepAlivePacket(CBuffer *);
-    void                EncodeLoginAckPacket(CBuffer *);
-    void                EncodeLoginNackPacket(CBuffer *);
-    void                EncodeDisconnectPacket(CBuffer *);
-    bool                EncodeDvHeaderPacket(const CDvHeaderPacket &, CBuffer *) const;
-    bool                EncodeDvFramePacket(const CDvFramePacket &, CBuffer *) const;
-    bool                EncodeDvLastFramePacket(const CDvLastFramePacket &, CBuffer *) const;
-
+	// task
+	void Task(void);
 
 protected:
-    // for keep alive
-    CTimePoint          m_LastKeepaliveTime;
+	// queue helper
+	void HandleQueue(void);
+	void SendDvHeader(CDvHeaderPacket *, CDplusClient *);
 
-    // for queue header caches
-    std::array<CDPlusStreamCacheItem, NB_OF_MODULES>    m_StreamsCache;
+	// keepalive helpers
+	void HandleKeepalives(void);
+
+	// stream helpers
+	bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &);
+
+	// packet decoding helpers
+	bool                IsValidConnectPacket(const CBuffer &);
+	bool                IsValidLoginPacket(const CBuffer &, CCallsign *);
+	bool                IsValidDisconnectPacket(const CBuffer &);
+	bool                IsValidKeepAlivePacket(const CBuffer &);
+	CDvHeaderPacket     *IsValidDvHeaderPacket(const CBuffer &);
+	CDvFramePacket      *IsValidDvFramePacket(const CBuffer &);
+	CDvLastFramePacket  *IsValidDvLastFramePacket(const CBuffer &);
+
+	// packet encoding helpers
+	void                EncodeKeepAlivePacket(CBuffer *);
+	void                EncodeLoginAckPacket(CBuffer *);
+	void                EncodeLoginNackPacket(CBuffer *);
+	void                EncodeDisconnectPacket(CBuffer *);
+	bool                EncodeDvHeaderPacket(const CDvHeaderPacket &, CBuffer *) const;
+	bool                EncodeDvFramePacket(const CDvFramePacket &, CBuffer *) const;
+	bool                EncodeDvLastFramePacket(const CDvLastFramePacket &, CBuffer *) const;
+
+
+protected:
+	// for keep alive
+	CTimePoint          m_LastKeepaliveTime;
+
+	// for queue header caches
+	std::array<CDPlusStreamCacheItem, NB_OF_MODULES>    m_StreamsCache;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

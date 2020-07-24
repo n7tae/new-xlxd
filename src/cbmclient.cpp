@@ -35,12 +35,12 @@ CBmClient::CBmClient()
 }
 
 CBmClient::CBmClient(const CCallsign &callsign, const CIp &ip, char reflectorModule)
-    : CClient(callsign, ip, reflectorModule)
+	: CClient(callsign, ip, reflectorModule)
 {
 }
 
 CBmClient::CBmClient(const CBmClient &client)
-    : CClient(client)
+	: CClient(client)
 {
 }
 
@@ -49,6 +49,6 @@ CBmClient::CBmClient(const CBmClient &client)
 
 bool CBmClient::IsAlive(void) const
 {
-    return (m_LastKeepaliveTime.DurationSinceNow() < XLX_KEEPALIVE_TIMEOUT);
+	return (m_LastKeepaliveTime.DurationSinceNow() < XLX_KEEPALIVE_TIMEOUT);
 }
 

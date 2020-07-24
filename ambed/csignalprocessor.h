@@ -32,17 +32,17 @@
 class CSignalProcessor
 {
 public:
-    //Constructor
-    CSignalProcessor(float gaindB);
+	//Constructor
+	CSignalProcessor(float gaindB);
 
-    //Destructor
-    ~CSignalProcessor();
+	//Destructor
+	~CSignalProcessor();
 
-    //Processing
-    void Process(uint8* voice, int length);
+	//Processing
+	void Process(uint8* voice, int length);
 
 private:
-    std::list<CSampleBlockProcessor *> m_sampleProcessors;
+	std::list<CSampleBlockProcessor *> m_sampleProcessors;
 };
 
 #endif /* csignalprocessor_h */

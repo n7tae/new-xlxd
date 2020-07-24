@@ -33,22 +33,22 @@
 
 CVoicePacket::CVoicePacket()
 {
-    m_iSize = 0;
-    ::memset(m_uiVoice, 0, sizeof(m_uiVoice));
+	m_iSize = 0;
+	::memset(m_uiVoice, 0, sizeof(m_uiVoice));
 }
 
 CVoicePacket::CVoicePacket(const uint8 *voice, int size)
 {
-    m_iSize = MIN(size, sizeof(m_uiVoice));
-    ::memset(m_uiVoice, 0, sizeof(m_uiVoice));
-    ::memcpy(m_uiVoice, voice, m_iSize);
+	m_iSize = MIN(size, sizeof(m_uiVoice));
+	::memset(m_uiVoice, 0, sizeof(m_uiVoice));
+	::memcpy(m_uiVoice, voice, m_iSize);
 }
 
 CVoicePacket::CVoicePacket(const CVoicePacket &packet)
-    : CPacket(packet)
+	: CPacket(packet)
 {
-    m_iSize = packet.m_iSize;
-    ::memcpy(m_uiVoice, packet.m_uiVoice, sizeof(m_uiVoice));
+	m_iSize = packet.m_iSize;
+	::memcpy(m_uiVoice, packet.m_uiVoice, sizeof(m_uiVoice));
 }
 
 
@@ -64,8 +64,8 @@ CVoicePacket::~CVoicePacket()
 
 void CVoicePacket::SetVoice(const uint8 *voice, int size)
 {
-    m_iSize = MIN(size, sizeof(m_uiVoice));
-    ::memset(m_uiVoice, 0, sizeof(m_uiVoice));
-    ::memcpy(m_uiVoice, voice, m_iSize);
+	m_iSize = MIN(size, sizeof(m_uiVoice));
+	::memset(m_uiVoice, 0, sizeof(m_uiVoice));
+	::memcpy(m_uiVoice, voice, m_iSize);
 }
 

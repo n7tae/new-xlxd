@@ -40,54 +40,54 @@
 class CDcsStreamCacheItem
 {
 public:
-    CDcsStreamCacheItem()     { m_iSeqCounter = 0; }
-    ~CDcsStreamCacheItem()    {}
+	CDcsStreamCacheItem()     { m_iSeqCounter = 0; }
+	~CDcsStreamCacheItem()    {}
 
-    CDvHeaderPacket m_dvHeader;
-    uint32          m_iSeqCounter;
+	CDvHeaderPacket m_dvHeader;
+	uint32          m_iSeqCounter;
 };
 
 class CDcsProtocol : public CProtocol
 {
 public:
-    // initialization
-    bool Init(void);
+	// initialization
+	bool Init(void);
 
-    // task
-    void Task(void);
-
-protected:
-    // queue helper
-    void HandleQueue(void);
-
-    // keepalive helpers
-    void HandleKeepalives(void);
-
-    // stream helpers
-    bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &);
-
-    // packet decoding helpers
-    bool IsValidConnectPacket(const CBuffer &, CCallsign *, char *);
-    bool IsValidDisconnectPacket(const CBuffer &, CCallsign *);
-    bool IsValidKeepAlivePacket(const CBuffer &, CCallsign *);
-    bool IsValidDvPacket(const CBuffer &, CDvHeaderPacket **, CDvFramePacket **);
-    bool IsIgnorePacket(const CBuffer &);
-
-    // packet encoding helpers
-    void EncodeKeepAlivePacket(CBuffer *);
-    void EncodeKeepAlivePacket(CBuffer *, std::shared_ptr<CClient>);
-    void EncodeConnectAckPacket(const CCallsign &, char, CBuffer *);
-    void EncodeConnectNackPacket(const CCallsign &, char, CBuffer *);
-    void EncodeDisconnectPacket(CBuffer *, std::shared_ptr<CClient>);
-    void EncodeDvPacket(const CDvHeaderPacket &, const CDvFramePacket &, uint32, CBuffer *) const;
-    void EncodeDvLastPacket(const CDvHeaderPacket &, const CDvFramePacket &, uint32, CBuffer *) const;
+	// task
+	void Task(void);
 
 protected:
-    // for keep alive
-    CTimePoint          m_LastKeepaliveTime;
+	// queue helper
+	void HandleQueue(void);
 
-    // for queue header caches
-    std::array<CDcsStreamCacheItem, NB_OF_MODULES>    m_StreamsCache;
+	// keepalive helpers
+	void HandleKeepalives(void);
+
+	// stream helpers
+	bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &);
+
+	// packet decoding helpers
+	bool IsValidConnectPacket(const CBuffer &, CCallsign *, char *);
+	bool IsValidDisconnectPacket(const CBuffer &, CCallsign *);
+	bool IsValidKeepAlivePacket(const CBuffer &, CCallsign *);
+	bool IsValidDvPacket(const CBuffer &, CDvHeaderPacket **, CDvFramePacket **);
+	bool IsIgnorePacket(const CBuffer &);
+
+	// packet encoding helpers
+	void EncodeKeepAlivePacket(CBuffer *);
+	void EncodeKeepAlivePacket(CBuffer *, std::shared_ptr<CClient>);
+	void EncodeConnectAckPacket(const CCallsign &, char, CBuffer *);
+	void EncodeConnectNackPacket(const CCallsign &, char, CBuffer *);
+	void EncodeDisconnectPacket(CBuffer *, std::shared_ptr<CClient>);
+	void EncodeDvPacket(const CDvHeaderPacket &, const CDvFramePacket &, uint32, CBuffer *) const;
+	void EncodeDvLastPacket(const CDvHeaderPacket &, const CDvFramePacket &, uint32, CBuffer *) const;
+
+protected:
+	// for keep alive
+	CTimePoint          m_LastKeepaliveTime;
+
+	// for queue header caches
+	std::array<CDcsStreamCacheItem, NB_OF_MODULES>    m_StreamsCache;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

@@ -33,16 +33,16 @@
 
 CWiresxInfo::CWiresxInfo()
 {
-    ::memset(m_callsign, ' ', YSF_CALLSIGN_LENGTH);
-    ::memset(m_node, ' ', YSF_CALLSIGN_LENGTH);
-    ::memset(m_name, ' ', 14);
-    ::memset(m_id, ' ', 6);
-    m_txFrequency = 0U;
-    m_rxFrequency = 0U;
- 
-    ::memset(m_csd1, '*', 20U);
-    ::memset(m_csd2, ' ', 20U);
-    ::memset(m_csd3, ' ', 20U);
+	::memset(m_callsign, ' ', YSF_CALLSIGN_LENGTH);
+	::memset(m_node, ' ', YSF_CALLSIGN_LENGTH);
+	::memset(m_name, ' ', 14);
+	::memset(m_id, ' ', 6);
+	m_txFrequency = 0U;
+	m_rxFrequency = 0U;
+
+	::memset(m_csd1, '*', 20U);
+	::memset(m_csd2, ' ', 20U);
+	::memset(m_csd3, ' ', 20U);
 }
 
 
@@ -51,29 +51,29 @@ CWiresxInfo::CWiresxInfo()
 
 void CWiresxInfo::SetCallsign(const CCallsign &callsign)
 {
-    ::memset(m_callsign, ' ', YSF_CALLSIGN_LENGTH);
-    callsign.GetCallsign(m_callsign);
-    UpdateCsds();
+	::memset(m_callsign, ' ', YSF_CALLSIGN_LENGTH);
+	callsign.GetCallsign(m_callsign);
+	UpdateCsds();
 }
 
 void CWiresxInfo::SetNode(const char *node)
 {
-    ::memset(m_node, ' ', YSF_CALLSIGN_LENGTH);
-    ::memcpy(m_node, node, MIN(::strlen(node), YSF_CALLSIGN_LENGTH));
-    UpdateCsds();
+	::memset(m_node, ' ', YSF_CALLSIGN_LENGTH);
+	::memcpy(m_node, node, MIN(::strlen(node), YSF_CALLSIGN_LENGTH));
+	UpdateCsds();
 }
 
 void CWiresxInfo::SetName(const char *name)
 {
-    ::memset(m_name, ' ', 14);
-    ::memcpy(m_name, name, MIN(::strlen(name), 14));
-    UpdateId();
+	::memset(m_name, ' ', 14);
+	::memcpy(m_name, name, MIN(::strlen(name), 14));
+	UpdateId();
 }
 
 void CWiresxInfo::SetFrequencies(uint txFreq, uint rxFreq)
 {
-    m_txFrequency = txFreq;
-    m_rxFrequency = rxFreq;
+	m_txFrequency = txFreq;
+	m_rxFrequency = rxFreq;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -81,27 +81,27 @@ void CWiresxInfo::SetFrequencies(uint txFreq, uint rxFreq)
 
 void CWiresxInfo::UpdateCsds(void)
 {
-    ::memset(m_csd1, '*', 20U);
-    ::memset(m_csd2, ' ', 20U);
-    ::memset(m_csd3, ' ', 20U);
-    ::memcpy(m_csd1 + 10U, m_node, 10U);
-    ::memcpy(m_csd2 +  0U, m_callsign, 10U);
-    ::memcpy(m_csd3 +  0U, m_id, 5U);
-    ::memcpy(m_csd3 + 15U, m_id, 5U);
+	::memset(m_csd1, '*', 20U);
+	::memset(m_csd2, ' ', 20U);
+	::memset(m_csd3, ' ', 20U);
+	::memcpy(m_csd1 + 10U, m_node, 10U);
+	::memcpy(m_csd2 +  0U, m_callsign, 10U);
+	::memcpy(m_csd3 +  0U, m_id, 5U);
+	::memcpy(m_csd3 + 15U, m_id, 5U);
 }
 
 void CWiresxInfo::UpdateId(void)
 {
-    uint hash = 0U;
-    for (uint i = 0U; i < 14; i++)
-    {
-        hash += m_name[i];
-        hash += (hash << 10);
-        hash ^= (hash >> 6);
-    }
-    hash += (hash << 3);
-    hash ^= (hash >> 11);
-    hash += (hash << 15);
-    ::sprintf((char *)m_id, "%05u", hash % 100000U);
-    UpdateCsds();
+	uint hash = 0U;
+	for (uint i = 0U; i < 14; i++)
+	{
+		hash += m_name[i];
+		hash += (hash << 10);
+		hash ^= (hash >> 6);
+	}
+	hash += (hash << 3);
+	hash ^= (hash >> 11);
+	hash += (hash << 15);
+	::sprintf((char *)m_id, "%05u", hash % 100000U);
+	UpdateCsds();
 }

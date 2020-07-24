@@ -40,20 +40,20 @@ CAmbeServer g_AmbeServer;
 
 bool CAmbeServer::Start(void)
 {
-    // init interfaces & controller
-    std::cout << "Initializing vocodecs:" << std::endl;
-    if (! g_Vocodecs.Init())
+	// init interfaces & controller
+	std::cout << "Initializing vocodecs:" << std::endl;
+	if (! g_Vocodecs.Init())
 		return false;
 
-    std::cout << "Initializing controller" << std::endl;
-    if (! m_Controller.Init())
+	std::cout << "Initializing controller" << std::endl;
+	if (! m_Controller.Init())
 		return false;
 
-    return true;
+	return true;
 }
 
 void CAmbeServer::Stop(void)
 {
-    // stop controller
-    m_Controller.Close();
+	// stop controller
+	m_Controller.Close();
 }

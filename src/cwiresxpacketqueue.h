@@ -36,15 +36,15 @@
 class CWiresxPacketQueue
 {
 public:
-    // constructor
-    CWiresxPacketQueue() {}
+	// constructor
+	CWiresxPacketQueue() {}
 
-    // destructor
-    ~CWiresxPacketQueue() {}
+	// destructor
+	~CWiresxPacketQueue() {}
 
-    // lock
-    void Lock()                 { m_Mutex.lock(); }
-    void Unlock()               { m_Mutex.unlock(); }
+	// lock
+	void Lock()                 { m_Mutex.lock(); }
+	void Unlock()               { m_Mutex.unlock(); }
 
 	// pass thru
 	CWiresxPacket front()           { return queue.front(); }
@@ -53,8 +53,8 @@ public:
 	bool empty() const              { return queue.empty(); }
 
 protected:
-    // status
-    std::mutex  m_Mutex;
+	// status
+	std::mutex  m_Mutex;
 	std::queue<CWiresxPacket> queue;
 };
 

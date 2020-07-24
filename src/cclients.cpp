@@ -41,9 +41,9 @@ CClients::CClients()
 
 CClients::~CClients()
 {
-    m_Mutex.lock();
+	m_Mutex.lock();
 	m_Clients.clear();
-    m_Mutex.unlock();
+	m_Mutex.unlock();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -51,23 +51,22 @@ CClients::~CClients()
 
 void CClients::AddClient(std::shared_ptr<CClient> client)
 {
-    // first check if client already exists
-    for ( auto it=begin(); it!=end(); it++ )
-    {
-        if (*client == *(*it))
-        // if found, just do nothing
-        // so *client keep pointing on a valid object
-        // on function return
-        {
-            // delete new one
+	// first check if client already exists
+	for ( auto it=begin(); it!=end(); it++ )
+	{
+		if (*client == *(*it))
+			// if found, just do nothing
+			// so *client keep pointing on a valid object
+			// on function return
+		{
+			// delete new one
 			return;
-        }
-    }
+		}
+	}
 
 	// and append
 	m_Clients.push_back(client);
-	std::cout << "New client " << client->GetCallsign() << " at " << client->GetIp()
-				<< " added with protocol " << client->GetProtocolName();
+	std::cout << "New client " << client->GetCallsign() << " at " << client->GetIp() << " added with protocol " << client->GetProtocolName();
 	if ( client->GetReflectorModule() != ' ' )
 	{
 		std::cout << " on module " << client->GetReflectorModule();
@@ -79,40 +78,40 @@ void CClients::AddClient(std::shared_ptr<CClient> client)
 
 void CClients::RemoveClient(std::shared_ptr<CClient> client)
 {
-    // look for the client
-    bool found = false;
-    for ( auto it=begin(); it!=end(); it++ )
-    {
-        // compare objetc pointers
-        if ( *it == client )
-        {
-            // found it !
-            if ( !(*it)->IsAMaster() )
-            {
-                // remove it
-                std::cout << "Client " << (*it)->GetCallsign() << " at " << (*it)->GetIp() << " removed with protocol " << (*it)->GetProtocolName();
-                if ( (*it)->GetReflectorModule() != ' ' )
-                {
-                    std::cout << " on module " << (*it)->GetReflectorModule();
-                }
-                std::cout << std::endl;
-                m_Clients.erase(it);
-                // notify
-                g_Reflector.OnClientsChanged();
+	// look for the client
+	bool found = false;
+	for ( auto it=begin(); it!=end(); it++ )
+	{
+		// compare objetc pointers
+		if ( *it == client )
+		{
+			// found it !
+			if ( !(*it)->IsAMaster() )
+			{
+				// remove it
+				std::cout << "Client " << (*it)->GetCallsign() << " at " << (*it)->GetIp() << " removed with protocol " << (*it)->GetProtocolName();
+				if ( (*it)->GetReflectorModule() != ' ' )
+				{
+					std::cout << " on module " << (*it)->GetReflectorModule();
+				}
+				std::cout << std::endl;
+				m_Clients.erase(it);
+				// notify
+				g_Reflector.OnClientsChanged();
 				break;
-            }
-        }
-    }
+			}
+		}
+	}
 }
 
 bool CClients::IsClient(std::shared_ptr<CClient> client) const
 {
-    for ( auto it=cbegin(); it!=cend(); it++ )
-    {
-        if (*it == client)
+	for ( auto it=cbegin(); it!=cend(); it++ )
+	{
+		if (*it == client)
 			return true;
-    }
-    return false;
+	}
+	return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -120,97 +119,89 @@ bool CClients::IsClient(std::shared_ptr<CClient> client) const
 
 std::shared_ptr<CClient> CClients::FindClient(const CIp &Ip)
 {
-    // find client
-    for ( auto it=begin(); it!=end(); it++ )
-    {
-        if ( (*it)->GetIp() == Ip )
-        {
-            return *it;
-        }
-    }
+	// find client
+	for ( auto it=begin(); it!=end(); it++ )
+	{
+		if ( (*it)->GetIp() == Ip )
+		{
+			return *it;
+		}
+	}
 
-    // done
-    return nullptr;
+	// done
+	return nullptr;
 }
 
 std::shared_ptr<CClient> CClients::FindClient(const CIp &Ip, int Protocol)
 {
-    // find client
-    for ( auto it=begin(); it!=end(); it++ )
-    {
-        if ( ((*it)->GetIp() == Ip)  && ((*it)->GetProtocol() == Protocol))
-        {
-            return *it;
-        }
-    }
+	// find client
+	for ( auto it=begin(); it!=end(); it++ )
+	{
+		if ( ((*it)->GetIp() == Ip)  && ((*it)->GetProtocol() == Protocol))
+		{
+			return *it;
+		}
+	}
 
-    // done
-    return nullptr;
+	// done
+	return nullptr;
 }
 
 std::shared_ptr<CClient> CClients::FindClient(const CIp &Ip, int Protocol, char ReflectorModule)
 {
-    // find client
-    for ( auto it=begin(); it!=end(); it++ )
-    {
-        if ( ((*it)->GetIp() == Ip)  &&
-             ((*it)->GetReflectorModule() == ReflectorModule) &&
-             ((*it)->GetProtocol() == Protocol) )
-        {
-            return *it;
-        }
-    }
+	// find client
+	for ( auto it=begin(); it!=end(); it++ )
+	{
+		if ( ((*it)->GetIp() == Ip)  && ((*it)->GetReflectorModule() == ReflectorModule) && ((*it)->GetProtocol() == Protocol) )
+		{
+			return *it;
+		}
+	}
 
-    // done
-    return nullptr;
+	// done
+	return nullptr;
 }
 
 std::shared_ptr<CClient> CClients::FindClient(const CCallsign &Callsign, const CIp &Ip, int Protocol)
 {
-    // find client
-    for ( auto it=begin(); it!=end(); it++ )
-    {
-        if ( (*it)->GetCallsign().HasSameCallsign(Callsign) &&
-             ((*it)->GetIp() == Ip)  &&
-             ((*it)->GetProtocol() == Protocol) )
-        {
-            return *it;
-        }
-    }
+	// find client
+	for ( auto it=begin(); it!=end(); it++ )
+	{
+		if ( (*it)->GetCallsign().HasSameCallsign(Callsign) && ((*it)->GetIp() == Ip)  && ((*it)->GetProtocol() == Protocol) )
+		{
+			return *it;
+		}
+	}
 
-    return nullptr;
+	return nullptr;
 }
 
 std::shared_ptr<CClient> CClients::FindClient(const CCallsign &Callsign, char module, const CIp &Ip, int Protocol)
 {
-    // find client
-    for ( auto it=begin(); it!=end(); it++ )
-    {
-        if ( (*it)->GetCallsign().HasSameCallsign(Callsign) &&
-             ((*it)->GetModule() == module) &&
-             ((*it)->GetIp() == Ip)  &&
-             ((*it)->GetProtocol() == Protocol) )
-        {
-            return *it;
-        }
-    }
+	// find client
+	for ( auto it=begin(); it!=end(); it++ )
+	{
+		if ( (*it)->GetCallsign().HasSameCallsign(Callsign) && ((*it)->GetModule() == module) && ((*it)->GetIp() == Ip)  && ((*it)->GetProtocol() == Protocol) )
+		{
+			return *it;
+		}
+	}
 
-    return nullptr;
+	return nullptr;
 }
 
 std::shared_ptr<CClient> CClients::FindClient(const CCallsign &Callsign, int Protocol)
 {
-    // find client
-    for ( auto it=begin(); it!=end(); it++ )
-    {
-        if ( ((*it)->GetProtocol() == Protocol) &&
-             (*it)->GetCallsign().HasSameCallsign(Callsign) )
-        {
-            return *it;
-        }
-    }
+	// find client
+	for ( auto it=begin(); it!=end(); it++ )
+	{
+		if ( ((*it)->GetProtocol() == Protocol) && (*it)->GetCallsign().HasSameCallsign(Callsign) )
+		{
+			return *it;
+		}
+	}
 
-    return nullptr;
+	return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -218,42 +209,39 @@ std::shared_ptr<CClient> CClients::FindClient(const CCallsign &Callsign, int Pro
 
 std::shared_ptr<CClient> CClients::FindNextClient(int Protocol, std::list<std::shared_ptr<CClient>>::iterator &it)
 {
-    while ( it != end() )
-    {
-        if ( (*it)->GetProtocol() == Protocol )
-        {
-            return *it++;
-        }
+	while ( it != end() )
+	{
+		if ( (*it)->GetProtocol() == Protocol )
+		{
+			return *it++;
+		}
 		it++;
-    }
-    return nullptr;
+	}
+	return nullptr;
 }
 
 std::shared_ptr<CClient> CClients::FindNextClient(const CIp &Ip, int Protocol, std::list<std::shared_ptr<CClient>>::iterator &it)
 {
-    while ( it != end() )
-    {
-        if ( ((*it)->GetProtocol() == Protocol) &&
-             ((*it)->GetIp() == Ip) )
-        {
-            return *it++;
-        }
+	while ( it != end() )
+	{
+		if ( ((*it)->GetProtocol() == Protocol) && ((*it)->GetIp() == Ip) )
+		{
+			return *it++;
+		}
 		it++;
-    }
-    return nullptr;
+	}
+	return nullptr;
 }
 
 std::shared_ptr<CClient> CClients::FindNextClient(const CCallsign &Callsign, const CIp &Ip, int Protocol, std::list<std::shared_ptr<CClient>>::iterator &it)
 {
-    while ( it != end() )
-    {
-        if ( ((*it)->GetProtocol() == Protocol) &&
-            ((*it)->GetIp() == Ip) &&
-            (*it)->GetCallsign().HasSameCallsign(Callsign) )
-        {
-            return *it++;
-        }
+	while ( it != end() )
+	{
+		if ( ((*it)->GetProtocol() == Protocol) && ((*it)->GetIp() == Ip) && (*it)->GetCallsign().HasSameCallsign(Callsign) )
+		{
+			return *it++;
+		}
 		it++;
-    }
-    return nullptr;
+	}
+	return nullptr;
 }

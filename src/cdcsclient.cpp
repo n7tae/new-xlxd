@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #include "main.h"
@@ -34,12 +34,12 @@ CDcsClient::CDcsClient()
 }
 
 CDcsClient::CDcsClient(const CCallsign &callsign, const CIp &ip, char reflectorModule)
-: CClient(callsign, ip, reflectorModule)
+	: CClient(callsign, ip, reflectorModule)
 {
 }
 
 CDcsClient::CDcsClient(const CDcsClient &client)
-: CClient(client)
+	: CClient(client)
 {
 }
 
@@ -48,5 +48,5 @@ CDcsClient::CDcsClient(const CDcsClient &client)
 
 bool CDcsClient::IsAlive(void) const
 {
-    return (m_LastKeepaliveTime.DurationSinceNow() < DCS_KEEPALIVE_TIMEOUT);
+	return (m_LastKeepaliveTime.DurationSinceNow() < DCS_KEEPALIVE_TIMEOUT);
 }

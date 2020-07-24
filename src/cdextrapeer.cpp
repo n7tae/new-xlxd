@@ -39,16 +39,16 @@ CDextraPeer::CDextraPeer()
 }
 
 CDextraPeer::CDextraPeer(const CCallsign &callsign, const CIp &ip, const char *modules, const CVersion &version)
-: CPeer(callsign, ip, modules, version)
+	: CPeer(callsign, ip, modules, version)
 {
-    std::cout << "Adding DExtra peer" << std::endl;
+	std::cout << "Adding DExtra peer" << std::endl;
 
-    // and construct the DExtra clients
-    for ( unsigned i = 0; i < ::strlen(modules); i++ )
-    {
-        // create and append to vector
-        m_Clients.push_back(std::make_shared<CDextraClient>(callsign, ip, modules[i], version.GetMajor()));
-    }
+	// and construct the DExtra clients
+	for ( unsigned i = 0; i < ::strlen(modules); i++ )
+	{
+		// create and append to vector
+		m_Clients.push_back(std::make_shared<CDextraClient>(callsign, ip, modules[i], version.GetMajor()));
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -56,12 +56,12 @@ CDextraPeer::CDextraPeer(const CCallsign &callsign, const CIp &ip, const char *m
 
 bool CDextraPeer::IsAlive(void) const
 {
-    for ( auto it=cbegin(); it!=cend(); it++ )
-    {
-        if (! (*it)->IsAlive())
+	for ( auto it=cbegin(); it!=cend(); it++ )
+	{
+		if (! (*it)->IsAlive())
 			return false;
-    }
-    return true;
+	}
+	return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -69,5 +69,5 @@ bool CDextraPeer::IsAlive(void) const
 
 int CDextraPeer::GetProtocolRevision(const CVersion &version)
 {
-    return version.GetMajor();
+	return version.GetMajor();
 }

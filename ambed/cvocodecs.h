@@ -35,43 +35,43 @@
 class CVocodecs
 {
 public:
-    // constructors
-    CVocodecs();
-    
-    // destructor
-    virtual ~CVocodecs();
-    
-    // initialization
-    bool Init(void);
-    
-    // manage interfaces
-    int  GetNbInterfaces(void) const               { return (int)m_Interfaces.size(); }
-    CVocodecInterface *GetInterface(int);
-    
-    // manage channels
-    CVocodecChannel *OpenChannel(uint8, uint8);
-    void AddChannel(CVocodecChannel *ch)            { m_Channels.push_back(ch); }
-    void CloseChannel(CVocodecChannel *);
+	// constructors
+	CVocodecs();
+
+	// destructor
+	virtual ~CVocodecs();
+
+	// initialization
+	bool Init(void);
+
+	// manage interfaces
+	int  GetNbInterfaces(void) const               { return (int)m_Interfaces.size(); }
+	CVocodecInterface *GetInterface(int);
+
+	// manage channels
+	CVocodecChannel *OpenChannel(uint8, uint8);
+	void AddChannel(CVocodecChannel *ch)            { m_Channels.push_back(ch); }
+	void CloseChannel(CVocodecChannel *);
 
 protected:
-    // initialisation helpers
-    bool DiscoverFtdiDevices(void);
-    
-    // helpers
-    bool IsEven(int i) const        { return ((i % 2) == 0); }
-    bool IsOdd(int i) const         { return !IsEven(i); }
-    
+	// initialisation helpers
+	bool DiscoverFtdiDevices(void);
+
+	// helpers
+	bool IsEven(int i) const        { return ((i % 2) == 0); }
+	bool IsOdd(int i) const         { return !IsEven(i); }
+
 protected:
-    // array of interfaces
-    std::mutex                          m_MutexInterfaces;
-    std::vector<CVocodecInterface *>    m_Interfaces;
-    
-    // array of channels
-    std::mutex                          m_MutexChannels;
-    std::vector<CVocodecChannel *>      m_Channels;
-    
-    // array of FTDI desciptors
-    std::vector<CFtdiDeviceDescr *>     m_FtdiDeviceDescrs;
+	// array of interfaces
+	std::mutex                          m_MutexInterfaces;
+	std::vector<CVocodecInterface *>    m_Interfaces;
+
+	// array of channels
+	std::mutex                          m_MutexChannels;
+	std::vector<CVocodecChannel *>      m_Channels;
+
+	// array of FTDI desciptors
+	std::vector<CFtdiDeviceDescr *>     m_FtdiDeviceDescrs;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

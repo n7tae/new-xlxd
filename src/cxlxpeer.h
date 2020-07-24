@@ -38,20 +38,20 @@
 class CXlxPeer : public CPeer
 {
 public:
-    // constructors
-    CXlxPeer();
-    CXlxPeer(const CCallsign &, const CIp &, const char *, const CVersion &);
-    CXlxPeer(const CXlxPeer &) = delete;
+	// constructors
+	CXlxPeer();
+	CXlxPeer(const CCallsign &, const CIp &, const char *, const CVersion &);
+	CXlxPeer(const CXlxPeer &) = delete;
 
-    // status
-    bool IsAlive(void) const;
+	// status
+	bool IsAlive(void) const;
 
-    // identity
-    int GetProtocol(void) const                 { return PROTOCOL_XLX; }
-    const char *GetProtocolName(void) const     { return "XLX"; }
+	// identity
+	int GetProtocol(void) const                 { return PROTOCOL_XLX; }
+	const char *GetProtocolName(void) const     { return "XLX"; }
 
-    // revision helper
-    static int GetProtocolRevision(const CVersion &);
+	// revision helper
+	static int GetProtocolRevision(const CVersion &);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

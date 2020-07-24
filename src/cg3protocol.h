@@ -63,73 +63,73 @@
 class CG3Protocol : public CProtocol
 {
 public:
-    // constructor
-    CG3Protocol() : m_GwAddress(0u), m_Modules("*"), m_LastModTime(0) {}
+	// constructor
+	CG3Protocol() : m_GwAddress(0u), m_Modules("*"), m_LastModTime(0) {}
 
-    // initialization
-    bool Initalize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6);
+	// initialization
+	bool Initalize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6);
 
-    // close
-    void Close(void);
+	// close
+	void Close(void);
 
-    // task
-    void Task(void);
-
-protected:
-    // threads
-    static void PresenceThread(CG3Protocol *);
-    static void ConfigThread(CG3Protocol *);
-    static void IcmpThread(CG3Protocol *);
-
-    // helper tasks
-    void PresenceTask(void);
-    void ConfigTask(void);
-    void IcmpTask(void);
-
-    // config
-    void ReadOptions(void);
-
-    // helper
-    char *TrimWhiteSpaces(char *);
-    void NeedReload(void);
-
-    // queue helper
-    void HandleQueue(void);
-
-    // keepalive helpers
-    void HandleKeepalives(void);
-
-    // stream helpers
-    bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &);
-
-    // packet decoding helpers
-    CDvHeaderPacket     *IsValidDvHeaderPacket(const CBuffer &);
-    CDvFramePacket      *IsValidDvFramePacket(const CBuffer &);
-    CDvLastFramePacket  *IsValidDvLastFramePacket(const CBuffer &);
-
-    // packet encoding helpers
-    bool                EncodeDvHeaderPacket(const CDvHeaderPacket &, CBuffer *) const;
-    bool                EncodeDvFramePacket(const CDvFramePacket &, CBuffer *) const;
-    bool                EncodeDvLastFramePacket(const CDvLastFramePacket &, CBuffer *) const;
+	// task
+	void Task(void);
 
 protected:
-    std::thread         *m_pPresenceThread;
-    std::thread         *m_pConfigThread;
-    std::thread         *m_pIcmpThread;
+	// threads
+	static void PresenceThread(CG3Protocol *);
+	static void ConfigThread(CG3Protocol *);
+	static void IcmpThread(CG3Protocol *);
 
-    // time
-    CTimePoint          m_LastKeepaliveTime;
+	// helper tasks
+	void PresenceTask(void);
+	void ConfigTask(void);
+	void IcmpTask(void);
 
-    // sockets
-    CUdpSocket          m_DvOutSocket;
-    CUdpSocket          m_PresenceSocket;
-    CUdpMsgSocket       m_ConfigSocket;
-    CRawSocket          m_IcmpRawSocket;
+	// config
+	void ReadOptions(void);
 
-    // optional params
-    uint32              m_GwAddress;
-    std::string         m_Modules;
-    time_t              m_LastModTime;
+	// helper
+	char *TrimWhiteSpaces(char *);
+	void NeedReload(void);
+
+	// queue helper
+	void HandleQueue(void);
+
+	// keepalive helpers
+	void HandleKeepalives(void);
+
+	// stream helpers
+	bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &);
+
+	// packet decoding helpers
+	CDvHeaderPacket     *IsValidDvHeaderPacket(const CBuffer &);
+	CDvFramePacket      *IsValidDvFramePacket(const CBuffer &);
+	CDvLastFramePacket  *IsValidDvLastFramePacket(const CBuffer &);
+
+	// packet encoding helpers
+	bool                EncodeDvHeaderPacket(const CDvHeaderPacket &, CBuffer *) const;
+	bool                EncodeDvFramePacket(const CDvFramePacket &, CBuffer *) const;
+	bool                EncodeDvLastFramePacket(const CDvLastFramePacket &, CBuffer *) const;
+
+protected:
+	std::thread         *m_pPresenceThread;
+	std::thread         *m_pConfigThread;
+	std::thread         *m_pIcmpThread;
+
+	// time
+	CTimePoint          m_LastKeepaliveTime;
+
+	// sockets
+	CUdpSocket          m_DvOutSocket;
+	CUdpSocket          m_PresenceSocket;
+	CUdpMsgSocket       m_ConfigSocket;
+	CRawSocket          m_IcmpRawSocket;
+
+	// optional params
+	uint32              m_GwAddress;
+	std::string         m_Modules;
+	time_t              m_LastModTime;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

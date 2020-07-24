@@ -32,19 +32,19 @@
 
 CXlxClient::CXlxClient()
 {
-    m_ProtRev = XLX_PROTOCOL_REVISION_0;
+	m_ProtRev = XLX_PROTOCOL_REVISION_0;
 }
 
 CXlxClient::CXlxClient(const CCallsign &callsign, const CIp &ip, char reflectorModule, int protRev)
-: CClient(callsign, ip, reflectorModule)
+	: CClient(callsign, ip, reflectorModule)
 {
-    m_ProtRev = protRev;
+	m_ProtRev = protRev;
 }
 
 CXlxClient::CXlxClient(const CXlxClient &client)
-: CClient(client)
+	: CClient(client)
 {
-    m_ProtRev = client.m_ProtRev;
+	m_ProtRev = client.m_ProtRev;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -52,20 +52,20 @@ CXlxClient::CXlxClient(const CXlxClient &client)
 
 int CXlxClient::GetCodec(void) const
 {
-    int codec;
-    
-    switch ( GetProtocolRevision() )
-    {
-        case XLX_PROTOCOL_REVISION_0:
-        case XLX_PROTOCOL_REVISION_1:
-        default:
-            codec = CODEC_AMBEPLUS;
-            break;
-        case XLX_PROTOCOL_REVISION_2:
-            codec = CODEC_NONE;
-            break;
-    }
-    return codec;
+	int codec;
+
+	switch ( GetProtocolRevision() )
+	{
+	case XLX_PROTOCOL_REVISION_0:
+	case XLX_PROTOCOL_REVISION_1:
+	default:
+		codec = CODEC_AMBEPLUS;
+		break;
+	case XLX_PROTOCOL_REVISION_2:
+		codec = CODEC_NONE;
+		break;
+	}
+	return codec;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -73,6 +73,6 @@ int CXlxClient::GetCodec(void) const
 
 bool CXlxClient::IsAlive(void) const
 {
-    return (m_LastKeepaliveTime.DurationSinceNow() < XLX_KEEPALIVE_TIMEOUT);
+	return (m_LastKeepaliveTime.DurationSinceNow() < XLX_KEEPALIVE_TIMEOUT);
 }
 

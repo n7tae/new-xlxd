@@ -70,57 +70,57 @@
 class CProtocol
 {
 public:
-    // constructor
-    CProtocol();
+	// constructor
+	CProtocol();
 
-    // destructor
-    virtual ~CProtocol();
+	// destructor
+	virtual ~CProtocol();
 
-    // initialization
-    virtual bool Initialize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6);
-    virtual void Close(void);
+	// initialization
+	virtual bool Initialize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6);
+	virtual void Close(void);
 
-    // queue
-    CPacketQueue *GetQueue(void)        { m_Queue.Lock(); return &m_Queue; }
-    void ReleaseQueue(void)             { m_Queue.Unlock(); }
+	// queue
+	CPacketQueue *GetQueue(void)        { m_Queue.Lock(); return &m_Queue; }
+	void ReleaseQueue(void)             { m_Queue.Unlock(); }
 
-    // get
-    const CCallsign &GetReflectorCallsign(void)const { return m_ReflectorCallsign; }
+	// get
+	const CCallsign &GetReflectorCallsign(void)const { return m_ReflectorCallsign; }
 
-    // task
-    static void Thread(CProtocol *);
-    virtual void Task(void) = 0;
+	// task
+	static void Thread(CProtocol *);
+	virtual void Task(void) = 0;
 
 protected:
-    // packet encoding helpers
-    virtual bool EncodeDvPacket(const CPacket &, CBuffer *) const;
-    virtual bool EncodeDvHeaderPacket(const CDvHeaderPacket &, CBuffer *) const         { return false; }
-    virtual bool EncodeDvFramePacket(const CDvFramePacket &, CBuffer *) const           { return false; }
-    virtual bool EncodeDvLastFramePacket(const CDvLastFramePacket &, CBuffer *) const   { return false; }
+	// packet encoding helpers
+	virtual bool EncodeDvPacket(const CPacket &, CBuffer *) const;
+	virtual bool EncodeDvHeaderPacket(const CDvHeaderPacket &, CBuffer *) const         { return false; }
+	virtual bool EncodeDvFramePacket(const CDvFramePacket &, CBuffer *) const           { return false; }
+	virtual bool EncodeDvLastFramePacket(const CDvLastFramePacket &, CBuffer *) const   { return false; }
 
-    // stream helpers
-    virtual bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &) { return false; }
-    virtual void OnDvFramePacketIn(CDvFramePacket *, const CIp * = nullptr);
-    virtual void OnDvLastFramePacketIn(CDvLastFramePacket *, const CIp * = nullptr);
+	// stream helpers
+	virtual bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &) { return false; }
+	virtual void OnDvFramePacketIn(CDvFramePacket *, const CIp * = nullptr);
+	virtual void OnDvLastFramePacketIn(CDvLastFramePacket *, const CIp * = nullptr);
 
-    // stream handle helpers
-    CPacketStream *GetStream(uint16, const CIp * = nullptr);
-    void CheckStreamsTimeout(void);
+	// stream handle helpers
+	CPacketStream *GetStream(uint16, const CIp * = nullptr);
+	void CheckStreamsTimeout(void);
 
-    // queue helper
-    virtual void HandleQueue(void);
+	// queue helper
+	virtual void HandleQueue(void);
 
-    // keepalive helpers
-    virtual void HandleKeepalives(void) {}
+	// keepalive helpers
+	virtual void HandleKeepalives(void) {}
 
-    // syntax helper
-    bool IsNumber(char) const;
-    bool IsLetter(char) const;
-    bool IsSpace(char) const;
+	// syntax helper
+	bool IsNumber(char) const;
+	bool IsLetter(char) const;
+	bool IsSpace(char) const;
 
-    // dmr DstId to Module helper
-    virtual char DmrDstIdToModule(uint32) const;
-    virtual uint32 ModuleToDmrDestId(char) const;
+	// dmr DstId to Module helper
+	virtual char DmrDstIdToModule(uint32) const;
+	virtual uint32 ModuleToDmrDestId(char) const;
 
 	bool Receive6(CBuffer &buf, CIp &Ip, int time_ms);
 	bool Receive4(CBuffer &buf, CIp &Ip, int time_ms);
@@ -131,25 +131,25 @@ protected:
 	void Send(const CBuffer &buf, const CIp &Ip, uint16 port) const;
 	void Send(const char    *buf, const CIp &Ip, uint16 port) const;
 
-    // socket
-    CUdpSocket m_Socket4;
+	// socket
+	CUdpSocket m_Socket4;
 	CUdpSocket m_Socket6;
 
-    // streams
-    std::list<CPacketStream *> m_Streams;
+	// streams
+	std::list<CPacketStream *> m_Streams;
 
-    // queue
-    CPacketQueue    m_Queue;
+	// queue
+	CPacketQueue    m_Queue;
 
-    // thread
-    std::atomic<bool> keep_running;
-    std::thread     *m_pThread;
+	// thread
+	std::atomic<bool> keep_running;
+	std::thread     *m_pThread;
 
-    // identity
-    CCallsign       m_ReflectorCallsign;
+	// identity
+	CCallsign       m_ReflectorCallsign;
 
-    // debug
-    CTimePoint      m_DebugTimer;
+	// debug
+	CTimePoint      m_DebugTimer;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

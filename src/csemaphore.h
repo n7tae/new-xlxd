@@ -32,23 +32,23 @@
 class CSemaphore
 {
 public:
-    // constructor
-    CSemaphore();
-    
-    // destructor
-    virtual ~CSemaphore() {};
-    
-    // operation
-    void Reset(void);
-    void Notify(void);
-    void Wait(void);
-    bool WaitFor(uint);
-    
+	// constructor
+	CSemaphore();
+
+	// destructor
+	virtual ~CSemaphore() {};
+
+	// operation
+	void Reset(void);
+	void Notify(void);
+	void Wait(void);
+	bool WaitFor(uint);
+
 protected:
-    // data
-    std::mutex              m_Mutex;
-    std::condition_variable m_Condition;
-    size_t                  m_Count;
+	// data
+	std::mutex              m_Mutex;
+	std::condition_variable m_Condition;
+	size_t                  m_Count;
 
 };
 

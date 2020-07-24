@@ -33,9 +33,9 @@
 
 CVocodecInterface::CVocodecInterface()
 {
-    m_Channels.reserve(5);
-    m_bStopThread = false;
-    m_pThread = NULL;
+	m_Channels.reserve(5);
+	m_bStopThread = false;
+	m_pThread = NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -43,17 +43,17 @@ CVocodecInterface::CVocodecInterface()
 
 CVocodecInterface::~CVocodecInterface()
 {
-    // empty channel array
-    // chennels are deleted by their owner (CVocodecs)
-    m_Channels.clear();
-    
-    // stop thread
-    m_bStopThread = true;
-    if ( m_pThread != NULL )
-    {
-        m_pThread->join();
-        delete m_pThread;
-    }
+	// empty channel array
+	// chennels are deleted by their owner (CVocodecs)
+	m_Channels.clear();
+
+	// stop thread
+	m_bStopThread = true;
+	if ( m_pThread != NULL )
+	{
+		m_pThread->join();
+		delete m_pThread;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -61,14 +61,14 @@ CVocodecInterface::~CVocodecInterface()
 
 bool CVocodecInterface::Init(void)
 {
-    // reset stop flag
-    m_bStopThread = false;
-    
-    // start  thread;
-    m_pThread = new std::thread(CVocodecInterface::Thread, this);
-    
-    // done
-    return true;
+	// reset stop flag
+	m_bStopThread = false;
+
+	// start  thread;
+	m_pThread = new std::thread(CVocodecInterface::Thread, this);
+
+	// done
+	return true;
 }
 
 
@@ -77,10 +77,10 @@ bool CVocodecInterface::Init(void)
 
 void CVocodecInterface::Thread(CVocodecInterface *This)
 {
-    while ( !This->m_bStopThread )
-    {
-        This->Task();
-    }
+	while ( !This->m_bStopThread )
+	{
+		This->Task();
+	}
 }
 
 
@@ -89,7 +89,7 @@ void CVocodecInterface::Thread(CVocodecInterface *This)
 
 void CVocodecInterface::AddChannel(CVocodecChannel *Channel)
 {
-    m_Channels.push_back(Channel);
+	m_Channels.push_back(Channel);
 }
 
 

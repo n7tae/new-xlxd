@@ -20,46 +20,47 @@
 #if !defined(YSFFICH_H)
 #define  YSFFICH_H
 
-class CYSFFICH {
+class CYSFFICH
+{
 public:
-    CYSFFICH();
-    ~CYSFFICH();
-    
-    bool decode(const unsigned char* bytes);
-    
-    void encode(unsigned char* bytes);
-    
-    unsigned char getFI() const;
-    unsigned char getCS() const;
-    unsigned char getCM() const;
-    unsigned char getBN() const;
-    unsigned char getBT() const;
-    unsigned char getFN() const;
-    unsigned char getFT() const;
-    unsigned char getDT() const;
-    unsigned char getMR() const;
-    bool getDev() const;
-    bool getSQL() const;
-    unsigned char getSQ() const;
-    
-    void setFI(unsigned char fi);
-    void setCS(unsigned char cs);
-    void setCM(unsigned char cm);
-    void setFN(unsigned char fn);
-    void setFT(unsigned char ft);
-    void setBN(unsigned char bn);
-    void setBT(unsigned char bt);
-    void setDT(unsigned char dt);
-    void setMR(unsigned char mr);
-    void setVoIP(bool set);
-    void setDev(bool set);
-    void setSQL(bool set);
-    void setSQ(unsigned char sq);
-    
-    void load(const unsigned char* fich);
-    
+	CYSFFICH();
+	~CYSFFICH();
+
+	bool decode(const unsigned char* bytes);
+
+	void encode(unsigned char* bytes);
+
+	unsigned char getFI() const;
+	unsigned char getCS() const;
+	unsigned char getCM() const;
+	unsigned char getBN() const;
+	unsigned char getBT() const;
+	unsigned char getFN() const;
+	unsigned char getFT() const;
+	unsigned char getDT() const;
+	unsigned char getMR() const;
+	bool getDev() const;
+	bool getSQL() const;
+	unsigned char getSQ() const;
+
+	void setFI(unsigned char fi);
+	void setCS(unsigned char cs);
+	void setCM(unsigned char cm);
+	void setFN(unsigned char fn);
+	void setFT(unsigned char ft);
+	void setBN(unsigned char bn);
+	void setBT(unsigned char bt);
+	void setDT(unsigned char dt);
+	void setMR(unsigned char mr);
+	void setVoIP(bool set);
+	void setDev(bool set);
+	void setSQL(bool set);
+	void setSQ(unsigned char sq);
+
+	void load(const unsigned char* fich);
+
 private:
-    unsigned char* m_fich;
+	unsigned char* m_fich;
 };
 
 #endif

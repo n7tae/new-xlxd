@@ -33,20 +33,20 @@
 
 CYsfNodeDir::CYsfNodeDir()
 {
-    keep_running = true;
-    m_pThread = nullptr;
+	keep_running = true;
+	m_pThread = nullptr;
 }
 
 CYsfNodeDir::~CYsfNodeDir()
 {
-    // kill threads
-    keep_running = false;
-    if ( m_pThread != nullptr )
-    {
-        m_pThread->join();
-        delete m_pThread;
+	// kill threads
+	keep_running = false;
+	if ( m_pThread != nullptr )
+	{
+		m_pThread->join();
+		delete m_pThread;
 		m_pThread = nullptr;
-    }
+	}
 }
 
 
@@ -55,27 +55,27 @@ CYsfNodeDir::~CYsfNodeDir()
 
 bool CYsfNodeDir::Init(void)
 {
-    // load content
-    Reload();
+	// load content
+	Reload();
 
-    // reset run flag
-    keep_running = true;
+	// reset run flag
+	keep_running = true;
 
-    // start  thread;
-    m_pThread = new std::thread(CYsfNodeDir::Thread, this);
+	// start  thread;
+	m_pThread = new std::thread(CYsfNodeDir::Thread, this);
 
-    return true;
+	return true;
 }
 
 void CYsfNodeDir::Close(void)
 {
-    keep_running = false;
-    if ( m_pThread != nullptr )
-    {
-        m_pThread->join();
-        delete m_pThread;
-        m_pThread = nullptr;
-    }
+	keep_running = false;
+	if ( m_pThread != nullptr )
+	{
+		m_pThread->join();
+		delete m_pThread;
+		m_pThread = nullptr;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -83,18 +83,18 @@ void CYsfNodeDir::Close(void)
 
 void CYsfNodeDir::Thread(CYsfNodeDir *This)
 {
-    while (This->keep_running)
-    {
-        // Wait YSFNODEDB_REFRESH_RATE minutes
+	while (This->keep_running)
+	{
+		// Wait YSFNODEDB_REFRESH_RATE minutes
 		for (int i=0; i<30*YSFNODEDB_REFRESH_RATE && This->keep_running; i++)
-        	CTimePoint::TaskSleepFor(2000);
+			CTimePoint::TaskSleepFor(2000);
 
-        // have lists files changed ?
-        if ( This->NeedReload() )
-        {
-               This->Reload();
-        }
-     }
+		// have lists files changed ?
+		if ( This->NeedReload() )
+		{
+			This->Reload();
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -102,18 +102,18 @@ void CYsfNodeDir::Thread(CYsfNodeDir *This)
 
 bool CYsfNodeDir::Reload(void)
 {
-    CBuffer buffer;
-    bool ok = false;
+	CBuffer buffer;
+	bool ok = false;
 
-    if ( LoadContent(&buffer) )
-    {
-        Lock();
-        {
-            ok = RefreshContent(buffer);
-        }
-        Unlock();
-    }
-    return ok;
+	if ( LoadContent(&buffer) )
+	{
+		Lock();
+		{
+			ok = RefreshContent(buffer);
+		}
+		Unlock();
+	}
+	return ok;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -121,17 +121,17 @@ bool CYsfNodeDir::Reload(void)
 
 bool CYsfNodeDir::FindFrequencies(const CCallsign &callsign, uint32 *txfreq, uint32 *rxfreq)
 {
-    auto found = find(callsign);
-    if ( found != end() )
-    {
-        *txfreq = found->second.GetTxFrequency();
-        *rxfreq = found->second.GetRxFrequency();
-        return true;
-    }
-    else
-    {
-        *txfreq = YSF_DEFAULT_NODE_TX_FREQ;
-        *rxfreq = YSF_DEFAULT_NODE_RX_FREQ;
-        return false;
-    }
+	auto found = find(callsign);
+	if ( found != end() )
+	{
+		*txfreq = found->second.GetTxFrequency();
+		*rxfreq = found->second.GetRxFrequency();
+		return true;
+	}
+	else
+	{
+		*txfreq = YSF_DEFAULT_NODE_TX_FREQ;
+		*rxfreq = YSF_DEFAULT_NODE_RX_FREQ;
+		return false;
+	}
 }

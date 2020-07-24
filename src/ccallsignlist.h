@@ -36,43 +36,43 @@
 class CCallsignList
 {
 public:
-    // constructor
-    CCallsignList();
+	// constructor
+	CCallsignList();
 
-    // destructor
-    virtual ~CCallsignList() {}
+	// destructor
+	virtual ~CCallsignList() {}
 
-    // locks
-    void Lock(void)                        { m_Mutex.lock(); }
-    void Unlock(void)                      { m_Mutex.unlock(); }
+	// locks
+	void Lock(void)                        { m_Mutex.lock(); }
+	void Unlock(void)                      { m_Mutex.unlock(); }
 
-    // file io
-    virtual bool LoadFromFile(const char *);
-    bool ReloadFromFile(void);
-    bool NeedReload(void);
+	// file io
+	virtual bool LoadFromFile(const char *);
+	bool ReloadFromFile(void);
+	bool NeedReload(void);
 
-    // compare
-    bool IsCallsignListedWithWildcard(const CCallsign &) const;
-    bool IsCallsignListedWithWildcard(const CCallsign &, char) const;
-    bool IsCallsignListed(const CCallsign &, char) const;
-    bool IsCallsignListed(const CCallsign &, char*) const;
+	// compare
+	bool IsCallsignListedWithWildcard(const CCallsign &) const;
+	bool IsCallsignListedWithWildcard(const CCallsign &, char) const;
+	bool IsCallsignListed(const CCallsign &, char) const;
+	bool IsCallsignListed(const CCallsign &, char*) const;
 
 	// pass-thru
 	bool empty() const                             { return m_Callsigns.empty(); }
 	std::list<CCallsignListItem>::iterator begin() { return m_Callsigns.begin(); }
 	std::list<CCallsignListItem>::iterator end()   { return m_Callsigns.end(); }
 
-    // find
-    CCallsignListItem *FindListItem(const CCallsign &);
+	// find
+	CCallsignListItem *FindListItem(const CCallsign &);
 
 protected:
-    bool GetLastModTime(time_t *);
-    char *TrimWhiteSpaces(char *);
+	bool GetLastModTime(time_t *);
+	char *TrimWhiteSpaces(char *);
 
-    // data
-    std::mutex      m_Mutex;
-    const char *    m_Filename;
-    time_t          m_LastModTime;
+	// data
+	std::mutex      m_Mutex;
+	const char *    m_Filename;
+	time_t          m_LastModTime;
 	std::list<CCallsignListItem> m_Callsigns;
 };
 

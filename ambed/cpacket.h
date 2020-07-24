@@ -32,30 +32,30 @@
 class CPacket
 {
 public:
-    // constructors
-    CPacket();
-    CPacket(uint8);
-    CPacket(const CPacket &);
-    
-    // destructor
-    virtual ~CPacket() {};
-    
-    // identity
-    virtual bool IsVoice(void) const    { return false; }
-    virtual bool IsAmbe(void) const     { return false; }
-    
-    // get
-    int   GetChannel(void) const        { return m_iCh; }
-    uint8 GetPid(void) const            { return m_uiPid; }
-    
-    // set
-    void SetChannel(int i)              { m_iCh = i; }
-    void SetPid(uint8 ui)               { m_uiPid = ui; }
-    
+	// constructors
+	CPacket();
+	CPacket(uint8);
+	CPacket(const CPacket &);
+
+	// destructor
+	virtual ~CPacket() {};
+
+	// identity
+	virtual bool IsVoice(void) const    { return false; }
+	virtual bool IsAmbe(void) const     { return false; }
+
+	// get
+	int   GetChannel(void) const        { return m_iCh; }
+	uint8 GetPid(void) const            { return m_uiPid; }
+
+	// set
+	void SetChannel(int i)              { m_iCh = i; }
+	void SetPid(uint8 ui)               { m_uiPid = ui; }
+
 protected:
-    // data
-    int     m_iCh;
-    uint8   m_uiPid;
+	// data
+	int     m_iCh;
+	uint8   m_uiPid;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

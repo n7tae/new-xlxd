@@ -43,7 +43,7 @@
 
 CProtocols::~CProtocols()
 {
-    Close();
+	Close();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -51,8 +51,8 @@ CProtocols::~CProtocols()
 
 bool CProtocols::Init(void)
 {
-    m_Mutex.lock();
-    {
+	m_Mutex.lock();
+	{
 		m_Protocols.emplace_back(std::unique_ptr<CDextraProtocol>(new CDextraProtocol));
 		if (! m_Protocols.back()->Initialize("XRF", DEXTRA_PORT, DSTAR_IPV4, DSTAR_IPV6))
 			return false;
@@ -89,16 +89,16 @@ bool CProtocols::Init(void)
 			return false;
 #endif
 
-    }
-    m_Mutex.unlock();
+	}
+	m_Mutex.unlock();
 
-    // done
-    return true;
+	// done
+	return true;
 }
 
 void CProtocols::Close(void)
 {
-    m_Mutex.lock();
+	m_Mutex.lock();
 	m_Protocols.clear();
-    m_Mutex.unlock();
+	m_Mutex.unlock();
 }

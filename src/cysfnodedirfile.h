@@ -32,28 +32,28 @@
 class CYsfNodeDirFile : public CYsfNodeDir
 {
 public:
-    // constructor
-    CYsfNodeDirFile();
-    
-    // destructor
-    ~CYsfNodeDirFile() {}
-    
-    // init & close
-    bool Init(void);
-    
-    // refresh
-    bool LoadContent(CBuffer *);
-    bool RefreshContent(const CBuffer &);
-    
+	// constructor
+	CYsfNodeDirFile();
+
+	// destructor
+	~CYsfNodeDirFile() {}
+
+	// init & close
+	bool Init(void);
+
+	// refresh
+	bool LoadContent(CBuffer *);
+	bool RefreshContent(const CBuffer &);
+
 protected:
-    // reload helpers
-    bool NeedReload(void);
-    bool GetLastModTime(time_t *);
-    
+	// reload helpers
+	bool NeedReload(void);
+	bool GetLastModTime(time_t *);
+
 protected:
-    // data
-    time_t      m_LastModTime;
- };
+	// data
+	time_t      m_LastModTime;
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////
 #endif /* cysfnodedirfile_h */

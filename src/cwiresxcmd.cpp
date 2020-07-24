@@ -31,15 +31,15 @@
 
 CWiresxCmd::CWiresxCmd()
 {
-    m_iCmd = WIRESX_CMD_UNKNOWN;
-    m_Time.Now();
+	m_iCmd = WIRESX_CMD_UNKNOWN;
+	m_Time.Now();
 }
 
 CWiresxCmd::CWiresxCmd(const CIp &Ip, const CCallsign &Callsign, int iCmd, int iArg)
 {
-    m_Ip = Ip;
-    m_Callsign = Callsign;
-    m_iCmd = iCmd;
-    m_iArg = iArg;
-    m_Time.Now();
+	m_Ip = Ip;
+	m_Callsign = Callsign;
+	m_iCmd = iCmd;
+	m_iArg = iArg;
+	m_Time.Now();
 }

@@ -19,7 +19,7 @@
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>. 
+//    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 // ----------------------------------------------------------------------------
 
 #include "main.h"
@@ -31,19 +31,19 @@
 
 CDplusClient::CDplusClient()
 {
-    m_bDextraDongle = false;
+	m_bDextraDongle = false;
 }
 
 CDplusClient::CDplusClient(const CCallsign &callsign, const CIp &ip, char reflectorModule)
-    : CClient(callsign, ip, reflectorModule)
+	: CClient(callsign, ip, reflectorModule)
 {
-    m_bDextraDongle = false;
+	m_bDextraDongle = false;
 }
 
 CDplusClient::CDplusClient(const CDplusClient &client)
-    : CClient(client)
+	: CClient(client)
 {
-    m_bDextraDongle = client.m_bDextraDongle;
+	m_bDextraDongle = client.m_bDextraDongle;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -51,11 +51,11 @@ CDplusClient::CDplusClient(const CDplusClient &client)
 
 bool CDplusClient::IsAlive(void) const
 {
-    return (m_LastKeepaliveTime.DurationSinceNow() < DPLUS_KEEPALIVE_TIMEOUT);
+	return (m_LastKeepaliveTime.DurationSinceNow() < DPLUS_KEEPALIVE_TIMEOUT);
 }
 
 void CDplusClient::SetMasterOfModule(char c)
 {
-    CClient::SetMasterOfModule(c);
-    SetReflectorModule(c);
+	CClient::SetMasterOfModule(c);
+	SetReflectorModule(c);
 }
