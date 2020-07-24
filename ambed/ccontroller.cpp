@@ -34,8 +34,7 @@
 
 CController::CController()
 {
-	m_bStopThread = false;
-	m_pThread = NULL;
+	keep_running = true;
 	m_uiLastStreamId = 0;
 }
 
@@ -59,12 +58,8 @@ CController::~CController()
 	}
 
 	m_Mutex.unlock();
-	m_bStopThread = true;
-	if ( m_pThread != NULL )
-	{
-		m_pThread->join();
-		delete m_pThread;
-	}
+	keep_running = false;
+	Close();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +68,7 @@ CController::~CController()
 bool CController::Init(void)
 {
 	// reset stop flag
-	m_bStopThread = false;
+	keep_running = true;
 
 	// create our socket
 	CIp ip(strchr(m_addr, ':') ? AF_INET6 : AF_INET, TRANSCODER_PORT, m_addr);
@@ -88,30 +83,17 @@ bool CController::Init(void)
 		return false;
 	}
 	// start  thread;
-	m_pThread = new std::thread(CController::Thread, this);
+	m_Future = std::async(std::launch::async, &CController::Task, this);
 
 	return true;
 }
 
 void CController::Close(void)
 {
-	m_bStopThread = true;
-	if ( m_pThread != NULL )
+	keep_running = false;
+	if (m_Future.valid() )
 	{
-		m_pThread->join();
-		delete m_pThread;
-		m_pThread = NULL;
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////////////
-// thread
-
-void CController::Thread(CController *This)
-{
-	while ( !This->m_bStopThread )
-	{
-		This->Task();
+		m_Future.get();
 	}
 }
 
@@ -120,49 +102,51 @@ void CController::Thread(CController *This)
 
 void CController::Task(void)
 {
-	CBuffer     Buffer;
-	CIp         Ip;
-	CCallsign   Callsign;
-	uint8       CodecIn;
-	uint8       CodecOut;
-	uint16      StreamId;
-	CStream     *Stream;
+	while (keep_running) {
+		CBuffer     Buffer;
+		CIp         Ip;
+		CCallsign   Callsign;
+		uint8       CodecIn;
+		uint8       CodecOut;
+		uint16      StreamId;
+		CStream     *Stream;
 
-	// anything coming in from codec client ?
-	if ( m_Socket.Receive(Buffer, Ip, 20) )
-	{
-		// crack packet
-		if ( IsValidOpenstreamPacket(Buffer, &Callsign, &CodecIn, &CodecOut) )
+		// anything coming in from codec client ?
+		if ( m_Socket.Receive(Buffer, Ip, 20) )
 		{
-			std::cout << "Stream Open from " << Callsign << std::endl;
-
-			// try create the stream
-			Stream = OpenStream(Callsign, Ip, CodecIn, CodecOut);
-
-			// send back details
-			if ( Stream != NULL )
+			// crack packet
+			if ( IsValidOpenstreamPacket(Buffer, &Callsign, &CodecIn, &CodecOut) )
 			{
-				EncodeStreamDescrPacket(&Buffer, *Stream);
-			}
-			else
-			{
-				EncodeNoStreamAvailablePacket(&Buffer);
-			}
-			m_Socket.Send(Buffer, Ip);
-		}
-		else if ( IsValidClosestreamPacket(Buffer, &StreamId) )
-		{
-			// close the stream
-			CloseStream(StreamId);
+				std::cout << "Stream Open from " << Callsign << std::endl;
 
-			std::cout << "Stream " << (int)StreamId << " closed" << std::endl;
-		}
-		else if ( IsValidKeepAlivePacket(Buffer, &Callsign) )
-		{
-			//std::cout << "ping - " << Callsign << std::endl;
-			// pong back
-			EncodeKeepAlivePacket(&Buffer);
-			m_Socket.Send(Buffer, Ip);
+				// try create the stream
+				Stream = OpenStream(Callsign, Ip, CodecIn, CodecOut);
+
+				// send back details
+				if ( Stream != NULL )
+				{
+					EncodeStreamDescrPacket(&Buffer, *Stream);
+				}
+				else
+				{
+					EncodeNoStreamAvailablePacket(&Buffer);
+				}
+				m_Socket.Send(Buffer, Ip);
+			}
+			else if ( IsValidClosestreamPacket(Buffer, &StreamId) )
+			{
+				// close the stream
+				CloseStream(StreamId);
+
+				std::cout << "Stream " << (int)StreamId << " closed" << std::endl;
+			}
+			else if ( IsValidKeepAlivePacket(Buffer, &Callsign) )
+			{
+				//std::cout << "ping - " << Callsign << std::endl;
+				// pong back
+				EncodeKeepAlivePacket(&Buffer);
+				m_Socket.Send(Buffer, Ip);
+			}
 		}
 	}
 

@@ -34,8 +34,7 @@
 CVocodecInterface::CVocodecInterface()
 {
 	m_Channels.reserve(5);
-	m_bStopThread = false;
-	m_pThread = NULL;
+	keep_running = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -48,11 +47,10 @@ CVocodecInterface::~CVocodecInterface()
 	m_Channels.clear();
 
 	// stop thread
-	m_bStopThread = true;
-	if ( m_pThread != NULL )
+	keep_running = false;
+	if ( m_Future.valid() )
 	{
-		m_pThread->join();
-		delete m_pThread;
+		m_Future.get();
 	}
 }
 
@@ -62,10 +60,10 @@ CVocodecInterface::~CVocodecInterface()
 bool CVocodecInterface::Init(void)
 {
 	// reset stop flag
-	m_bStopThread = false;
+	keep_running = true;
 
 	// start  thread;
-	m_pThread = new std::thread(CVocodecInterface::Thread, this);
+	m_Future = std::async(std::launch::async, &CVocodecInterface::Thread, this);
 
 	// done
 	return true;
@@ -75,11 +73,11 @@ bool CVocodecInterface::Init(void)
 ////////////////////////////////////////////////////////////////////////////////////////
 // thread
 
-void CVocodecInterface::Thread(CVocodecInterface *This)
+void CVocodecInterface::Thread()
 {
-	while ( !This->m_bStopThread )
+	while ( keep_running )
 	{
-		This->Task();
+		Task();
 	}
 }
 
@@ -91,5 +89,3 @@ void CVocodecInterface::AddChannel(CVocodecChannel *Channel)
 {
 	m_Channels.push_back(Channel);
 }
-
-

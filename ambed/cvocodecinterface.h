@@ -55,8 +55,8 @@ public:
 	virtual CVocodecChannel *GetChannelWithChannelOut(int)      { return NULL; }
 
 	// task
-	static void Thread(CVocodecInterface *);
-	virtual void Task(void) {};
+	void Thread(void);
+	virtual void Task(void) {}
 
 	// operators
 	virtual bool operator ==(const CVocodecInterface &) const   { return false; }
@@ -66,8 +66,8 @@ protected:
 	std::vector<CVocodecChannel *>  m_Channels;
 
 	// thread
-	bool                            m_bStopThread;
-	std::thread                     *m_pThread;
+	std::atomic<bool> keep_running;
+	std::future<void> m_Future;
 
 };
 

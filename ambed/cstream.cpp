@@ -43,8 +43,7 @@ CStream::CStream()
 {
 	m_uiId = 0;
 	m_uiPort = 0;
-	m_bStopThread = false;
-	m_pThread = NULL;
+	keep_running = true;
 	m_VocodecChannel = NULL;
 	m_LastActivity.Now();
 	m_iTotalPackets = 0;
@@ -59,8 +58,7 @@ CStream::CStream(uint16 uiId, const CCallsign &Callsign, const CIp &Ip, uint8 ui
 	m_uiPort = 0;
 	m_uiCodecIn = uiCodecIn;
 	m_uiCodecOut = uiCodecOut;
-	m_bStopThread = false;
-	m_pThread = NULL;
+	keep_running = true;
 	m_VocodecChannel = NULL;
 	m_LastActivity.Now();
 	m_iTotalPackets = 0;
@@ -73,12 +71,10 @@ CStream::CStream(uint16 uiId, const CCallsign &Callsign, const CIp &Ip, uint8 ui
 CStream::~CStream()
 {
 	// stop thread first
-	m_bStopThread = true;
-	if ( m_pThread != NULL )
+	keep_running = false;
+	if ( m_Future.valid() )
 	{
-		m_pThread->join();
-		delete m_pThread;
-		m_pThread = NULL;
+		m_Future.get();
 	}
 
 	// then close everything
@@ -95,7 +91,7 @@ CStream::~CStream()
 bool CStream::Init(uint16 uiPort)
 {
 	// reset stop flag
-	m_bStopThread = false;
+	keep_running = true;
 
 	// create our socket
 	auto s = g_AmbeServer.GetListenIp();
@@ -125,7 +121,7 @@ bool CStream::Init(uint16 uiPort)
 	m_uiPort = uiPort;
 
 	// start  thread;
-	m_pThread = new std::thread(CStream::Thread, this);
+	m_Future = std::async(std::launch::async, &CStream::Task, this);
 
 	// init timeout system
 	m_LastActivity.Now();
@@ -141,12 +137,10 @@ bool CStream::Init(uint16 uiPort)
 void CStream::Close(void)
 {
 	// stop thread first
-	m_bStopThread = true;
-	if ( m_pThread != NULL )
+	keep_running = false;
+	if ( m_Future.valid() )
 	{
-		m_pThread->join();
-		delete m_pThread;
-		m_pThread = NULL;
+		m_Future.get();
 	}
 
 	// then close everything
@@ -162,60 +156,51 @@ void CStream::Close(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// thread
-
-void CStream::Thread(CStream *This)
-{
-	while ( !This->m_bStopThread )
-	{
-		This->Task();
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////////////
 // task
 
 void CStream::Task(void)
 {
-	CBuffer     Buffer;
-	static CIp  Ip;
-	uint8       uiPid;
-	uint8       Ambe[AMBE_FRAME_SIZE];
-	CAmbePacket *packet;
-	CPacketQueue *queue;
+	while (keep_running) {
+		CBuffer     Buffer;
+		static CIp  Ip;
+		uint8       uiPid;
+		uint8       Ambe[AMBE_FRAME_SIZE];
+		CAmbePacket *packet;
+		CPacketQueue *queue;
 
-	// anything coming in from codec client ?
-	if ( m_Socket.Receive(Buffer, Ip, 1) )
-	{
-		// crack packet
-		if ( IsValidDvFramePacket(Buffer, &uiPid, Ambe) )
+		// anything coming in from codec client ?
+		if ( m_Socket.Receive(Buffer, Ip, 1) )
 		{
-			// transcode AMBE here
-			m_LastActivity.Now();
-			m_iTotalPackets++;
+			// crack packet
+			if ( IsValidDvFramePacket(Buffer, &uiPid, Ambe) )
+			{
+				// transcode AMBE here
+				m_LastActivity.Now();
+				m_iTotalPackets++;
 
-			// post packet to VocoderChannel
-			packet = new CAmbePacket(uiPid, m_uiCodecIn, Ambe);
-			queue = m_VocodecChannel->GetPacketQueueIn();
-			queue->push(packet);
-			m_VocodecChannel->ReleasePacketQueueIn();
+				// post packet to VocoderChannel
+				packet = new CAmbePacket(uiPid, m_uiCodecIn, Ambe);
+				queue = m_VocodecChannel->GetPacketQueueIn();
+				queue->push(packet);
+				m_VocodecChannel->ReleasePacketQueueIn();
+			}
 		}
-	}
 
-	// anything in our queue ?
-	queue = m_VocodecChannel->GetPacketQueueOut();
-	while ( !queue->empty() )
-	{
-		// get the packet
-		packet = (CAmbePacket *)queue->front();
-		queue->pop();
-		// send it to client
-		EncodeDvFramePacket(&Buffer, packet->GetPid(), packet->GetAmbe());
-		m_Socket.Send(Buffer, Ip, m_uiPort);
-		// and done
-		delete packet;
+		// anything in our queue ?
+		queue = m_VocodecChannel->GetPacketQueueOut();
+		while ( !queue->empty() )
+		{
+			// get the packet
+			packet = (CAmbePacket *)queue->front();
+			queue->pop();
+			// send it to client
+			EncodeDvFramePacket(&Buffer, packet->GetPid(), packet->GetAmbe());
+			m_Socket.Send(Buffer, Ip, m_uiPort);
+			// and done
+			delete packet;
+		}
+		m_VocodecChannel->ReleasePacketQueueOut();
 	}
-	m_VocodecChannel->ReleasePacketQueueOut();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

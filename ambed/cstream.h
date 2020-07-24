@@ -56,7 +56,6 @@ public:
 	bool    IsActive(void) const        { return m_LastActivity.DurationSinceNow() <= STREAM_ACTIVITY_TIMEOUT; }
 
 	// task
-	static void Thread(CStream *);
 	void Task(void);
 
 protected:
@@ -88,8 +87,8 @@ protected:
 	CTimePoint      m_LastActivity;
 
 	// thread
-	bool            m_bStopThread;
-	std::thread     *m_pThread;
+	std::atomic<bool> keep_running;
+	std::future<void> m_Future;
 
 };
 

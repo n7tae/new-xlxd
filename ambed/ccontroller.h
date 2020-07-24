@@ -56,7 +56,6 @@ public:
 	void SetListenIp(const char *str)   { memset(m_addr, 0, INET6_ADDRSTRLEN); strncpy(m_addr, str, INET6_ADDRSTRLEN-1); }
 
 	// task
-	static void Thread(CController *);
 	void Task(void);
 
 protected:
@@ -88,8 +87,8 @@ protected:
 	std::list<CStream *> m_Streams;
 
 	// thread
-	bool         m_bStopThread;
-	std::thread *m_pThread;
+	std::atomic<bool> keep_running;
+	std::future<void> m_Future;
 
 };
 
