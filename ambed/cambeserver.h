@@ -39,10 +39,6 @@ public:
 	bool Start(void);
 	void Stop(void);
 
-	// task
-	static void Thread(CAmbeServer *);
-	void Task(void);
-
 	// get
 	const char *GetListenIp(void) const   { return m_Controller.GetListenIp(); }
 
