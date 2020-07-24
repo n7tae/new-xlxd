@@ -109,10 +109,10 @@ public:
 
 protected:
 	// threads
-	static void RouterThread(CReflector *, CPacketStream *);
-	static void XmlReportThread(CReflector *);
+	void RouterThread(CPacketStream *);
+	void XmlReportThread(void);
 #ifdef JSON_MONITOR
-	static void JsonReportThread(CReflector *);
+	void JsonReportThread(void);
 #endif
 
 	// streams
@@ -156,9 +156,8 @@ protected:
 
 	// threads
 	std::atomic<bool> keep_running;
-	std::array<std::thread *, NB_OF_MODULES> m_RouterThreads;
-	std::thread    *m_XmlReportThread;
-	std::thread    *m_JsonReportThread;
+	std::array<std::future<void>, NB_OF_MODULES> m_RouterFuture;
+	std::future<void> m_XmlReportFuture, m_JsonReportFuture;
 
 	// notifications
 	CNotificationQueue  m_Notifications;
