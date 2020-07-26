@@ -46,16 +46,16 @@ public:
 	CPacket(uint16 sid, uint8 dstarpid, uint8 dmrpid, uint8 dmrsubpid, uint8 ysfpid, uint8 ysfsubpid, uint8 ysfsubpidmax);
 
 	// destructor
-	virtual ~CPacket() {};
+	virtual ~CPacket() {}
 
 	// virtual duplication
-	virtual CPacket *Duplicate(void) const;
+	virtual CPacket *Duplicate(void) const = 0;
 
 	// identity
 	virtual bool IsDvHeader(void) const             { return false; }
 	virtual bool IsDvFrame(void) const              { return false; }
 	virtual bool IsLastPacket(void) const           { return false; }
-	virtual bool HaveTranscodableAmbe(void) const   { return false; }
+	virtual bool HasTranscodableAmbe(void) const   { return false; }
 
 	// get
 	virtual bool IsValid(void) const                { return true; }

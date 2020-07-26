@@ -202,7 +202,7 @@ void CYsfProtocol::Task(void)
 		}
 		else if ( IsValidServerStatusPacket(Buffer) )
 		{
-			std::cout << "YSF server status enquiry from " << Ip   << std::endl;
+			std::cout << "YSF server status enquiry from " << Ip << std::endl;
 			// reply
 			EncodeServerStatusPacket(&Buffer);
 			Send(Buffer, Ip);

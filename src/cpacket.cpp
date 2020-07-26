@@ -104,15 +104,6 @@ CPacket::CPacket(uint16 sid, uint8 dstarpid, uint8 dmrpid, uint8 dmrsubpid, uint
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// virtual duplication
-
-CPacket *CPacket::Duplicate(void) const
-{
-	return new CPacket(*this);
-}
-
-
-////////////////////////////////////////////////////////////////////////////////////////
 // pid conversion
 
 void CPacket::UpdatePids(uint32 pid)

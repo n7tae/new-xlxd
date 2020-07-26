@@ -66,7 +66,7 @@ public:
 	// identity
 	bool IsDvFrame(void) const              { return true; }
 #ifndef NO_XLX
-	bool HaveTranscodableAmbe(void) const   { return true; }
+	bool HasTranscodableAmbe(void) const   { return true; }
 #endif
 
 	// get

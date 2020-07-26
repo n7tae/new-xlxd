@@ -152,7 +152,7 @@ protected:
 	CProtocols      m_Protocols;        // list of supported protocol handlers
 
 	// queues
-	std::array<CPacketStream, NB_OF_MODULES> m_Streams;
+	std::array<CPacketStream, NB_OF_MODULES> m_Stream;
 
 	// threads
 	std::atomic<bool> keep_running;

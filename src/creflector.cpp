@@ -114,7 +114,7 @@ bool CReflector::Start(void)
 	// start one thread per reflector module
 	for ( int i = 0; i < NB_OF_MODULES; i++ )
 	{
-		m_RouterFuture[i] = std::async(std::launch::async, &CReflector::RouterThread, this, &(m_Streams[i]));
+		m_RouterFuture[i] = std::async(std::launch::async, &CReflector::RouterThread, this, &(m_Stream[i]));
 	}
 
 	// start the reporting threads
@@ -241,11 +241,9 @@ CPacketStream *CReflector::OpenStream(CDvHeaderPacket *DvHeader, std::shared_ptr
 
 void CReflector::CloseStream(CPacketStream *stream)
 {
-	//
 	if ( stream != nullptr )
 	{
-		// wait queue is empty
-		// this waits forever
+		// wait queue is empty. this waits forever
 		bool bEmpty = false;
 		do
 		{
@@ -256,18 +254,12 @@ void CReflector::CloseStream(CPacketStream *stream)
 			bEmpty = stream->empty();
 			stream->Unlock();
 			if ( !bEmpty )
-			{
-				// wait a bit
 				CTimePoint::TaskSleepFor(10);
-			}
 		}
 		while (!bEmpty);
 
-		// lock clients
-		GetClients();
-
-		// lock stream
-		stream->Lock();
+		GetClients();	// lock clients
+		stream->Lock();	// lock stream
 
 		// get and check the master
 		std::shared_ptr<CClient>client = stream->GetOwnerClient();
@@ -277,7 +269,7 @@ void CReflector::CloseStream(CPacketStream *stream)
 			client->NotAMaster();
 
 			// notify
-			g_Reflector.OnStreamClose(stream->GetUserCallsign());
+			OnStreamClose(stream->GetUserCallsign());
 
 			std::cout << "Closing stream of module " << GetStreamModule(stream) << std::endl;
 		}
@@ -292,8 +284,6 @@ void CReflector::CloseStream(CPacketStream *stream)
 
 		// and stop the queue
 		stream->Close();
-
-
 	}
 }
 
@@ -552,37 +542,32 @@ int CReflector::GetModuleIndex(char module) const
 
 CPacketStream *CReflector::GetStream(char module)
 {
-	CPacketStream *stream = nullptr;
 	int i = GetModuleIndex(module);
 	if ( i >= 0 )
 	{
-		stream = &(m_Streams[i]);
+		return &(m_Stream[i]);
 	}
-	return stream;
+	return nullptr;
 }
 
 bool CReflector::IsStreamOpen(const CDvHeaderPacket *DvHeader)
 {
-	bool open = false;
-	for ( unsigned i = 0; (i < m_Streams.size()) && !open; i++  )
+	for ( unsigned i = 0; i < m_Stream.size(); i++  )
 	{
-		open =  ( (m_Streams[i].GetStreamId() == DvHeader->GetStreamId()) &&
-				  (m_Streams[i].IsOpen()));
+		if ( (m_Stream[i].GetStreamId() == DvHeader->GetStreamId()) && (m_Stream[i].IsOpen()) )
+			return true;
 	}
-	return open;
+	return false;
 }
 
 char CReflector::GetStreamModule(CPacketStream *stream)
 {
-	char module = ' ';
-	for ( unsigned i = 0; (i < m_Streams.size()) && (module == ' '); i++ )
+	for ( unsigned i = 0; i < m_Stream.size(); i++ )
 	{
-		if ( &(m_Streams[i]) == stream )
-		{
-			module = GetModuleLetter(i);
-		}
+		if ( &(m_Stream[i]) == stream )
+			return GetModuleLetter(i);
 	}
-	return module;
+	return ' ';
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
