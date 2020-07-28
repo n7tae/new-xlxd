@@ -214,11 +214,11 @@ CPacketStream *CReflector::OpenStream(std::unique_ptr<CDvHeaderPacket> &DvHeader
 		// update last heard time
 		client->Heard();
 
-		// and push header packet
-		stream->Push(std::move(DvHeader));
-
 		// report
 		std::cout << "Opening stream on module " << module << " for client " << client->GetCallsign() << " with sid " << DvHeader->GetStreamId() << " by user " << DvHeader->GetMyCallsign() << std::endl;
+
+		// and push header packet
+		stream->Push(std::move(DvHeader));
 
 		// notify
 		g_Reflector.OnStreamOpen(stream->GetUserCallsign());
