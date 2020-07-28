@@ -200,7 +200,7 @@ CPacketStream *CReflector::OpenStream(std::unique_ptr<CDvHeaderPacket> &DvHeader
 	// get the module's queue
 	char module = DvHeader->GetRpt2Module();
 	CPacketStream *stream = GetStream(module);
-	if ( stream = nullptr )
+	if ( stream == nullptr )
 		return nullptr;
 
 	stream->Lock();
