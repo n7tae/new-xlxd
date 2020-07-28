@@ -73,9 +73,6 @@ public:
 	// constructor
 	CYsfProtocol();
 
-	// destructor
-	~CYsfProtocol() {}
-
 	// initialization
 	bool Initalize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6);
 	void Close(void);
@@ -91,15 +88,15 @@ protected:
 	void HandleKeepalives(void);
 
 	// stream helpers
-	bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &);
+	void OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &, const CIp &);
 
 	// DV packet decoding helpers
 	bool IsValidConnectPacket(const CBuffer &, CCallsign *);
 	//bool IsValidDisconnectPacket(const CBuffer &, CCallsign *);
 	bool IsValidDvPacket(const CBuffer &, CYSFFICH *);
-	bool IsValidDvHeaderPacket(const CIp &, const CYSFFICH &, const CBuffer &, CDvHeaderPacket **, CDvFramePacket **);
-	bool IsValidDvFramePacket(const CIp &, const CYSFFICH &, const CBuffer &, CDvFramePacket **);
-	bool IsValidDvLastFramePacket(const CIp &, const CYSFFICH &, const CBuffer &, CDvFramePacket **);
+	bool IsValidDvHeaderPacket(const CIp &, const CYSFFICH &, const CBuffer &, std::unique_ptr<CDvHeaderPacket> &, std::array<std::unique_ptr<CDvFramePacket>, 5> &);
+	bool IsValidDvFramePacket(const CIp &, const CYSFFICH &, const CBuffer &, std::array<std::unique_ptr<CDvFramePacket>, 5> &);
+	bool IsValidDvLastFramePacket(const CIp &, const CYSFFICH &, const CBuffer &, std::unique_ptr<CDvFramePacket> &, std::unique_ptr<CDvLastFramePacket> &);
 
 	// DV packet encoding helpers
 	void EncodeConnectAckPacket(CBuffer *) const;

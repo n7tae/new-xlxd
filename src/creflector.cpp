@@ -178,65 +178,54 @@ bool CReflector::IsStreaming(char module)
 	return false;
 }
 
-CPacketStream *CReflector::OpenStream(CDvHeaderPacket *DvHeader, std::shared_ptr<CClient>client)
+// clients MUST have bee locked by the caller so we can freely access it within the fuction
+CPacketStream *CReflector::OpenStream(std::unique_ptr<CDvHeaderPacket> &DvHeader, std::shared_ptr<CClient>client)
 {
-	CPacketStream *retStream = nullptr;
+	// check sid is not zero
+	if ( 0U == DvHeader->GetStreamId() )
+		return nullptr;
 
-	// clients MUST have bee locked by the caller
-	// so we can freely access it within the fuction
+	// check if client is valid candidate
+	if ( ! m_Clients.IsClient(client) || client->IsAMaster() )
+		return nullptr;
 
-	// check sid is not nullptr
-	if ( DvHeader->GetStreamId() != 0 )
+	// check if no stream with same streamid already open
+	// to prevent loops
+	if ( IsStreamOpen(DvHeader) )
 	{
-		// check if client is valid candidate
-		if ( m_Clients.IsClient(client) && !client->IsAMaster() )
-		{
-			// check if no stream with same streamid already open
-			// to prevent loops
-			if ( !IsStreamOpen(DvHeader) )
-			{
-				// get the module's queue
-				char module = DvHeader->GetRpt2Module();
-				CPacketStream *stream = GetStream(module);
-				if ( stream != nullptr )
-				{
-					// lock it
-					stream->Lock();
-					// is it available ?
-					if ( stream->Open(*DvHeader, client) )
-					{
-						// stream open, mark client as master
-						// so that it can't be deleted
-						client->SetMasterOfModule(module);
-
-						// update last heard time
-						client->Heard();
-						retStream = stream;
-
-						// and push header packet
-						stream->Push(DvHeader);
-
-						// report
-						std::cout << "Opening stream on module " << module << " for client " << client->GetCallsign() << " with sid " << DvHeader->GetStreamId() << " by user " << DvHeader->GetMyCallsign() << std::endl;
-
-						// notify
-						g_Reflector.OnStreamOpen(stream->GetUserCallsign());
-
-					}
-					// unlock now
-					stream->Unlock();
-				}
-			}
-			else
-			{
-				// report
-				std::cerr << "Detected stream loop on module " << DvHeader->GetRpt2Module() << " for client " << client->GetCallsign() << " with sid " << DvHeader->GetStreamId() << std::endl;
-			}
-		}
+		std::cerr << "Detected stream loop on module " << DvHeader->GetRpt2Module() << " for client " << client->GetCallsign() << " with sid " << DvHeader->GetStreamId() << std::endl;
+		return nullptr;
 	}
 
-	// done
-	return retStream;
+	// get the module's queue
+	char module = DvHeader->GetRpt2Module();
+	CPacketStream *stream = GetStream(module);
+	if ( stream = nullptr )
+		return nullptr;
+
+	stream->Lock();
+	// is it available ?
+	if ( stream->Open(*DvHeader, client) )
+	{
+		// stream open, mark client as master
+		// so that it can't be deleted
+		client->SetMasterOfModule(module);
+
+		// update last heard time
+		client->Heard();
+
+		// and push header packet
+		stream->Push(std::move(DvHeader));
+
+		// report
+		std::cout << "Opening stream on module " << module << " for client " << client->GetCallsign() << " with sid " << DvHeader->GetStreamId() << " by user " << DvHeader->GetMyCallsign() << std::endl;
+
+		// notify
+		g_Reflector.OnStreamOpen(stream->GetUserCallsign());
+
+	}
+	stream->Unlock();
+	return stream;
 }
 
 void CReflector::CloseStream(CPacketStream *stream)
@@ -296,7 +285,7 @@ void CReflector::RouterThread(CPacketStream *streamIn)
 	uint8 uiModuleId = GetStreamModule(streamIn);
 
 	// get on input queue
-	CPacket *packet;
+	std::unique_ptr<CPacket> packet;
 
 	while (keep_running)
 	{
@@ -325,7 +314,7 @@ void CReflector::RouterThread(CPacketStream *streamIn)
 			for ( auto it=m_Protocols.begin(); it!=m_Protocols.end(); it++ )
 			{
 				// duplicate packet
-				CPacket *packetClone = packet->Duplicate();
+				auto packetClone = packet->Duplicate();
 
 				// if packet is header, update RPT2 according to protocol
 				if ( packetClone->IsDvHeader() )
@@ -333,7 +322,7 @@ void CReflector::RouterThread(CPacketStream *streamIn)
 					// get our callsign
 					CCallsign csRPT = (*it)->GetReflectorCallsign();
 					csRPT.SetModule(GetStreamModule(streamIn));
-					((CDvHeaderPacket *)packetClone)->SetRpt2Callsign(csRPT);
+					(dynamic_cast<CDvHeaderPacket *>(packetClone.get()))->SetRpt2Callsign(csRPT);
 				}
 
 				// and push it
@@ -342,13 +331,9 @@ void CReflector::RouterThread(CPacketStream *streamIn)
 				(*it)->ReleaseQueue();
 			}
 			m_Protocols.Unlock();
-			// done
-			delete packet;
-			packet = nullptr;
 		}
 		else
 		{
-			// wait a bit
 			CTimePoint::TaskSleepFor(10);
 		}
 	}
@@ -550,7 +535,7 @@ CPacketStream *CReflector::GetStream(char module)
 	return nullptr;
 }
 
-bool CReflector::IsStreamOpen(const CDvHeaderPacket *DvHeader)
+bool CReflector::IsStreamOpen(const std::unique_ptr<CDvHeaderPacket> &DvHeader)
 {
 	for ( unsigned i = 0; i < m_Stream.size(); i++  )
 	{

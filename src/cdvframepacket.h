@@ -61,7 +61,7 @@ public:
 #endif
 
 	// virtual duplication
-	CPacket *Duplicate(void) const;
+	std::unique_ptr<CPacket> Duplicate(void) const;
 
 	// identity
 	bool IsDvFrame(void) const              { return true; }

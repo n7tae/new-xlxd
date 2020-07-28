@@ -57,9 +57,9 @@ void CDplusProtocol::Task(void)
 	CBuffer             Buffer;
 	CIp                 Ip;
 	CCallsign           Callsign;
-	CDvHeaderPacket     *Header;
-	CDvFramePacket      *Frame;
-	CDvLastFramePacket  *LastFrame;
+	std::unique_ptr<CDvHeaderPacket>    Header;
+	std::unique_ptr<CDvFramePacket>     Frame;
+	std::unique_ptr<CDvLastFramePacket> LastFrame;
 
 	// handle incoming packets
 #if DSTAR_IPV6==true
@@ -73,33 +73,21 @@ void CDplusProtocol::Task(void)
 #endif
 	{
 		// crack the packet
-		if ( (Frame = IsValidDvFramePacket(Buffer)) != nullptr )
+		if ( IsValidDvFramePacket(Buffer, Frame) )
 		{
-			//std::cout << "DPlus DV frame" << std::endl;
-
-			// handle it
 			OnDvFramePacketIn(Frame, &Ip);
 		}
-		else if ( (Header = IsValidDvHeaderPacket(Buffer)) != nullptr )
+		else if ( IsValidDvHeaderPacket(Buffer, Header) )
 		{
-			//std::cout << "DPlus DV header:" << std::endl << *Header << std::endl;
-
-			// callsign muted?
+			// is muted?
 			if ( g_GateKeeper.MayTransmit(Header->GetMyCallsign(), Ip, PROTOCOL_DPLUS, Header->GetRpt2Module()) )
 			{
 				// handle it
 				OnDvHeaderPacketIn(Header, Ip);
 			}
-			else
-			{
-				delete Header;
-			}
 		}
-		else if ( (LastFrame = IsValidDvLastFramePacket(Buffer)) != nullptr )
+		else if ( IsValidDvLastFramePacket(Buffer, LastFrame) )
 		{
-			//std::cout << "DPlus DV last frame" << std::endl;
-
-			// handle it
 			OnDvLastFramePacketIn(LastFrame, &Ip);
 		}
 		else if ( IsValidConnectPacket(Buffer) )
@@ -189,10 +177,8 @@ void CDplusProtocol::Task(void)
 ////////////////////////////////////////////////////////////////////////////////////////
 // streams helpers
 
-bool CDplusProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
+void CDplusProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Header, const CIp &Ip)
 {
-	bool newstream = false;
-
 	// find the stream
 	CPacketStream *stream = GetStream(Header->GetStreamId());
 	if ( stream == nullptr )
@@ -224,7 +210,6 @@ bool CDplusProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
 				{
 					// keep the handle
 					m_Streams.push_back(stream);
-					newstream = true;
 				}
 			}
 			// release
@@ -233,12 +218,6 @@ bool CDplusProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
 			// update last heard
 			g_Reflector.GetUsers()->Hearing(Header->GetMyCallsign(), via, Header->GetRpt2Callsign());
 			g_Reflector.ReleaseUsers();
-
-			// delete header if needed
-			if ( !newstream )
-			{
-				delete Header;
-			}
 		}
 		else
 		{
@@ -250,12 +229,7 @@ bool CDplusProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
 		// stream already open
 		// skip packet, but tickle the stream
 		stream->Tickle();
-		// and delete packet
-		delete Header;
 	}
-
-	// done
-	return newstream;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -267,7 +241,7 @@ void CDplusProtocol::HandleQueue(void)
 	while ( !m_Queue.empty() )
 	{
 		// get the packet
-		CPacket *packet = m_Queue.front();
+		auto packet = m_Queue.front();
 		m_Queue.pop();
 
 		// get our sender's id
@@ -302,7 +276,7 @@ void CDplusProtocol::HandleQueue(void)
 					if ( packet->IsDvHeader() )
 					{
 						// sending header in Dplus is client specific
-						SendDvHeader((CDvHeaderPacket *)packet, (CDplusClient *)client.get());
+						SendDvHeader((CDvHeaderPacket *)packet.get(), (CDplusClient *)client.get());
 					}
 					else if ( packet->IsDvFrame() )
 					{
@@ -327,10 +301,6 @@ void CDplusProtocol::HandleQueue(void)
 			}
 			g_Reflector.ReleaseClients();
 		}
-
-
-		// done
-		delete packet;
 	}
 	m_Queue.Unlock();
 }
@@ -447,70 +417,43 @@ bool CDplusProtocol::IsValidKeepAlivePacket(const CBuffer &Buffer)
 	return (Buffer == CBuffer(tag, sizeof(tag)));
 }
 
-CDvHeaderPacket *CDplusProtocol::IsValidDvHeaderPacket(const CBuffer &Buffer)
+bool CDplusProtocol::IsValidDvHeaderPacket(const CBuffer &Buffer, std::unique_ptr<CDvHeaderPacket> &header)
 {
-	CDvHeaderPacket *header = nullptr;
-
-	if ( (Buffer.size() == 58) &&
-			(Buffer.data()[0] == 0x3A) && (Buffer.data()[1] == 0x80) &&
-			(Buffer.Compare((uint8 *)"DSVT", 2, 4) == 0) &&
-			(Buffer.data()[6] == 0x10) && (Buffer.data()[10] == 0x20) )
+	if ( 58==Buffer.size() && 0x3AU==Buffer.data()[0] && 0x80U==Buffer.data()[1] && 0==Buffer.Compare((uint8 *)"DSVT", 2, 4) && 0x10U==Buffer.data()[6] && 0x20U==Buffer.data()[10] )
 	{
 		// create packet
-		header = new CDvHeaderPacket((struct dstar_header *)&(Buffer.data()[17]),
-									 *((uint16 *)&(Buffer.data()[14])), 0x80);
+		header = std::unique_ptr<CDvHeaderPacket>(new CDvHeaderPacket((struct dstar_header *)&(Buffer.data()[17]), *((uint16 *)&(Buffer.data()[14])), 0x80));
 		// check validity of packet
-		if ( !header->IsValid() )
-		{
-			delete header;
-			header = nullptr;
-		}
+		if ( header && header->IsValid() )
+			return true;
 	}
-	return header;
+	return false;
 }
 
-CDvFramePacket *CDplusProtocol::IsValidDvFramePacket(const CBuffer &Buffer)
+bool CDplusProtocol::IsValidDvFramePacket(const CBuffer &Buffer, std::unique_ptr<CDvFramePacket> &dvframe)
 {
-	CDvFramePacket *dvframe = nullptr;
-
-	if ( (Buffer.size() == 29) &&
-			(Buffer.data()[0] == 0x1D) && (Buffer.data()[1] == 0x80) &&
-			(Buffer.Compare((uint8 *)"DSVT", 2, 4) == 0) &&
-			(Buffer.data()[6] == 0x20) && (Buffer.data()[10] == 0x20) )
+	if ( 29==Buffer.size() && 0x1DU==Buffer.data()[0] && 0x80U==Buffer.data()[1] && 0==Buffer.Compare((uint8 *)"DSVT", 2, 4) && 0x20U==Buffer.data()[6] && 0x20U==Buffer.data()[10] )
 	{
 		// create packet
-		dvframe = new CDvFramePacket((struct dstar_dvframe *)&(Buffer.data()[17]),
-									 *((uint16 *)&(Buffer.data()[14])), Buffer.data()[16]);
+		dvframe = std::unique_ptr<CDvFramePacket>(new CDvFramePacket((struct dstar_dvframe *)&(Buffer.data()[17]), *((uint16 *)&(Buffer.data()[14])), Buffer.data()[16]));
 		// check validity of packet
-		if ( !dvframe->IsValid() )
-		{
-			delete dvframe;
-			dvframe = nullptr;
-		}
+		if ( dvframe && dvframe->IsValid() )
+			return true;
 	}
-	return dvframe;
+	return false;
 }
 
-CDvLastFramePacket *CDplusProtocol::IsValidDvLastFramePacket(const CBuffer &Buffer)
+bool CDplusProtocol::IsValidDvLastFramePacket(const CBuffer &Buffer, std::unique_ptr<CDvLastFramePacket> &dvframe)
 {
-	CDvLastFramePacket *dvframe = nullptr;
-
-	if ( (Buffer.size() == 32) &&
-			(Buffer.Compare((uint8 *)"DSVT", 2, 4) == 0) &&
-			(Buffer.data()[0] == 0x20) && (Buffer.data()[1] == 0x80) &&
-			(Buffer.data()[6] == 0x20) && (Buffer.data()[10] == 0x20) )
+	if ( 32==Buffer.size() && 0==Buffer.Compare((uint8 *)"DSVT", 2, 4) && 0x20U==Buffer.data()[0] && 0x80U==Buffer.data()[1] && 0x20U==Buffer.data()[6] && 0x20U==Buffer.data()[10] )
 	{
 		// create packet
-		dvframe = new CDvLastFramePacket((struct dstar_dvframe *)&(Buffer.data()[17]),
-										 *((uint16 *)&(Buffer.data()[14])), Buffer.data()[16]);
+		dvframe = std::unique_ptr<CDvLastFramePacket>(new CDvLastFramePacket((struct dstar_dvframe *)&(Buffer.data()[17]), *((uint16 *)&(Buffer.data()[14])), Buffer.data()[16]));
 		// check validity of packet
-		if ( !dvframe->IsValid() )
-		{
-			delete dvframe;
-			dvframe = nullptr;
-		}
+		if ( dvframe && dvframe->IsValid() )
+			return true;
 	}
-	return dvframe;
+	return false;
 }
 
 

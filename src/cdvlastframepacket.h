@@ -49,7 +49,7 @@ public:
 	CDvLastFramePacket(const CDvLastFramePacket &);
 
 	// virtual duplication
-	CPacket *Duplicate(void) const;
+	std::unique_ptr<CPacket> Duplicate(void) const;
 
 	// identity
 	bool IsLastPacket(void) const           { return true; }

@@ -77,7 +77,7 @@ CDvLastFramePacket::CDvLastFramePacket(const CDvLastFramePacket &DvFrame)
 ////////////////////////////////////////////////////////////////////////////////////////
 // virtual duplication
 
-CPacket *CDvLastFramePacket::Duplicate(void) const
+std::unique_ptr<CPacket> CDvLastFramePacket::Duplicate(void) const
 {
-	return new CDvLastFramePacket(*this);
+	return std::unique_ptr<CPacket>(new CDvLastFramePacket(*this));
 }

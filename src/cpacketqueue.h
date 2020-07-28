@@ -39,30 +39,18 @@ class CClient;
 class CPacketQueue
 {
 public:
-	// constructor
-	CPacketQueue() {}
-
 	// destructor
-	~CPacketQueue()
-	{
-		Lock();
-		while (! queue.empty())
-		{
-			delete queue.front();
-			queue.pop();
-		}
-		Unlock();
-	}
+	virtual ~CPacketQueue() {}
 
 	// lock
 	void Lock()   { m_Mutex.lock(); }
 	void Unlock() { m_Mutex.unlock(); }
 
 	// pass thru
-	CPacket *front()           { return queue.front(); }
-	void pop()                 { queue.pop(); }
-	void push(CPacket *packet) { queue.push(packet); }
-	bool empty() const         { return queue.empty(); }
+	void pop()                                  { queue.pop(); }
+	bool empty() const                          { return queue.empty(); }
+	std::unique_ptr<CPacket> front()            { return std::move(queue.front()); }
+	void push(std::unique_ptr<CPacket> &packet) { queue.push(std::move(packet)); }
 
 protected:
 	// status
@@ -72,7 +60,7 @@ protected:
 
 	// owner
 	CClient              *m_Client;
-	std::queue<CPacket *> queue;
+	std::queue<std::unique_ptr<CPacket>> queue;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

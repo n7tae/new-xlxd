@@ -44,15 +44,12 @@ public:
 	// constructor
 	CPacketStream();
 
-	// destructor
-	virtual ~CPacketStream() {}
-
 	// open / close
 	bool Open(const CDvHeaderPacket &, std::shared_ptr<CClient>);
 	void Close(void);
 
 	// push & pop
-	void Push(CPacket *);
+	void Push(std::unique_ptr<CPacket> packet);
 	void Tickle(void)                               { m_LastPacketTime.Now(); }
 	bool IsEmpty(void) const;
 

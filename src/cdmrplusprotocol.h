@@ -71,13 +71,13 @@ protected:
 	void HandleKeepalives(void);
 
 	// stream helpers
-	bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &);
+	void OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &, const CIp &);
 
 	// packet decoding helpers
 	bool IsValidConnectPacket(const CBuffer &, CCallsign *, char *, const CIp &);
 	bool IsValidDisconnectPacket(const CBuffer &, CCallsign *, char *);
-	bool IsValidDvHeaderPacket(const CIp &, const CBuffer &, CDvHeaderPacket **);
-	bool IsValidDvFramePacket(const CIp &, const CBuffer &, CDvFramePacket **);
+	bool IsValidDvHeaderPacket(const CIp &, const CBuffer &, std::unique_ptr<CDvHeaderPacket> &);
+	bool IsValidDvFramePacket(const CIp &, const CBuffer &, std::array<std::unique_ptr<CDvFramePacket>, 3> &);
 
 	// packet encoding helpers
 	void EncodeConnectAckPacket(CBuffer *);

@@ -67,19 +67,6 @@ CCodecStream::~CCodecStream()
 	{
 		m_Future.get();
 	}
-
-	// empty local queue
-	while ( !m_LocalQueue.empty() )
-	{
-		delete m_LocalQueue.front();
-		m_LocalQueue.pop();
-	}
-	// empty ourselves
-	while ( !empty() )
-	{
-		delete front();
-		pop();
-	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -200,15 +187,16 @@ void CCodecStream::Task(void)
 			// pop the original packet
 			if ( !m_LocalQueue.empty() )
 			{
-				CDvFramePacket *Packet = (CDvFramePacket *)m_LocalQueue.front();
+				auto Packet = m_LocalQueue.front();
+				auto Frame = (CDvFramePacket *)Packet.get();
 				m_LocalQueue.pop();
 				// todo: check the PID
 				// update content with transcoded ambe
-				Packet->SetAmbe(m_uiCodecOut, Ambe);
+				Frame->SetAmbe(m_uiCodecOut, Ambe);
 				// tag syncs in DvData
-				if ( (m_uiCodecOut == CODEC_AMBEPLUS) && (Packet->GetPacketId() % 21) == 0 )
+				if ( (m_uiCodecOut == CODEC_AMBEPLUS) && (Frame->GetPacketId() % 21) == 0 )
 				{
-					Packet->SetDvData(DStarSync);
+					Frame->SetDvData(DStarSync);
 				}
 				// and push it back to client
 				m_PacketStream->Lock();
@@ -226,7 +214,8 @@ void CCodecStream::Task(void)
 	while ( !empty() )
 	{
 		// yes, pop it from queue
-		CPacket *Packet = front();
+		auto Packet = front();
+		auto Frame = (CDvFramePacket *)Packet.get();
 		pop();
 
 		// yes, send to ambed
@@ -235,7 +224,7 @@ void CCodecStream::Task(void)
 		// and that the packet needs transcoding
 		m_StatsTimer.Now();
 		m_uiTotalPackets++;
-		EncodeAmbePacket(&Buffer, ((CDvFramePacket *)Packet)->GetAmbe(m_uiCodecIn));
+		EncodeAmbePacket(&Buffer, Frame->GetAmbe(m_uiCodecIn));
 		m_Socket.Send(Buffer, m_Ip, m_uiPort);
 
 		// and push to our local queue

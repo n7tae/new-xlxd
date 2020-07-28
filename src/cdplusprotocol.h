@@ -66,25 +66,25 @@ protected:
 	void HandleKeepalives(void);
 
 	// stream helpers
-	bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &);
+	void OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &, const CIp &);
 
 	// packet decoding helpers
-	bool                IsValidConnectPacket(const CBuffer &);
-	bool                IsValidLoginPacket(const CBuffer &, CCallsign *);
-	bool                IsValidDisconnectPacket(const CBuffer &);
-	bool                IsValidKeepAlivePacket(const CBuffer &);
-	CDvHeaderPacket     *IsValidDvHeaderPacket(const CBuffer &);
-	CDvFramePacket      *IsValidDvFramePacket(const CBuffer &);
-	CDvLastFramePacket  *IsValidDvLastFramePacket(const CBuffer &);
+	bool IsValidConnectPacket(const CBuffer &);
+	bool IsValidLoginPacket(const CBuffer &, CCallsign *);
+	bool IsValidDisconnectPacket(const CBuffer &);
+	bool IsValidKeepAlivePacket(const CBuffer &);
+	bool IsValidDvHeaderPacket(const CBuffer &, std::unique_ptr<CDvHeaderPacket> &);
+	bool IsValidDvFramePacket(const CBuffer &, std::unique_ptr<CDvFramePacket> &);
+	bool IsValidDvLastFramePacket(const CBuffer &, std::unique_ptr<CDvLastFramePacket> &);
 
 	// packet encoding helpers
-	void                EncodeKeepAlivePacket(CBuffer *);
-	void                EncodeLoginAckPacket(CBuffer *);
-	void                EncodeLoginNackPacket(CBuffer *);
-	void                EncodeDisconnectPacket(CBuffer *);
-	bool                EncodeDvHeaderPacket(const CDvHeaderPacket &, CBuffer *) const;
-	bool                EncodeDvFramePacket(const CDvFramePacket &, CBuffer *) const;
-	bool                EncodeDvLastFramePacket(const CDvLastFramePacket &, CBuffer *) const;
+	void EncodeKeepAlivePacket(CBuffer *);
+	void EncodeLoginAckPacket(CBuffer *);
+	void EncodeLoginNackPacket(CBuffer *);
+	void EncodeDisconnectPacket(CBuffer *);
+	bool EncodeDvHeaderPacket(const CDvHeaderPacket &, CBuffer *) const;
+	bool EncodeDvFramePacket(const CDvFramePacket &, CBuffer *) const;
+	bool EncodeDvLastFramePacket(const CDvLastFramePacket &, CBuffer *) const;
 
 
 protected:

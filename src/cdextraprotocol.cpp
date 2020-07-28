@@ -59,9 +59,9 @@ void CDextraProtocol::Task(void)
 	CCallsign           Callsign;
 	char                ToLinkModule;
 	int                 ProtRev;
-	CDvHeaderPacket     *Header;
-	CDvFramePacket      *Frame;
-	CDvLastFramePacket  *LastFrame;
+	std::unique_ptr<CDvHeaderPacket>    Header;
+	std::unique_ptr<CDvFramePacket>     Frame;
+	std::unique_ptr<CDvLastFramePacket> LastFrame;
 
 	// any incoming packet ?
 #if DSTAR_IPV6==true
@@ -75,34 +75,20 @@ void CDextraProtocol::Task(void)
 #endif
 	{
 		// crack the packet
-		if ( (Frame = IsValidDvFramePacket(Buffer)) != nullptr )
+		if ( IsValidDvFramePacket(Buffer, Frame) )
 		{
-			//std::cout << "DExtra DV frame"  << std::endl;
-
-			// handle it
 			OnDvFramePacketIn(Frame, &Ip);
 		}
-		else if ( (Header = IsValidDvHeaderPacket(Buffer)) != nullptr )
+		else if ( IsValidDvHeaderPacket(Buffer, Header) )
 		{
-			//std::cout << "DExtra DV header:"  << std::endl << *Header << std::endl;
-			//std::cout << "DExtra DV header:"  << std::endl;
-
 			// callsign muted?
 			if ( g_GateKeeper.MayTransmit(Header->GetMyCallsign(), Ip, PROTOCOL_DEXTRA, Header->GetRpt2Module()) )
 			{
-				// handle it
 				OnDvHeaderPacketIn(Header, Ip);
 			}
-			else
-			{
-				delete Header;
-			}
 		}
-		else if ( (LastFrame = IsValidDvLastFramePacket(Buffer)) != nullptr )
+		else if ( IsValidDvLastFramePacket(Buffer, LastFrame) )
 		{
-			//std::cout << "DExtra DV last frame" << std::endl;
-
-			// handle it
 			OnDvLastFramePacketIn(LastFrame, &Ip);
 		}
 		else if ( IsValidConnectPacket(Buffer, &Callsign, &ToLinkModule, &ProtRev) )
@@ -243,7 +229,7 @@ void CDextraProtocol::HandleQueue(void)
 	while ( !m_Queue.empty() )
 	{
 		// get the packet
-		CPacket *packet = m_Queue.front();
+		auto packet = m_Queue.front();
 		m_Queue.pop();
 
 		// encode it
@@ -269,10 +255,6 @@ void CDextraProtocol::HandleQueue(void)
 			}
 			g_Reflector.ReleaseClients();
 		}
-
-
-		// done
-		delete packet;
 	}
 	m_Queue.Unlock();
 }
@@ -413,10 +395,8 @@ void CDextraProtocol::HandlePeerLinks(void)
 ////////////////////////////////////////////////////////////////////////////////////////
 // streams helpers
 
-bool CDextraProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
+void CDextraProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Header, const CIp &Ip)
 {
-	bool newstream = false;
-
 	// find the stream
 	CPacketStream *stream = GetStream(Header->GetStreamId());
 	if ( stream == nullptr )
@@ -442,7 +422,6 @@ bool CDextraProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
 			{
 				// keep the handle
 				m_Streams.push_back(stream);
-				newstream = true;
 			}
 		}
 		// release
@@ -451,24 +430,13 @@ bool CDextraProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
 		// update last heard
 		g_Reflector.GetUsers()->Hearing(Header->GetMyCallsign(), via, Header->GetRpt2Callsign());
 		g_Reflector.ReleaseUsers();
-
-		// delete header if needed
-		if ( !newstream )
-		{
-			delete Header;
-		}
 	}
 	else
 	{
 		// stream already open
 		// skip packet, but tickle the stream
 		stream->Tickle();
-		// and delete packet
-		delete Header;
 	}
-
-	// done
-	return newstream;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -524,66 +492,43 @@ bool CDextraProtocol::IsValidKeepAlivePacket(const CBuffer &Buffer, CCallsign *c
 	return valid;
 }
 
-CDvHeaderPacket *CDextraProtocol::IsValidDvHeaderPacket(const CBuffer &Buffer)
+bool CDextraProtocol::IsValidDvHeaderPacket(const CBuffer &Buffer, std::unique_ptr<CDvHeaderPacket> &header)
 {
-	CDvHeaderPacket *header = nullptr;
-
-	if ( (Buffer.size() == 56) && (Buffer.Compare((uint8 *)"DSVT", 4) == 0) &&
-			(Buffer.data()[4] == 0x10) && (Buffer.data()[8] == 0x20) )
+	if ( 56==Buffer.size() && 0==Buffer.Compare((uint8 *)"DSVT", 4) && 0x10U==Buffer.data()[4] && 0x20U==Buffer.data()[8] )
 	{
 		// create packet
-		header = new CDvHeaderPacket((struct dstar_header *)&(Buffer.data()[15]),
-									 *((uint16 *)&(Buffer.data()[12])), 0x80);
+		header = std::unique_ptr<CDvHeaderPacket>(new CDvHeaderPacket((struct dstar_header *)&(Buffer.data()[15]), *((uint16 *)&(Buffer.data()[12])), 0x80));
 		// check validity of packet
-		if ( !header->IsValid() )
-		{
-			delete header;
-			header = nullptr;
-		}
+		if ( header && header->IsValid() )
+			return true;
 	}
-	return header;
+	return false;
 }
 
-CDvFramePacket *CDextraProtocol::IsValidDvFramePacket(const CBuffer &Buffer)
+bool CDextraProtocol::IsValidDvFramePacket(const CBuffer &Buffer, std::unique_ptr<CDvFramePacket> &dvframe)
 {
-	CDvFramePacket *dvframe = nullptr;
-
-	if ( (Buffer.size() == 27) && (Buffer.Compare((uint8 *)"DSVT", 4) == 0) &&
-			(Buffer.data()[4] == 0x20) && (Buffer.data()[8] == 0x20) &&
-			((Buffer.data()[14] & 0x40) == 0) )
+	if ( 27==Buffer.size() && 0==Buffer.Compare((uint8 *)"DSVT", 4) && 0x20U==Buffer.data()[4] && 0x20U==Buffer.data()[8] && 0U==(Buffer.data()[14] & 0x40U) )
 	{
 		// create packet
-		dvframe = new CDvFramePacket((struct dstar_dvframe *)&(Buffer.data()[15]),
-									 *((uint16 *)&(Buffer.data()[12])), Buffer.data()[14]);
+		dvframe = std::unique_ptr<CDvFramePacket>(new CDvFramePacket((struct dstar_dvframe *)&(Buffer.data()[15]), *((uint16 *)&(Buffer.data()[12])), Buffer.data()[14]));
 		// check validity of packet
-		if ( !dvframe->IsValid() )
-		{
-			delete dvframe;
-			dvframe = nullptr;
-		}
+		if ( dvframe && dvframe->IsValid() )
+			return true;
 	}
-	return dvframe;
+	return false;
 }
 
-CDvLastFramePacket *CDextraProtocol::IsValidDvLastFramePacket(const CBuffer &Buffer)
+bool CDextraProtocol::IsValidDvLastFramePacket(const CBuffer &Buffer, std::unique_ptr<CDvLastFramePacket> &dvframe)
 {
-	CDvLastFramePacket *dvframe = nullptr;
-
-	if ( (Buffer.size() == 27) && (Buffer.Compare((uint8 *)"DSVT", 4) == 0) &&
-			(Buffer.data()[4] == 0x20) && (Buffer.data()[8] == 0x20) &&
-			((Buffer.data()[14] & 0x40) != 0) )
+	if ( 27==Buffer.size() && 0==Buffer.Compare((uint8 *)"DSVT", 4) && 0x20U==Buffer.data()[4] && 0x20U==Buffer.data()[8] && (Buffer.data()[14] & 0x40) )
 	{
 		// create packet
-		dvframe = new CDvLastFramePacket((struct dstar_dvframe *)&(Buffer.data()[15]),
-										 *((uint16 *)&(Buffer.data()[12])), Buffer.data()[14]);
+		dvframe = std::unique_ptr<CDvLastFramePacket>(new CDvLastFramePacket((struct dstar_dvframe *)&(Buffer.data()[15]), *((uint16 *)&(Buffer.data()[12])), Buffer.data()[14]));
 		// check validity of packet
-		if ( !dvframe->IsValid() )
-		{
-			delete dvframe;
-			dvframe = nullptr;
-		}
+		if ( dvframe && dvframe->IsValid() )
+			return true;
 	}
-	return dvframe;
+	return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

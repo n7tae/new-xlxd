@@ -372,14 +372,14 @@ void CG3Protocol::IcmpTask(void)
 
 void CG3Protocol::Task(void)
 {
-	CBuffer             Buffer;
-	CIp                 Ip;
-	CCallsign           Callsign;
-	char                ToLinkModule;
-	int                 ProtRev;
-	CDvHeaderPacket     *Header;
-	CDvFramePacket      *Frame;
-	CDvLastFramePacket  *LastFrame;
+	CBuffer   Buffer;
+	CIp       Ip;
+	CCallsign Callsign;
+	char      ToLinkModule;
+	int       ProtRev;
+	std::unique_ptr<CDvHeaderPacket>    Header;
+	std::unique_ptr<CDvFramePacket>     Frame;
+	std::unique_ptr<CDvLastFramePacket> LastFrame;
 
 	// any incoming packet ?
 	if ( m_Socket4.Receive(Buffer, Ip, 20) )
@@ -407,44 +407,23 @@ void CG3Protocol::Task(void)
 		if (BaseIp != nullptr)
 		{
 			// crack the packet
-			if ( (Frame = IsValidDvFramePacket(Buffer)) != nullptr )
+			if ( IsValidDvFramePacket(Buffer, Frame) )
 			{
-				//std::cout << "Terminal DV frame"  << std::endl;
-
-				// handle it
 				OnDvFramePacketIn(Frame, BaseIp);
 			}
-			else if ( (Header = IsValidDvHeaderPacket(Buffer)) != nullptr )
+			else if ( IsValidDvHeaderPacket(Buffer, Header) )
 			{
-				//std::cout << "Terminal DV header"  << std::endl;
-
 				// callsign muted?
 				if ( g_GateKeeper.MayTransmit(Header->GetMyCallsign(), Ip, PROTOCOL_G3, Header->GetRpt2Module()) )
 				{
 					// handle it
 					OnDvHeaderPacketIn(Header, *BaseIp);
 				}
-				else
-				{
-					delete Header;
-				}
 			}
-			else if ( (LastFrame = IsValidDvLastFramePacket(Buffer)) != nullptr )
+			else if ( IsValidDvLastFramePacket(Buffer, LastFrame) )
 			{
-				//std::cout << "Terminal DV last frame" << std::endl;
-
-				// handle it
 				OnDvLastFramePacketIn(LastFrame, BaseIp);
 			}
-			else
-			{
-				//std::cout << "Invalid terminal packet (" << Buffer.size() << ")" << std::endl;
-				//std::cout << Buffer.data() << std::endl;
-			}
-		}
-		else
-		{
-			//std::cout << "Invalid client " <<  Ip << std::endl;
 		}
 	}
 
@@ -480,7 +459,7 @@ void CG3Protocol::HandleQueue(void)
 		m_LastKeepaliveTime.Now();
 
 		// get the packet
-		CPacket *packet = m_Queue.front();
+		auto packet = m_Queue.front();
 		m_Queue.pop();
 
 		// encode it
@@ -506,9 +485,6 @@ void CG3Protocol::HandleQueue(void)
 			}
 			g_Reflector.ReleaseClients();
 		}
-
-		// done
-		delete packet;
 	}
 	m_Queue.Unlock();
 }
@@ -545,10 +521,8 @@ void CG3Protocol::HandleKeepalives(void)
 ////////////////////////////////////////////////////////////////////////////////////////
 // streams helpers
 
-bool CG3Protocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
+void CG3Protocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Header, const CIp &Ip)
 {
-	bool newstream = false;
-
 	// find the stream
 	CPacketStream *stream = GetStream(Header->GetStreamId(), &Ip);
 
@@ -585,10 +559,8 @@ bool CG3Protocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
 					}
 					else
 					{
-						// drop if invalid module
-						delete Header;
 						g_Reflector.ReleaseClients();
-						return false;
+						return;
 					}
 				}
 
@@ -600,24 +572,11 @@ bool CG3Protocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
 				{
 					// keep the handle
 					m_Streams.push_back(stream);
-					newstream = true;
 				}
 
 				// update last heard
 				g_Reflector.GetUsers()->Hearing(Header->GetMyCallsign(), via, Header->GetRpt2Callsign());
 				g_Reflector.ReleaseUsers();
-
-				// delete header if needed
-				if ( !newstream )
-				{
-					delete Header;
-				}
-
-			}
-			else
-			{
-				// drop
-				delete Header;
 			}
 		}
 		// release
@@ -628,120 +587,92 @@ bool CG3Protocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
 		// stream already open
 		// skip packet, but tickle the stream
 		stream->Tickle();
-		// and delete packet
-		delete Header;
 	}
-
-	// done
-	return newstream;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // packet decoding helpers
 
-CDvHeaderPacket *CG3Protocol::IsValidDvHeaderPacket(const CBuffer &Buffer)
+bool CG3Protocol::IsValidDvHeaderPacket(const CBuffer &Buffer, std::unique_ptr<CDvHeaderPacket> &header)
 {
-	CDvHeaderPacket *header = nullptr;
-
-	if ( (Buffer.size() == 56) && (Buffer.Compare((uint8 *)"DSVT", 4) == 0) &&
-			(Buffer.data()[4] == 0x10) && (Buffer.data()[8] == 0x20) )
+	if ( 56==Buffer.size() && 0==Buffer.Compare((uint8 *)"DSVT", 4) && 0x10U==Buffer.data()[4] && 0x20U==Buffer.data()[8] )
 	{
 		// create packet
-		header = new CDvHeaderPacket((struct dstar_header *)&(Buffer.data()[15]),
-									 *((uint16 *)&(Buffer.data()[12])), 0x80);
+		header = std::unique_ptr<CDvHeaderPacket>(new CDvHeaderPacket((struct dstar_header *)&(Buffer.data()[15]), *((uint16 *)&(Buffer.data()[12])), 0x80));
 		// check validity of packet
-		if ( !header->IsValid() )
-		{
-			delete header;
-			header = nullptr;
-		}
+		if ( header && header->IsValid() )
+			return true;
 	}
-	return header;
+	return false;
 }
 
-CDvFramePacket *CG3Protocol::IsValidDvFramePacket(const CBuffer &Buffer)
+bool CG3Protocol::IsValidDvFramePacket(const CBuffer &Buffer, std::unique_ptr<CDvFramePacket> &dvframe)
 {
-	CDvFramePacket *dvframe = nullptr;
-
-	if ( (Buffer.size() == 27) && (Buffer.Compare((uint8 *)"DSVT", 4) == 0) &&
-			(Buffer.data()[4] == 0x20) && (Buffer.data()[8] == 0x20) &&
-			((Buffer.data()[14] & 0x40) == 0) )
+	if ( 27==Buffer.size() && 0==Buffer.Compare((uint8 *)"DSVT", 4) && 0x20U==Buffer.data()[4] && 0x20U==Buffer.data()[8] && 0U==(Buffer.data()[14] & 0x40U) )
 	{
 		// create packet
-		dvframe = new CDvFramePacket((struct dstar_dvframe *)&(Buffer.data()[15]),
-									 *((uint16 *)&(Buffer.data()[12])), Buffer.data()[14]);
+		dvframe = std::unique_ptr<CDvFramePacket>(new CDvFramePacket((struct dstar_dvframe *)&(Buffer.data()[15]), *((uint16 *)&(Buffer.data()[12])), Buffer.data()[14]));
 		// check validity of packet
-		if ( !dvframe->IsValid() )
-		{
-			delete dvframe;
-			dvframe = nullptr;
-		}
+		if ( dvframe && dvframe->IsValid() )
+			return true;
 	}
-	return dvframe;
+	return false;
 }
 
-CDvLastFramePacket *CG3Protocol::IsValidDvLastFramePacket(const CBuffer &Buffer)
+bool CG3Protocol::IsValidDvLastFramePacket(const CBuffer &Buffer, std::unique_ptr<CDvLastFramePacket> &dvframe)
 {
-	CDvLastFramePacket *dvframe = nullptr;
-
-	if ( (Buffer.size() == 27) && (Buffer.Compare((uint8 *)"DSVT", 4) == 0) &&
-			(Buffer.data()[4] == 0x20) && (Buffer.data()[8] == 0x20) &&
-			((Buffer.data()[14] & 0x40) != 0) )
+	if ( 27==Buffer.size() && 0==Buffer.Compare((uint8 *)"DSVT", 4) && 0x20U==Buffer.data()[4] && 0x20U==Buffer.data()[8] && (Buffer.data()[14] & 0x40U) )
 	{
 		// create packet
-		dvframe = new CDvLastFramePacket((struct dstar_dvframe *)&(Buffer.data()[15]),
-										 *((uint16 *)&(Buffer.data()[12])), Buffer.data()[14]);
+		dvframe = std::unique_ptr<CDvLastFramePacket>(new CDvLastFramePacket((struct dstar_dvframe *)&(Buffer.data()[15]), *((uint16 *)&(Buffer.data()[12])), Buffer.data()[14]));
 		// check validity of packet
-		if ( !dvframe->IsValid() )
-		{
-			delete dvframe;
-			dvframe = nullptr;
-		}
+		if ( dvframe && dvframe->IsValid() )
+			return true;
 	}
-	return dvframe;
+	return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // packet encoding helpers
 
-bool CG3Protocol::EncodeDvHeaderPacket(const CDvHeaderPacket &Packet, CBuffer *Buffer) const
+bool CG3Protocol::EncodeDvHeaderPacket(const std::unique_ptr<CDvHeaderPacket> &Packet, CBuffer *Buffer) const
 {
 	uint8 tag[]	= { 'D','S','V','T',0x10,0x00,0x00,0x00,0x20,0x00,0x01,0x02 };
 	struct dstar_header DstarHeader;
 
-	Packet.ConvertToDstarStruct(&DstarHeader);
+	Packet->ConvertToDstarStruct(&DstarHeader);
 
 	Buffer->Set(tag, sizeof(tag));
-	Buffer->Append(Packet.GetStreamId());
+	Buffer->Append(Packet->GetStreamId());
 	Buffer->Append((uint8)0x80);
 	Buffer->Append((uint8 *)&DstarHeader, sizeof(struct dstar_header));
 
 	return true;
 }
 
-bool CG3Protocol::EncodeDvFramePacket(const CDvFramePacket &Packet, CBuffer *Buffer) const
+bool CG3Protocol::EncodeDvFramePacket(const std::unique_ptr<CDvFramePacket> &Packet, CBuffer *Buffer) const
 {
 	uint8 tag[] = { 'D','S','V','T',0x20,0x00,0x00,0x00,0x20,0x00,0x01,0x02 };
 
 	Buffer->Set(tag, sizeof(tag));
-	Buffer->Append(Packet.GetStreamId());
-	Buffer->Append((uint8)(Packet.GetPacketId() % 21));
-	Buffer->Append((uint8 *)Packet.GetAmbe(), AMBE_SIZE);
-	Buffer->Append((uint8 *)Packet.GetDvData(), DVDATA_SIZE);
+	Buffer->Append(Packet->GetStreamId());
+	Buffer->Append((uint8)(Packet->GetPacketId() % 21));
+	Buffer->Append((uint8 *)Packet->GetAmbe(), AMBE_SIZE);
+	Buffer->Append((uint8 *)Packet->GetDvData(), DVDATA_SIZE);
 
 	return true;
 
 }
 
-bool CG3Protocol::EncodeDvLastFramePacket(const CDvLastFramePacket &Packet, CBuffer *Buffer) const
+bool CG3Protocol::EncodeDvLastFramePacket(const std::unique_ptr<CDvLastFramePacket> &Packet, CBuffer *Buffer) const
 {
 	uint8 tag1[] = { 'D','S','V','T',0x20,0x00,0x00,0x00,0x20,0x00,0x01,0x02 };
 	uint8 tag2[] = { 0x55,0xC8,0x7A,0x00,0x00,0x00,0x00,0x00,0x00,0x25,0x1A,0xC6 };
 
 	Buffer->Set(tag1, sizeof(tag1));
-	Buffer->Append(Packet.GetStreamId());
-	Buffer->Append((uint8)((Packet.GetPacketId() % 21) | 0x40));
+	Buffer->Append(Packet->GetStreamId());
+	Buffer->Append((uint8)((Packet->GetPacketId() % 21) | 0x40));
 	Buffer->Append(tag2, sizeof(tag2));
 
 	return true;

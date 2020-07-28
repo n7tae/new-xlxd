@@ -4,6 +4,7 @@
 //
 //  Created by Jean-Luc Deltombe (LX3JL) on 04/03/2017.
 //  Copyright © 2015 Jean-Luc Deltombe (LX3JL). All rights reserved.
+//  Copyright © 2020 Thomas A. Early, N7TAE
 //
 // ----------------------------------------------------------------------------
 //    This file is part of xlxd.
@@ -80,7 +81,7 @@ protected:
 	void HandleKeepalives(void);
 
 	// stream helpers
-	bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &, uint8, uint8);
+	bool OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &, const CIp &, uint8, uint8);
 
 	// packet decoding helpers
 	bool IsValidConnectPacket(const CBuffer &, CCallsign *, const CIp &);
@@ -90,9 +91,9 @@ protected:
 	bool IsValidOptionPacket(const CBuffer &, CCallsign *);
 	bool IsValidKeepAlivePacket(const CBuffer &, CCallsign *);
 	bool IsValidRssiPacket(const CBuffer &, CCallsign *, int *);
-	bool IsValidDvHeaderPacket(const CBuffer &, CDvHeaderPacket **, uint8 *, uint8 *);
-	bool IsValidDvFramePacket(const CBuffer &, CDvFramePacket **);
-	bool IsValidDvLastFramePacket(const CBuffer &, CDvLastFramePacket **);
+	bool IsValidDvHeaderPacket(const CBuffer &, std::unique_ptr<CDvHeaderPacket> &, uint8 *, uint8 *);
+	bool IsValidDvFramePacket(const CBuffer &, std::array<std::unique_ptr<CDvFramePacket>, 3> &);
+	bool IsValidDvLastFramePacket(const CBuffer &, std::unique_ptr<CDvLastFramePacket> &);
 
 	// packet encoding helpers
 	void EncodeKeepAlivePacket(CBuffer *, std::shared_ptr<CClient>);

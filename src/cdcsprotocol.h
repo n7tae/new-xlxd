@@ -64,13 +64,13 @@ protected:
 	void HandleKeepalives(void);
 
 	// stream helpers
-	bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &);
+	void OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &, const CIp &);
 
 	// packet decoding helpers
 	bool IsValidConnectPacket(const CBuffer &, CCallsign *, char *);
 	bool IsValidDisconnectPacket(const CBuffer &, CCallsign *);
 	bool IsValidKeepAlivePacket(const CBuffer &, CCallsign *);
-	bool IsValidDvPacket(const CBuffer &, CDvHeaderPacket **, CDvFramePacket **);
+	bool IsValidDvPacket(const CBuffer &, std::unique_ptr<CDvHeaderPacket> &, std::unique_ptr<CDvFramePacket> &);
 	bool IsIgnorePacket(const CBuffer &);
 
 	// packet encoding helpers

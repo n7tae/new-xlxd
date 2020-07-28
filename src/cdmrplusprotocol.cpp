@@ -71,12 +71,12 @@ bool CDmrplusProtocol::Initalize(const char *type, const uint16 port, const bool
 
 void CDmrplusProtocol::Task(void)
 {
-	CBuffer             Buffer;
-	CIp                 Ip;
-	CCallsign           Callsign;
-	char                ToLinkModule;
-	CDvHeaderPacket     *Header;
-	CDvFramePacket      *Frames[3];
+	CBuffer   Buffer;
+	CIp       Ip;
+	CCallsign Callsign;
+	char      ToLinkModule;
+	std::unique_ptr<CDvHeaderPacket>               Header;
+	std::array<std::unique_ptr<CDvFramePacket>, 3> Frames;
 
 	// handle incoming packets
 #if DMR_IPV6==true
@@ -92,39 +92,18 @@ void CDmrplusProtocol::Task(void)
 		// crack the packet
 		if ( IsValidDvFramePacket(Ip, Buffer, Frames) )
 		{
-			//std::cout << "DMRplus DV frame" << std::endl;
-			//Buffer.DebugDump(g_Reflector.m_DebugFile);
-
 			for ( int i = 0; i < 3; i++ )
 			{
 				OnDvFramePacketIn(Frames[i], &Ip);
-				/*if ( !Frames[i]->IsLastPacket() )
-				{
-				    //std::cout << "DMRplus DV frame" << std::endl;
-				    OnDvFramePacketIn(Frames[i], &Ip);
-				}
-				else
-				{
-				    //std::cout << "DMRplus DV last frame" << std::endl;
-				    OnDvLastFramePacketIn((CDvLastFramePacket *)Frames[i], &Ip);
-				}*/
 			}
 		}
-		else if ( IsValidDvHeaderPacket(Ip, Buffer, &Header) )
+		else if ( IsValidDvHeaderPacket(Ip, Buffer, Header) )
 		{
-			//std::cout << "DMRplus DV header:"  << std::endl;
-			//std::cout << "DMRplus DV header:"  << std::endl <<  *Header << std::endl;
-			//Buffer.DebugDump(g_Reflector.m_DebugFile);
-
 			// callsign muted?
 			if ( g_GateKeeper.MayTransmit(Header->GetMyCallsign(), Ip, PROTOCOL_DMRPLUS) )
 			{
 				// handle it
 				OnDvHeaderPacketIn(Header, Ip);
-			}
-			else
-			{
-				delete Header;
 			}
 		}
 		else if ( IsValidConnectPacket(Buffer, &Callsign, &ToLinkModule, Ip) )
@@ -204,10 +183,8 @@ void CDmrplusProtocol::Task(void)
 ////////////////////////////////////////////////////////////////////////////////////////
 // streams helpers
 
-bool CDmrplusProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip)
+void CDmrplusProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Header, const CIp &Ip)
 {
-	bool newstream = false;
-
 	// find the stream
 	CPacketStream *stream = GetStream(Header->GetStreamId());
 	if ( stream == nullptr )
@@ -222,7 +199,6 @@ bool CDmrplusProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip
 			{
 				// keep the handle
 				m_Streams.push_back(stream);
-				newstream = true;
 			}
 		}
 		// release
@@ -233,23 +209,11 @@ bool CDmrplusProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip
 		// stream already open
 		// skip packet, but tickle the stream
 		stream->Tickle();
-		// and delete packet
-		delete Header;
 	}
 
 	// update last heard
 	g_Reflector.GetUsers()->Hearing(Header->GetMyCallsign(), Header->GetRpt1Callsign(), Header->GetRpt2Callsign());
 	g_Reflector.ReleaseUsers();
-
-	// delete header if needed
-	if ( !newstream )
-	{
-		delete Header;
-	}
-
-
-	// done
-	return newstream;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -262,7 +226,7 @@ void CDmrplusProtocol::HandleQueue(void)
 	while ( !m_Queue.empty() )
 	{
 		// get the packet
-		CPacket *packet = m_Queue.front();
+		auto packet = m_Queue.front();
 		m_Queue.pop();
 
 		// get our sender's id
@@ -330,9 +294,6 @@ void CDmrplusProtocol::HandleQueue(void)
 			// debug
 			//buffer.DebugDump(g_Reflector.m_DebugFile);
 		}
-
-		// done
-		delete packet;
 	}
 	m_Queue.Unlock();
 }
@@ -443,11 +404,8 @@ bool CDmrplusProtocol::IsValidDisconnectPacket(const CBuffer &Buffer, CCallsign 
 	return valid;
 }
 
-bool CDmrplusProtocol::IsValidDvHeaderPacket(const CIp &Ip, const CBuffer &Buffer, CDvHeaderPacket **Header)
+bool CDmrplusProtocol::IsValidDvHeaderPacket(const CIp &Ip, const CBuffer &Buffer, std::unique_ptr<CDvHeaderPacket> &Header)
 {
-	bool valid = false;
-	*Header = nullptr;
-
 	uint8 uiPacketType = Buffer.data()[8];
 	if ( (Buffer.size() == 72)  && ( uiPacketType == 2 ) )
 	{
@@ -472,26 +430,16 @@ bool CDmrplusProtocol::IsValidDvHeaderPacket(const CIp &Ip, const CBuffer &Buffe
 			uint32 uiStreamId = IpToStreamId(Ip);
 
 			// and packet
-			*Header = new CDvHeaderPacket(uiSrcId, CCallsign("CQCQCQ"), rpt1, rpt2, uiStreamId, 0, 0);
-			valid = (*Header)->IsValid();
-			if ( !valid )
-			{
-				delete *Header;
-				*Header = nullptr;
-			}
+			Header = std::unique_ptr<CDvHeaderPacket>(new CDvHeaderPacket(uiSrcId, CCallsign("CQCQCQ"), rpt1, rpt2, uiStreamId, 0, 0));
+			if (Header && Header->IsValid())
+				return true;
 		}
 	}
-	// done
-	return valid;
+	return false;
 }
 
-bool CDmrplusProtocol::IsValidDvFramePacket(const CIp &Ip, const CBuffer &Buffer, CDvFramePacket **frames)
+bool CDmrplusProtocol::IsValidDvFramePacket(const CIp &Ip, const CBuffer &Buffer, std::array<std::unique_ptr<CDvFramePacket>, 3> &frames)
 {
-	bool valid = false;
-	frames[0] = nullptr;
-	frames[1] = nullptr;
-	frames[2] = nullptr;
-
 	uint8 uiPacketType = Buffer.data()[8];
 	if ( (Buffer.size() == 72)  && ((uiPacketType == 1) || (uiPacketType == 3)) )
 	{
@@ -530,30 +478,29 @@ bool CDmrplusProtocol::IsValidDvFramePacket(const CIp &Ip, const CBuffer &Buffer
 			uint32 uiStreamId = IpToStreamId(Ip);
 			// frame1
 			memcpy(dmrambe, &dmr3ambe[0], 9);
-			frames[0] = new CDvFramePacket(dmrambe, dmrsync, uiStreamId, uiVoiceSeq, 1);
+			frames[0] = std::unique_ptr<CDvFramePacket>(new CDvFramePacket(dmrambe, dmrsync, uiStreamId, uiVoiceSeq, 1));
 
 			// frame2
 			memcpy(dmrambe, &dmr3ambe[9], 9);
-			frames[1] = new CDvFramePacket(dmrambe, dmrsync, uiStreamId, uiVoiceSeq, 2);
+			frames[1] = std::unique_ptr<CDvFramePacket>(new CDvFramePacket(dmrambe, dmrsync, uiStreamId, uiVoiceSeq, 2));
 
 			// frame3
 			memcpy(dmrambe, &dmr3ambe[18], 9);
 			if ( uiPacketType == 3 )
 			{
-				frames[2] = new CDvLastFramePacket(dmrambe, dmrsync, uiStreamId, uiVoiceSeq, 3);
+				frames[2] = std::unique_ptr<CDvFramePacket>(new CDvLastFramePacket(dmrambe, dmrsync, uiStreamId, uiVoiceSeq, 3));
 			}
 			else
 			{
-				frames[2] = new CDvFramePacket(dmrambe, dmrsync, uiStreamId, uiVoiceSeq, 3);
+				frames[2] = std::unique_ptr<CDvFramePacket>(new CDvFramePacket(dmrambe, dmrsync, uiStreamId, uiVoiceSeq, 3));
 			}
 
 			// check
-			valid = true;
+			if (frames[0] && frames[1] && frames[2])
+				return true;
 		}
 	}
-
-	// done
-	return valid;
+	return false;
 }
 
 

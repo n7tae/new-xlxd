@@ -99,19 +99,19 @@ protected:
 	virtual bool EncodeDvLastFramePacket(const CDvLastFramePacket &, CBuffer *) const   { return false; }
 
 	// stream helpers
-	virtual bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &) { return false; }
-	virtual void OnDvFramePacketIn(CDvFramePacket *, const CIp * = nullptr);
-	virtual void OnDvLastFramePacketIn(CDvLastFramePacket *, const CIp * = nullptr);
+	virtual void OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &, const CIp &) {}
+	virtual void OnDvFramePacketIn(std::unique_ptr<CDvFramePacket> &, const CIp * = nullptr);
+	virtual void OnDvLastFramePacketIn(std::unique_ptr<CDvLastFramePacket> &, const CIp * = nullptr);
 
 	// stream handle helpers
 	CPacketStream *GetStream(uint16, const CIp * = nullptr);
 	void CheckStreamsTimeout(void);
 
 	// queue helper
-	virtual void HandleQueue(void);
+	virtual void HandleQueue(void) = 0;
 
 	// keepalive helpers
-	virtual void HandleKeepalives(void) {}
+	virtual void HandleKeepalives(void) = 0;
 
 	// syntax helper
 	bool IsNumber(char) const;

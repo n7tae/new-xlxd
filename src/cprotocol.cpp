@@ -162,39 +162,37 @@ bool CProtocol::EncodeDvPacket(const CPacket &packet, CBuffer *buffer) const
 ////////////////////////////////////////////////////////////////////////////////////////
 // streams helpers
 
-void CProtocol::OnDvFramePacketIn(CDvFramePacket *Frame, const CIp *Ip)
+void CProtocol::OnDvFramePacketIn(std::unique_ptr<CDvFramePacket> &Frame, const CIp *Ip)
 {
 	// find the stream
 	CPacketStream *stream = GetStream(Frame->GetStreamId(), Ip);
 	if ( stream == nullptr )
 	{
-		std::cout << "Deleting orphaned Frame with ID " << Frame->GetStreamId() << " on " << *Ip << std::endl;
-		delete Frame;
+		std::cout << "Orphaned Frame with ID " << Frame->GetStreamId() << " on " << *Ip << std::endl;
 	}
 	else
 	{
 		//std::cout << "DV frame" << "from "  << *Ip << std::endl;
 		// and push
 		stream->Lock();
-		stream->Push(Frame);
+		stream->Push(std::move(Frame));
 		stream->Unlock();
 	}
 }
 
-void CProtocol::OnDvLastFramePacketIn(CDvLastFramePacket *Frame, const CIp *Ip)
+void CProtocol::OnDvLastFramePacketIn(std::unique_ptr<CDvLastFramePacket> &Frame, const CIp *Ip)
 {
 	// find the stream
 	CPacketStream *stream = GetStream(Frame->GetStreamId(), Ip);
 	if ( stream == nullptr )
 	{
-		std::cout << "Deleting orphaned Last Frame with ID " << Frame->GetStreamId() << " on " << *Ip << std::endl;
-		delete Frame;
+		std::cout << "Orphaned Last Frame with ID " << Frame->GetStreamId() << " on " << *Ip << std::endl;
 	}
 	else
 	{
 		// push
 		stream->Lock();
-		stream->Push(Frame);
+		stream->Push(std::move(Frame));
 		stream->Unlock();
 
 		// and close the stream
@@ -244,21 +242,6 @@ void CProtocol::CheckStreamsTimeout(void)
 			(*it++)->Unlock();
 		}
 	}
-}
-
-////////////////////////////////////////////////////////////////////////////////////////
-// queue helper
-
-void CProtocol::HandleQueue(void)
-{
-	// the default protocol just keep queue empty
-	m_Queue.Lock();
-	while ( !m_Queue.empty() )
-	{
-		delete m_Queue.front();
-		m_Queue.pop();
-	}
-	m_Queue.Unlock();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

@@ -79,15 +79,15 @@ bool CDmrmmdvmProtocol::Initalize(const char *type, const uint16 port, const boo
 
 void CDmrmmdvmProtocol::Task(void)
 {
-	CBuffer             Buffer;
-	CIp                 Ip;
-	CCallsign           Callsign;
-	int                 iRssi;
-	uint8               Cmd;
-	uint8               CallType;
-	CDvHeaderPacket     *Header;
-	CDvFramePacket      *Frames[3];
-	CDvLastFramePacket  *LastFrame;
+	CBuffer   Buffer;
+	CIp       Ip;
+	CCallsign Callsign;
+	int       iRssi;
+	uint8     Cmd;
+	uint8     CallType;
+	std::unique_ptr<CDvHeaderPacket>    Header;
+	std::unique_ptr<CDvLastFramePacket> LastFrame;
+	std::array<std::unique_ptr<CDvFramePacket>, 3> Frames;
 
 	// handle incoming packets
 #if DMR_IPV6==true
@@ -104,33 +104,22 @@ void CDmrmmdvmProtocol::Task(void)
 		// crack the packet
 		if ( IsValidDvFramePacket(Buffer, Frames) )
 		{
-			//std::cout << "DMRmmdvm DV frame" << std::endl;
-
 			for ( int i = 0; i < 3; i++ )
 			{
-				OnDvFramePacketIn(Frames[i], &Ip);
+				OnDvFramePacketIn(Frames.at(i), &Ip);
 			}
 		}
-		else if ( IsValidDvHeaderPacket(Buffer, &Header, &Cmd, &CallType) )
+		else if ( IsValidDvHeaderPacket(Buffer, Header, &Cmd, &CallType) )
 		{
-			//std::cout << "DMRmmdvm DV header:"  << std::endl <<  *Header << std::endl;
-			//std::cout << "DMRmmdvm DV header"  << std::endl;
-
 			// callsign muted?
 			if ( g_GateKeeper.MayTransmit(Header->GetMyCallsign(), Ip, PROTOCOL_DMRMMDVM) )
 			{
 				// handle it
 				OnDvHeaderPacketIn(Header, Ip, Cmd, CallType);
 			}
-			else
-			{
-				delete Header;
-			}
 		}
-		else if ( IsValidDvLastFramePacket(Buffer, &LastFrame) )
+		else if ( IsValidDvLastFramePacket(Buffer, LastFrame) )
 		{
-			//std::cout << "DMRmmdvm DV last frame"  << std::endl;
-
 			OnDvLastFramePacketIn(LastFrame, &Ip);
 		}
 		else if ( IsValidConnectPacket(Buffer, &Callsign, Ip) )
@@ -272,7 +261,7 @@ void CDmrmmdvmProtocol::Task(void)
 ////////////////////////////////////////////////////////////////////////////////////////
 // streams helpers
 
-bool CDmrmmdvmProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &Ip, uint8 cmd, uint8 CallType)
+bool CDmrmmdvmProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Header, const CIp &Ip, uint8 cmd, uint8 CallType)
 {
 	bool newstream = false;
 	bool lastheard = false;
@@ -350,20 +339,12 @@ bool CDmrmmdvmProtocol::OnDvHeaderPacketIn(CDvHeaderPacket *Header, const CIp &I
 			g_Reflector.GetUsers()->Hearing(Header->GetMyCallsign(), via, Header->GetRpt2Callsign());
 			g_Reflector.ReleaseUsers();
 		}
-
-		// delete header if needed
-		if ( !newstream )
-		{
-			delete Header;
-		}
 	}
 	else
 	{
 		// stream already open
 		// skip packet, but tickle the stream
 		stream->Tickle();
-		// and delete packet
-		delete Header;
 	}
 
 	// done
@@ -380,7 +361,7 @@ void CDmrmmdvmProtocol::HandleQueue(void)
 	while ( !m_Queue.empty() )
 	{
 		// get the packet
-		CPacket *packet = m_Queue.front();
+		auto packet = m_Queue.front();
 		m_Queue.pop();
 
 		// get our sender's id
@@ -398,7 +379,7 @@ void CDmrmmdvmProtocol::HandleQueue(void)
 			m_StreamsCache[iModId].m_uiSeqId = 0;
 
 			// encode it
-			EncodeDvHeaderPacket((const CDvHeaderPacket &)*packet, m_StreamsCache[iModId].m_uiSeqId, &buffer);
+			EncodeDvHeaderPacket((CDvHeaderPacket &)*packet, m_StreamsCache[iModId].m_uiSeqId, &buffer);
 			m_StreamsCache[iModId].m_uiSeqId = 1;
 		}
 		// check if it's a last frame
@@ -454,9 +435,6 @@ void CDmrmmdvmProtocol::HandleQueue(void)
 			}
 			g_Reflector.ReleaseClients();
 		}
-
-		// done
-		delete packet;
 	}
 	m_Queue.Unlock();
 }
@@ -620,12 +598,10 @@ bool CDmrmmdvmProtocol::IsValidRssiPacket(const CBuffer &Buffer, CCallsign *call
 	return valid;
 }
 
-bool CDmrmmdvmProtocol::IsValidDvHeaderPacket(const CBuffer &Buffer, CDvHeaderPacket **header, uint8 *cmd, uint8 *CallType)
+bool CDmrmmdvmProtocol::IsValidDvHeaderPacket(const CBuffer &Buffer, std::unique_ptr<CDvHeaderPacket> &header, uint8 *cmd, uint8 *CallType)
 {
 	uint8 tag[] = { 'D','M','R','D' };
 
-	bool valid = false;
-	*header = nullptr;
 	*cmd = CMD_NONE;
 
 	if ( (Buffer.size() == 55) && (Buffer.Compare(tag, sizeof(tag)) == 0) )
@@ -687,28 +663,18 @@ bool CDmrmmdvmProtocol::IsValidDvHeaderPacket(const CBuffer &Buffer, CDvHeaderPa
 				rpt2.SetModule(DmrDstIdToModule(uiDstId));
 
 				// and packet
-				*header = new CDvHeaderPacket(uiSrcId, CCallsign("CQCQCQ"), rpt1, rpt2, uiStreamId, 0, 0);
-				valid = (*header)->IsValid();
-				if ( !valid )
-				{
-					delete *header;
-					*header = nullptr;
-				}
+				header = std::unique_ptr<CDvHeaderPacket>(new CDvHeaderPacket(uiSrcId, CCallsign("CQCQCQ"), rpt1, rpt2, uiStreamId, 0, 0));
+				if ( header && header->IsValid() )
+					return true;
 			}
 		}
 	}
-	// done
-	return valid;
+	return false;
 }
 
-bool CDmrmmdvmProtocol::IsValidDvFramePacket(const CBuffer &Buffer, CDvFramePacket **frames)
+bool CDmrmmdvmProtocol::IsValidDvFramePacket(const CBuffer &Buffer, std::array<std::unique_ptr<CDvFramePacket>, 3> &frames)
 {
 	uint8 tag[] = { 'D','M','R','D' };
-
-	bool valid = false;
-	frames[0] = nullptr;
-	frames[1] = nullptr;
-	frames[2] = nullptr;
 
 	if ( (Buffer.size() == 55) && (Buffer.Compare(tag, sizeof(tag)) == 0) )
 	{
@@ -752,30 +718,27 @@ bool CDmrmmdvmProtocol::IsValidDvFramePacket(const CBuffer &Buffer, CDvFramePack
 			// and create 3 dv frames
 			// frame1
 			memcpy(dmrambe, &dmr3ambe[0], 9);
-			frames[0] = new CDvFramePacket(dmrambe, dmrsync, uiStreamId, uiVoiceSeq, 1);
+			frames[0] = std::unique_ptr<CDvFramePacket>(new CDvFramePacket(dmrambe, dmrsync, uiStreamId, uiVoiceSeq, 1));
 
 			// frame2
 			memcpy(dmrambe, &dmr3ambe[9], 9);
-			frames[1] = new CDvFramePacket(dmrambe, dmrsync, uiStreamId, uiVoiceSeq, 2);
+			frames[1] = std::unique_ptr<CDvFramePacket>(new CDvFramePacket(dmrambe, dmrsync, uiStreamId, uiVoiceSeq, 2));
 
 			// frame3
 			memcpy(dmrambe, &dmr3ambe[18], 9);
-			frames[2] = new CDvFramePacket(dmrambe, dmrsync, uiStreamId, uiVoiceSeq, 3);
+			frames[2] = std::unique_ptr<CDvFramePacket>(new CDvFramePacket(dmrambe, dmrsync, uiStreamId, uiVoiceSeq, 3));
 
 			// check
-			valid = true;
+			if (frames[0] && frames[1] && frames[2])
+				return true;
 		}
 	}
-	// done
-	return valid;
+	return false;
 }
 
-bool CDmrmmdvmProtocol::IsValidDvLastFramePacket(const CBuffer &Buffer, CDvLastFramePacket **frame)
+bool CDmrmmdvmProtocol::IsValidDvLastFramePacket(const CBuffer &Buffer, std::unique_ptr<CDvLastFramePacket> &frame)
 {
 	uint8 tag[] = { 'D','M','R','D' };
-
-	bool valid = false;
-	*frame = nullptr;
 
 	if ( (Buffer.size() == 55) && (Buffer.Compare(tag, sizeof(tag)) == 0) )
 	{
@@ -817,15 +780,13 @@ bool CDmrmmdvmProtocol::IsValidDvLastFramePacket(const CBuffer &Buffer, CDvLastF
 
 
 				// and packet
-				*frame = new CDvLastFramePacket(ambe, dmrsync, uiStreamId, 0, 0);
-
-				// check
-				valid = true;
+				frame = std::unique_ptr<CDvLastFramePacket>(new CDvLastFramePacket(ambe, dmrsync, uiStreamId, 0, 0));
+				if (frame)
+					return true;
 			}
 		}
 	}
-	// done
-	return valid;
+	return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

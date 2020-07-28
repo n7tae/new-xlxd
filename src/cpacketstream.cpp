@@ -82,7 +82,7 @@ void CPacketStream::Close(void)
 ////////////////////////////////////////////////////////////////////////////////////////
 // push & pop
 
-void CPacketStream::Push(CPacket *Packet)
+void CPacketStream::Push(std::unique_ptr<CPacket> Packet)
 {
 	// update stream dependent packet data
 	m_LastPacketTime.Now();

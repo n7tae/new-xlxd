@@ -90,9 +90,9 @@ CDvHeaderPacket::CDvHeaderPacket(const CCallsign &my, const CCallsign &ur, const
 ////////////////////////////////////////////////////////////////////////////////////////
 // virtual duplication
 
-CPacket *CDvHeaderPacket::Duplicate(void) const
+std::unique_ptr<CPacket> CDvHeaderPacket::Duplicate(void) const
 {
-	return new CDvHeaderPacket(*this);
+	return std::unique_ptr<CPacket>(new CDvHeaderPacket(*this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

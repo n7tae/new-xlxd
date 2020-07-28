@@ -95,9 +95,9 @@ CDvFramePacket::CDvFramePacket
 ////////////////////////////////////////////////////////////////////////////////////////
 // virtual duplication
 
-CPacket *CDvFramePacket::Duplicate(void) const
+std::unique_ptr<CPacket> CDvFramePacket::Duplicate(void) const
 {
-	return new CDvFramePacket(*this);
+	return std::unique_ptr<CPacket>(new CDvFramePacket(*this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

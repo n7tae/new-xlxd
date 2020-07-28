@@ -55,9 +55,9 @@ protected:
 	void HandleKeepalives(void);
 
 	// stream helpers
-	bool OnDvHeaderPacketIn(CDvHeaderPacket *, const CIp &);
-	void OnDvFramePacketIn(CDvFramePacket *, const CIp * = nullptr);
-	void OnDvLastFramePacketIn(CDvLastFramePacket *, const CIp * = nullptr);
+	void OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &, const CIp &);
+	void OnDvFramePacketIn(std::unique_ptr<CDvFramePacket> &, const CIp * = nullptr);
+	void OnDvLastFramePacketIn(std::unique_ptr<CDvLastFramePacket> &, const CIp * = nullptr);
 
 	// packet decoding helpers
 	bool IsValidKeepAlivePacket(const CBuffer &, CCallsign *);
@@ -65,8 +65,8 @@ protected:
 	bool IsValidDisconnectPacket(const CBuffer &, CCallsign *);
 	bool IsValidAckPacket(const CBuffer &, CCallsign *, char *, CVersion *);
 	bool IsValidNackPacket(const CBuffer &, CCallsign *);
-	CDvFramePacket      *IsValidDvFramePacket(const CBuffer &);
-	CDvLastFramePacket  *IsValidDvLastFramePacket(const CBuffer &);
+	bool IsValidDvFramePacket(const CBuffer &, std::unique_ptr<CDvFramePacket> &);
+	bool IsValidDvLastFramePacket(const CBuffer &, std::unique_ptr<CDvLastFramePacket> &);
 
 	// packet encoding helpers
 	void EncodeKeepAlivePacket(CBuffer *);

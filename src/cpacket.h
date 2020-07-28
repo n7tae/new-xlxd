@@ -49,13 +49,13 @@ public:
 	virtual ~CPacket() {}
 
 	// virtual duplication
-	virtual CPacket *Duplicate(void) const = 0;
+	virtual std::unique_ptr<CPacket> Duplicate(void) const = 0;
 
 	// identity
 	virtual bool IsDvHeader(void) const             { return false; }
 	virtual bool IsDvFrame(void) const              { return false; }
 	virtual bool IsLastPacket(void) const           { return false; }
-	virtual bool HasTranscodableAmbe(void) const   { return false; }
+	virtual bool HasTranscodableAmbe(void) const    { return false; }
 
 	// get
 	virtual bool IsValid(void) const                { return true; }
