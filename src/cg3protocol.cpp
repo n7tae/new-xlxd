@@ -526,10 +526,18 @@ void CG3Protocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Header, c
 	// find the stream
 	CPacketStream *stream = GetStream(Header->GetStreamId(), &Ip);
 
-	if ( stream == nullptr )
+	if ( stream )
+	{
+		// stream already open
+		// skip packet, but tickle the stream
+		stream->Tickle();
+	}
+	else
 	{
 		// no stream open yet, open a new one
-		CCallsign via(Header->GetRpt1Callsign());
+		CCallsign my(Header->GetMyCallsign());
+		CCallsign rpt1(Header->GetRpt1Callsign());
+		CCallsign rpt2(Header->GetRpt2Callsign());
 
 		// find this client
 		CClients *clients = g_Reflector.GetClients();
@@ -544,15 +552,15 @@ void CG3Protocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Header, c
 			}
 		}
 
-		if ( client != nullptr )
+		if ( client )
 		{
 
 			// move it to the proper module
-			if (m_ReflectorCallsign.HasSameCallsign(Header->GetRpt2Callsign()))
+			if (m_ReflectorCallsign.HasSameCallsign(rpt2))
 			{
-				if (client->GetReflectorModule() != Header->GetRpt2Callsign().GetModule())
+				if (client->GetReflectorModule() != rpt2.GetModule())
 				{
-					char new_module = Header->GetRpt2Callsign().GetModule();
+					auto new_module = rpt2.GetModule();
 					if (strchr(m_Modules.c_str(), '*') || strchr(m_Modules.c_str(), new_module))
 					{
 						client->SetReflectorModule(new_module);
@@ -565,7 +573,7 @@ void CG3Protocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Header, c
 				}
 
 				// get client callsign
-				via = client->GetCallsign();
+				rpt1 = client->GetCallsign();
 
 				// and try to open the stream
 				if ( (stream = g_Reflector.OpenStream(Header, client)) != nullptr )
@@ -575,18 +583,12 @@ void CG3Protocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Header, c
 				}
 
 				// update last heard
-				g_Reflector.GetUsers()->Hearing(Header->GetMyCallsign(), via, Header->GetRpt2Callsign());
+				g_Reflector.GetUsers()->Hearing(my, rpt1, rpt2);
 				g_Reflector.ReleaseUsers();
 			}
 		}
 		// release
 		g_Reflector.ReleaseClients();
-	}
-	else
-	{
-		// stream already open
-		// skip packet, but tickle the stream
-		stream->Tickle();
 	}
 }
 

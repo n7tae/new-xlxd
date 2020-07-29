@@ -399,17 +399,25 @@ void CDextraProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Heade
 {
 	// find the stream
 	CPacketStream *stream = GetStream(Header->GetStreamId());
-	if ( stream == nullptr )
+	if ( stream )
+	{
+		// stream already open
+		// skip packet, but tickle the stream
+		stream->Tickle();
+	}
+	else
 	{
 		// no stream open yet, open a new one
-		CCallsign via(Header->GetRpt1Callsign());
+		CCallsign my(Header->GetMyCallsign());
+		CCallsign rpt1(Header->GetRpt1Callsign());
+		CCallsign rpt2(Header->GetRpt2Callsign());
 
 		// find this client
 		std::shared_ptr<CClient>client = g_Reflector.GetClients()->FindClient(Ip, PROTOCOL_DEXTRA);
-		if ( client != nullptr )
+		if ( client )
 		{
 			// get client callsign
-			via = client->GetCallsign();
+			rpt1 = client->GetCallsign();
 			// apply protocol revision details
 			if ( client->GetProtocolRevision() == 2 )
 			{
@@ -428,14 +436,8 @@ void CDextraProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Heade
 		g_Reflector.ReleaseClients();
 
 		// update last heard
-		g_Reflector.GetUsers()->Hearing(Header->GetMyCallsign(), via, Header->GetRpt2Callsign());
+		g_Reflector.GetUsers()->Hearing(my, rpt1, rpt2);
 		g_Reflector.ReleaseUsers();
-	}
-	else
-	{
-		// stream already open
-		// skip packet, but tickle the stream
-		stream->Tickle();
 	}
 }
 

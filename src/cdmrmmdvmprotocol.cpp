@@ -261,22 +261,27 @@ void CDmrmmdvmProtocol::Task(void)
 ////////////////////////////////////////////////////////////////////////////////////////
 // streams helpers
 
-bool CDmrmmdvmProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Header, const CIp &Ip, uint8 cmd, uint8 CallType)
+void CDmrmmdvmProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Header, const CIp &Ip, uint8 cmd, uint8 CallType)
 {
-	bool newstream = false;
 	bool lastheard = false;
-
-	//
-	CCallsign via(Header->GetRpt1Callsign());
 
 	// find the stream
 	CPacketStream *stream = GetStream(Header->GetStreamId());
-	if ( stream == nullptr )
+	if ( stream )
 	{
+		// stream already open
+		// skip packet, but tickle the stream
+		stream->Tickle();
+	}
+	else
+	{
+		CCallsign my(Header->GetMyCallsign());
+		CCallsign rpt1(Header->GetRpt1Callsign());
+		CCallsign rpt2(Header->GetRpt2Callsign());
 		// no stream open yet, open a new one
 		// firstfind this client
 		std::shared_ptr<CClient>client = g_Reflector.GetClients()->FindClient(Ip, PROTOCOL_DMRMMDVM);
-		if ( client != nullptr )
+		if ( client )
 		{
 			// process cmd if any
 			if ( !client->HasReflectorModule() )
@@ -284,15 +289,15 @@ bool CDmrmmdvmProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Hea
 				// not linked yet
 				if ( cmd == CMD_LINK )
 				{
-					if ( g_Reflector.IsValidModule(Header->GetRpt2Module()) )
+					if ( g_Reflector.IsValidModule(rpt2.GetModule()) )
 					{
-						std::cout << "DMRmmdvm client " << client->GetCallsign() << " linking on module " << Header->GetRpt2Module() << std::endl;
+						std::cout << "DMRmmdvm client " << client->GetCallsign() << " linking on module " << rpt2.GetModule() << std::endl;
 						// link
-						client->SetReflectorModule(Header->GetRpt2Module());
+						client->SetReflectorModule(rpt2.GetModule());
 					}
 					else
 					{
-						std::cout << "DMRMMDVM node " << via << " link attempt on non-existing module" << std::endl;
+						std::cout << "DMRMMDVM node " << rpt1 << " link attempt on non-existing module" << std::endl;
 					}
 				}
 			}
@@ -308,19 +313,20 @@ bool CDmrmmdvmProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Hea
 				else
 				{
 					// replace rpt2 module with currently linked module
-					Header->SetRpt2Module(client->GetReflectorModule());
+					auto m = client->GetReflectorModule();
+					Header->SetRpt2Module(m);
+					rpt2.SetModule(m);
 				}
 			}
 
 			// and now, re-check module is valid && that it's not a private call
-			if ( g_Reflector.IsValidModule(Header->GetRpt2Module()) && (CallType == DMR_GROUP_CALL) )
+			if ( g_Reflector.IsValidModule(rpt2.GetModule()) && (CallType == DMR_GROUP_CALL) )
 			{
 				// yes, try to open the stream
 				if ( (stream = g_Reflector.OpenStream(Header, client)) != nullptr )
 				{
 					// keep the handle
 					m_Streams.push_back(stream);
-					newstream = true;
 					lastheard = true;
 				}
 			}
@@ -336,19 +342,10 @@ bool CDmrmmdvmProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Hea
 		// update last heard
 		if ( lastheard )
 		{
-			g_Reflector.GetUsers()->Hearing(Header->GetMyCallsign(), via, Header->GetRpt2Callsign());
+			g_Reflector.GetUsers()->Hearing(my, rpt1, rpt2);
 			g_Reflector.ReleaseUsers();
 		}
 	}
-	else
-	{
-		// stream already open
-		// skip packet, but tickle the stream
-		stream->Tickle();
-	}
-
-	// done
-	return newstream;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

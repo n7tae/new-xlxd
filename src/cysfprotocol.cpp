@@ -227,17 +227,25 @@ void CYsfProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Header, 
 {
 	// find the stream
 	CPacketStream *stream = GetStream(Header->GetStreamId());
-	if ( stream == nullptr )
+	if ( stream )
+	{
+		// stream already open
+		// skip packet, but tickle the stream
+		stream->Tickle();
+	}
+	else
 	{
 		// no stream open yet, open a new one
-		CCallsign via(Header->GetRpt1Callsign());
+		CCallsign my(Header->GetMyCallsign());
+		CCallsign rpt1(Header->GetRpt1Callsign());
+		CCallsign rpt2(Header->GetRpt2Callsign());
 
 		// find this client
 		std::shared_ptr<CClient>client = g_Reflector.GetClients()->FindClient(Ip, PROTOCOL_YSF);
-		if ( client != nullptr )
+		if ( client )
 		{
 			// get client callsign
-			via = client->GetCallsign();
+			rpt2 = client->GetCallsign();
 			// get module it's linked to
 			Header->SetRpt2Module(client->GetReflectorModule());
 
@@ -254,15 +262,9 @@ void CYsfProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Header, 
 		// update last heard
 		if ( g_Reflector.IsValidModule(Header->GetRpt2Module()) )
 		{
-			g_Reflector.GetUsers()->Hearing(Header->GetMyCallsign(), via, Header->GetRpt2Callsign());
+			g_Reflector.GetUsers()->Hearing(my, rpt1, rpt2);
 			g_Reflector.ReleaseUsers();
 		}
-	}
-	else
-	{
-		// stream already open
-		// skip packet, but tickle the stream
-		stream->Tickle();
 	}
 }
 

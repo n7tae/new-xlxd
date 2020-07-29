@@ -181,17 +181,25 @@ void CDplusProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Header
 {
 	// find the stream
 	CPacketStream *stream = GetStream(Header->GetStreamId());
-	if ( stream == nullptr )
+	if ( stream )
+	{
+		// stream already open
+		// skip packet, but tickle the stream
+		stream->Tickle();
+	}
+	else
 	{
 		// no stream open yet, open a new one
-		CCallsign via(Header->GetRpt1Callsign());
+		CCallsign my(Header->GetMyCallsign());
+		CCallsign rpt1(Header->GetRpt1Callsign());
+		CCallsign rpt2(Header->GetRpt2Callsign());
 
 		// first, check module is valid
-		if ( g_Reflector.IsValidModule(Header->GetRpt1Module()) )
+		if ( g_Reflector.IsValidModule(rpt1.GetModule()) )
 		{
 			// find this client
 			std::shared_ptr<CClient>client = g_Reflector.GetClients()->FindClient(Ip, PROTOCOL_DPLUS);
-			if ( client != nullptr )
+			if ( client )
 			{
 				// now we know if it's a dextra dongle or a genuine dplus node
 				if ( Header->GetRpt2Callsign().HasSameCallsignWithWildcard(CCallsign("XRF*"))  )
@@ -201,10 +209,10 @@ void CDplusProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Header
 				// now we know its module, let's update it
 				if ( !client->HasModule() )
 				{
-					client->SetModule(Header->GetRpt1Module());
+					client->SetModule(rpt1.GetModule());
 				}
 				// get client callsign
-				via = client->GetCallsign();
+				rpt1 = client->GetCallsign();
 				// and try to open the stream
 				if ( (stream = g_Reflector.OpenStream(Header, client)) != nullptr )
 				{
@@ -216,19 +224,13 @@ void CDplusProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Header
 			g_Reflector.ReleaseClients();
 
 			// update last heard
-			g_Reflector.GetUsers()->Hearing(Header->GetMyCallsign(), via, Header->GetRpt2Callsign());
+			g_Reflector.GetUsers()->Hearing(my, rpt1, rpt2);
 			g_Reflector.ReleaseUsers();
 		}
 		else
 		{
-			std::cout << "DPlus node " << via << " link attempt on non-existing module" << std::endl;
+			std::cout << "DPlus node " << rpt1 << " link attempt on non-existing module" << std::endl;
 		}
-	}
-	else
-	{
-		// stream already open
-		// skip packet, but tickle the stream
-		stream->Tickle();
 	}
 }
 

@@ -396,12 +396,21 @@ void CXlxProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Header, 
 
 	// find the stream
 	CPacketStream *stream = GetStream(Header->GetStreamId());
-	if ( stream == nullptr )
+	if ( stream )
 	{
+		// stream already open
+		// skip packet, but tickle the stream
+		stream->Tickle();
+	}
+	else
+	{
+		CCallsign my(Header->GetMyCallsign());
+		CCallsign rpt1(Header->GetRpt1Callsign());
+		CCallsign rpt2(Header->GetRpt2Callsign());
 		// no stream open yet, open a new one
 		// find this client
 		std::shared_ptr<CClient>client = g_Reflector.GetClients()->FindClient(Ip, PROTOCOL_XLX, Header->GetRpt2Module());
-		if ( client != nullptr )
+		if ( client )
 		{
 			// and try to open the stream
 			if ( (stream = g_Reflector.OpenStream(Header, client)) != nullptr )
@@ -414,17 +423,10 @@ void CXlxProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Header, 
 		}
 		// release
 		g_Reflector.ReleaseClients();
+		// update last heard
+		g_Reflector.GetUsers()->Hearing(my, rpt1, rpt2, peer);
+		g_Reflector.ReleaseUsers();
 	}
-	else
-	{
-		// stream already open
-		// skip packet, but tickle the stream
-		stream->Tickle();
-	}
-
-	// update last heard
-	g_Reflector.GetUsers()->Hearing(Header->GetMyCallsign(), Header->GetRpt1Callsign(), Header->GetRpt2Callsign(), peer);
-	g_Reflector.ReleaseUsers();
 }
 
 void CXlxProtocol::OnDvFramePacketIn(std::unique_ptr<CDvFramePacket> &DvFrame, const CIp *Ip)
