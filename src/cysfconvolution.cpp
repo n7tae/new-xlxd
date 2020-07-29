@@ -1,5 +1,6 @@
 /*
  *   Copyright (C) 2009-2016 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2030 Thomas A. Early N7TAE
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -35,34 +36,12 @@ const unsigned int NUM_OF_STATES = 16U;
 const uint32_t     M = 2U;
 const unsigned int K = 5U;
 
-CYSFConvolution::CYSFConvolution() :
-	m_metrics1(nullptr),
-	m_metrics2(nullptr),
-	m_oldMetrics(nullptr),
-	m_newMetrics(nullptr),
-	m_decisions(nullptr),
-	m_dp(nullptr)
-{
-	m_metrics1  = new uint16_t[16U];
-	m_metrics2  = new uint16_t[16U];
-	m_decisions = new uint64_t[180U];
-}
-
-CYSFConvolution::~CYSFConvolution()
-{
-	delete[] m_metrics1;
-	delete[] m_metrics2;
-	delete[] m_decisions;
-}
+CYSFConvolution::CYSFConvolution() : m_oldMetrics(m_metrics1), m_newMetrics(m_metrics2), m_dp(m_decisions) {}
 
 void CYSFConvolution::start()
 {
-	::memset(m_metrics1, 0x00U, NUM_OF_STATES * sizeof(uint16_t));
-	::memset(m_metrics2, 0x00U, NUM_OF_STATES * sizeof(uint16_t));
-
-	m_oldMetrics = m_metrics1;
-	m_newMetrics = m_metrics2;
-	m_dp = m_decisions;
+	for (int i=0; i<16; i++)
+		m_metrics1[i] = m_metrics2[i] = 0U;
 }
 
 void CYSFConvolution::decode(uint8_t s0, uint8_t s1)

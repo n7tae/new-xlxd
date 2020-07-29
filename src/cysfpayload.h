@@ -1,5 +1,6 @@
 /*
  *   Copyright (C) 2016,2017 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2020 Thomas A. Early
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,13 +21,11 @@
 #define    YSFPayload_H
 
 #include <string>
+#include <memory>
 
 class CYSFPayload
 {
 public:
-	CYSFPayload();
-	~CYSFPayload();
-
 	bool processHeaderData(unsigned char* bytes);
 
 	void writeVDMode2Data(unsigned char* data, const unsigned char* dt);
@@ -49,10 +48,10 @@ public:
 	void reset();
 
 private:
-	unsigned char* m_uplink;
-	unsigned char* m_downlink;
-	unsigned char* m_source;
-	unsigned char* m_dest;
+	std::unique_ptr<unsigned char[]> m_uplink;
+	std::unique_ptr<unsigned char[]> m_downlink;
+	std::unique_ptr<unsigned char[]> m_source;
+	std::unique_ptr<unsigned char[]> m_dest;
 };
 
 #endif

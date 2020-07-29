@@ -35,11 +35,11 @@ const unsigned char BIT_MASK_TABLE[] = {0x80U, 0x40U, 0x20U, 0x10U, 0x08U, 0x04U
 
 const unsigned int INTERLEAVE_TABLE[] =
 {
-	0U, 40U,  80U, 120U, 160U,
-	2U, 42U,  82U, 122U, 162U,
-	4U, 44U,  84U, 124U, 164U,
-	6U, 46U,  86U, 126U, 166U,
-	8U, 48U,  88U, 128U, 168U,
+	 0U, 40U,  80U, 120U, 160U,
+	 2U, 42U,  82U, 122U, 162U,
+	 4U, 44U,  84U, 124U, 164U,
+	 6U, 46U,  86U, 126U, 166U,
+	 8U, 48U,  88U, 128U, 168U,
 	10U, 50U,  90U, 130U, 170U,
 	12U, 52U,  92U, 132U, 172U,
 	14U, 54U,  94U, 134U, 174U,
@@ -57,16 +57,9 @@ const unsigned int INTERLEAVE_TABLE[] =
 	38U, 78U, 118U, 158U, 198U
 };
 
-CYSFFICH::CYSFFICH() :
-	m_fich(nullptr)
+CYSFFICH::CYSFFICH()
 {
-	m_fich  = new unsigned char[6U];
 	::memset(m_fich, 0U, 6U);
-}
-
-CYSFFICH::~CYSFFICH()
-{
-	delete[] m_fich;
 }
 
 bool CYSFFICH::decode(const unsigned char* bytes)

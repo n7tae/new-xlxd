@@ -24,7 +24,6 @@ class CYSFFICH
 {
 public:
 	CYSFFICH();
-	~CYSFFICH();
 
 	bool decode(const unsigned char* bytes);
 
@@ -60,7 +59,7 @@ public:
 	void load(const unsigned char* fich);
 
 private:
-	unsigned char* m_fich;
+	unsigned char m_fich[6];
 };
 
 #endif

@@ -26,11 +26,11 @@
 
 const unsigned int INTERLEAVE_TABLE_9_20[] =
 {
-	0U, 40U,  80U, 120U, 160U, 200U, 240U, 280U, 320U,
-	2U, 42U,  82U, 122U, 162U, 202U, 242U, 282U, 322U,
-	4U, 44U,  84U, 124U, 164U, 204U, 244U, 284U, 324U,
-	6U, 46U,  86U, 126U, 166U, 206U, 246U, 286U, 326U,
-	8U, 48U,  88U, 128U, 168U, 208U, 248U, 288U, 328U,
+	 0U, 40U,  80U, 120U, 160U, 200U, 240U, 280U, 320U,
+	 2U, 42U,  82U, 122U, 162U, 202U, 242U, 282U, 322U,
+	 4U, 44U,  84U, 124U, 164U, 204U, 244U, 284U, 324U,
+	 6U, 46U,  86U, 126U, 166U, 206U, 246U, 286U, 326U,
+	 8U, 48U,  88U, 128U, 168U, 208U, 248U, 288U, 328U,
 	10U, 50U,  90U, 130U, 170U, 210U, 250U, 290U, 330U,
 	12U, 52U,  92U, 132U, 172U, 212U, 252U, 292U, 332U,
 	14U, 54U,  94U, 134U, 174U, 214U, 254U, 294U, 334U,
@@ -50,11 +50,11 @@ const unsigned int INTERLEAVE_TABLE_9_20[] =
 
 const unsigned int INTERLEAVE_TABLE_5_20[] =
 {
-	0U, 40U,  80U, 120U, 160U,
-	2U, 42U,  82U, 122U, 162U,
-	4U, 44U,  84U, 124U, 164U,
-	6U, 46U,  86U, 126U, 166U,
-	8U, 48U,  88U, 128U, 168U,
+	 0U, 40U,  80U, 120U, 160U,
+	 2U, 42U,  82U, 122U, 162U,
+	 4U, 44U,  84U, 124U, 164U,
+	 6U, 46U,  86U, 126U, 166U,
+	 8U, 48U,  88U, 128U, 168U,
 	10U, 50U,  90U, 130U, 170U,
 	12U, 52U,  92U, 132U, 172U,
 	14U, 54U,  94U, 134U, 174U,
@@ -73,30 +73,14 @@ const unsigned int INTERLEAVE_TABLE_5_20[] =
 };
 
 // This one differs from the others in that it interleaves bits and not dibits
-const unsigned char WHITENING_DATA[] = {0x93U, 0xD7U, 0x51U, 0x21U, 0x9CU, 0x2FU, 0x6CU, 0xD0U, 0xEFU, 0x0FU,
-										0xF8U, 0x3DU, 0xF1U, 0x73U, 0x20U, 0x94U, 0xEDU, 0x1EU, 0x7CU, 0xD8U
-									   };
+const unsigned char WHITENING_DATA[] = {
+	0x93U, 0xD7U, 0x51U, 0x21U, 0x9CU, 0x2FU, 0x6CU, 0xD0U, 0xEFU, 0x0FU, 0xF8U, 0x3DU, 0xF1U, 0x73U, 0x20U, 0x94U, 0xEDU, 0x1EU, 0x7CU, 0xD8U
+};
 
-const unsigned char BIT_MASK_TABLE[] = {0x80U, 0x40U, 0x20U, 0x10U, 0x08U, 0x04U, 0x02U, 0x01U};
+const unsigned char BIT_MASK_TABLE[] = { 0x80U, 0x40U, 0x20U, 0x10U, 0x08U, 0x04U, 0x02U, 0x01U };
 
 #define WRITE_BIT1(p,i,b) p[(i)>>3] = (b) ? (p[(i)>>3] | BIT_MASK_TABLE[(i)&7]) : (p[(i)>>3] & ~BIT_MASK_TABLE[(i)&7])
 #define READ_BIT1(p,i)    (p[(i)>>3] & BIT_MASK_TABLE[(i)&7])
-
-CYSFPayload::CYSFPayload() :
-	m_uplink(nullptr),
-	m_downlink(nullptr),
-	m_source(nullptr),
-	m_dest(nullptr)
-{
-}
-
-CYSFPayload::~CYSFPayload()
-{
-	delete[] m_uplink;
-	delete[] m_downlink;
-	delete[] m_source;
-	delete[] m_dest;
-}
 
 bool CYSFPayload::processHeaderData(unsigned char* data)
 {
@@ -140,14 +124,14 @@ bool CYSFPayload::processHeaderData(unsigned char* data)
 
 		if (m_dest == nullptr)
 		{
-			m_dest = new unsigned char[YSF_CALLSIGN_LENGTH];
-			::memcpy(m_dest, output + 0U, YSF_CALLSIGN_LENGTH);
+			m_dest = std::unique_ptr<unsigned char[]>(new unsigned char[YSF_CALLSIGN_LENGTH]);
+			::memcpy(m_dest.get(), output, YSF_CALLSIGN_LENGTH);
 		}
 
 		if (m_source == nullptr)
 		{
-			m_source = new unsigned char[YSF_CALLSIGN_LENGTH];
-			::memcpy(m_source, output + YSF_CALLSIGN_LENGTH, YSF_CALLSIGN_LENGTH);
+			m_source = std::unique_ptr<unsigned char[]>(new unsigned char[YSF_CALLSIGN_LENGTH]);
+			::memcpy(m_source.get(), output + YSF_CALLSIGN_LENGTH, YSF_CALLSIGN_LENGTH);
 		}
 
 		for (unsigned int i = 0U; i < 20U; i++)
@@ -217,11 +201,11 @@ bool CYSFPayload::processHeaderData(unsigned char* data)
 		for (unsigned int i = 0U; i < 20U; i++)
 			output[i] ^= WHITENING_DATA[i];
 
-		if (m_downlink != nullptr)
-			::memcpy(output + 0U, m_downlink, YSF_CALLSIGN_LENGTH);
+		if (m_downlink)
+			::memcpy(output + 0U, m_downlink.get(), YSF_CALLSIGN_LENGTH);
 
-		if (m_uplink != nullptr)
-			::memcpy(output + YSF_CALLSIGN_LENGTH, m_uplink, YSF_CALLSIGN_LENGTH);
+		if (m_uplink)
+			::memcpy(output + YSF_CALLSIGN_LENGTH, m_uplink.get(), YSF_CALLSIGN_LENGTH);
 
 		for (unsigned int i = 0U; i < 20U; i++)
 			output[i] ^= WHITENING_DATA[i];
@@ -618,7 +602,7 @@ void CYSFPayload::writeDataFRModeData2(const unsigned char* dt, unsigned char* d
 
 void CYSFPayload::setUplink(const std::string& callsign)
 {
-	m_uplink = new unsigned char[YSF_CALLSIGN_LENGTH];
+	m_uplink = std::unique_ptr<unsigned char[]>(new unsigned char[YSF_CALLSIGN_LENGTH]);
 
 	std::string uplink = callsign;
 	uplink.resize(YSF_CALLSIGN_LENGTH, ' ');
@@ -629,7 +613,7 @@ void CYSFPayload::setUplink(const std::string& callsign)
 
 void CYSFPayload::setDownlink(const std::string& callsign)
 {
-	m_downlink = new unsigned char[YSF_CALLSIGN_LENGTH];
+	m_downlink = std::unique_ptr<unsigned char[]>(new unsigned char[YSF_CALLSIGN_LENGTH]);
 
 	std::string downlink = callsign;
 	downlink.resize(YSF_CALLSIGN_LENGTH, ' ');
@@ -643,7 +627,7 @@ std::string CYSFPayload::getSource()
 	std::string tmp;
 
 	if (m_dest)
-		tmp.assign((const char *)m_source, YSF_CALLSIGN_LENGTH);
+		tmp.assign((const char *)m_source.get(), YSF_CALLSIGN_LENGTH);
 	else
 		tmp = "";
 
@@ -655,7 +639,7 @@ std::string CYSFPayload::getDest()
 	std::string tmp;
 
 	if (m_dest)
-		tmp.assign((const char *)m_dest, YSF_CALLSIGN_LENGTH);
+		tmp.assign((const char *)m_dest.get(), YSF_CALLSIGN_LENGTH);
 	else
 		tmp = "";
 
@@ -664,9 +648,6 @@ std::string CYSFPayload::getDest()
 
 void CYSFPayload::reset()
 {
-	delete[] m_source;
-	delete[] m_dest;
-
-	m_source = nullptr;
-	m_dest = nullptr;
+	m_source.reset();
+	m_dest.reset();
 }
