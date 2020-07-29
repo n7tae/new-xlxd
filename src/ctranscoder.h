@@ -60,8 +60,8 @@ public:
 	bool IsConnected(void) const        { return m_bConnected; }
 
 	// manage streams
-	CCodecStream *GetStream(CPacketStream *, uint8);
-	void ReleaseStream(CCodecStream *);
+	std::shared_ptr<CCodecStream> GetStream(CPacketStream *, uint8);
+	void ReleaseStream(std::shared_ptr<CCodecStream>);
 
 	// task
 	void Thread(void);
@@ -83,8 +83,8 @@ protected:
 
 protected:
 	// streams
-	std::mutex                m_Mutex;
-	std::list<CCodecStream *> m_Streams;
+	std::mutex m_Mutex;
+	std::list<std::shared_ptr<CCodecStream>> m_Streams;
 
 	// sync objects for Openstream
 	CSemaphore      m_SemaphoreOpenStream;

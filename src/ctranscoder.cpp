@@ -121,14 +121,7 @@ void CTranscoder::Close(void)
 
 	// close all streams
 	m_Mutex.lock();
-	{
-		for ( auto it=m_Streams.begin(); it!=m_Streams.end(); it++ )
-		{
-			delete *it;
-		}
-		m_Streams.clear();
-
-	}
+	m_Streams.clear();
 	m_Mutex.unlock();
 
 	// kill threads
@@ -202,11 +195,9 @@ void CTranscoder::Task(void)
 ////////////////////////////////////////////////////////////////////////////////////////
 // manage streams
 
-CCodecStream *CTranscoder::GetStream(CPacketStream *PacketStream, uint8 uiCodecIn)
+std::shared_ptr<CCodecStream> CTranscoder::GetStream(CPacketStream *PacketStream, uint8 uiCodecIn)
 {
 	CBuffer     Buffer;
-
-	CCodecStream *stream = nullptr;
 
 	// do we need transcoding
 	if ( uiCodecIn != CODEC_NONE )
@@ -226,29 +217,31 @@ CCodecStream *CTranscoder::GetStream(CPacketStream *PacketStream, uint8 uiCodecI
 					std::cout << "ambed openstream ok" << std::endl;
 
 					// create stream object
-					stream = new CCodecStream(PacketStream, m_StreamidOpenStream, uiCodecIn, (uiCodecIn == CODEC_AMBEPLUS) ? CODEC_AMBE2PLUS : CODEC_AMBEPLUS);
+					auto stream = std::make_shared<CCodecStream>(PacketStream, m_StreamidOpenStream, uiCodecIn, (uiCodecIn == CODEC_AMBEPLUS) ? CODEC_AMBE2PLUS : CODEC_AMBEPLUS);
 
-					// init it
-					if ( stream->Init(m_PortOpenStream) )
-					{
-						// and append to list
-						Lock();
-						m_Streams.push_back(stream);
-						Unlock();
+					if ( stream ) {
+						if ( stream->Init(m_PortOpenStream) )
+						{
+							// and append to list
+							Lock();
+							m_Streams.push_back(stream);
+							Unlock();
+							return stream;
+						}
+						else
+						{
+							// send close packet
+							EncodeClosestreamPacket(&Buffer, stream->GetStreamId());
+							m_Socket.Send(Buffer, m_Ip, TRANSCODER_PORT);
+							stream.reset();
+						}
 					}
 					else
-					{
-						// send close packet
-						EncodeClosestreamPacket(&Buffer, stream->GetStreamId());
-						m_Socket.Send(Buffer, m_Ip, TRANSCODER_PORT);
-						// and delete
-						delete stream;
-						stream = nullptr;
-					}
+						std::cerr << "ERROR: Unable to make a new CCodecStream" << std::endl;
 				}
 				else
 				{
-					std::cout << "ambed openstream failed (no suitable channel available)" << std::endl;
+					std::cerr << "ERROR: Ambed openstream failed (no suitable channel available)" << std::endl;
 				}
 			}
 			else
@@ -258,14 +251,14 @@ CCodecStream *CTranscoder::GetStream(CPacketStream *PacketStream, uint8 uiCodecI
 
 		}
 	}
-	return stream;
+	return nullptr;
 }
 
-void CTranscoder::ReleaseStream(CCodecStream *stream)
+void CTranscoder::ReleaseStream(std::shared_ptr<CCodecStream> stream)
 {
 	CBuffer Buffer;
 
-	if ( stream != nullptr )
+	if ( stream )
 	{
 		// look for the stream
 		bool found = false;
@@ -301,7 +294,6 @@ void CTranscoder::ReleaseStream(CCodecStream *stream)
 
 					// and close it
 					(*it)->Close();
-					delete (*it);
 					m_Streams.erase(it);
 					break;
 				}

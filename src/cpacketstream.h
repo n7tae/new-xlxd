@@ -66,11 +66,11 @@ protected:
 	bool                m_bOpen;
 	uint16              m_uiStreamId;
 	uint32              m_uiPacketCntr;
-	std::shared_ptr<CClient> m_OwnerClient;
 	CTimePoint          m_LastPacketTime;
 	CDvHeaderPacket     m_DvHeader;
+	std::shared_ptr<CClient> m_OwnerClient;
 #ifdef TRANSCODER_IP
-	CCodecStream        *m_CodecStream;
+	std::shared_ptr<CCodecStream> m_CodecStream;
 #endif
 };
 
