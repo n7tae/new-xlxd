@@ -36,12 +36,16 @@ const unsigned int NUM_OF_STATES = 16U;
 const uint32_t     M = 2U;
 const unsigned int K = 5U;
 
-CYSFConvolution::CYSFConvolution() : m_oldMetrics(m_metrics1), m_newMetrics(m_metrics2), m_dp(m_decisions) {}
+CYSFConvolution::CYSFConvolution() : m_oldMetrics(nullptr), m_newMetrics(nullptr), m_dp(nullptr) {}
 
 void CYSFConvolution::start()
 {
-	for (int i=0; i<16; i++)
-		m_metrics1[i] = m_metrics2[i] = 0U;
+	memset(m_metrics1, 0, NUM_OF_STATES * sizeof(uint16_t));
+	memset(m_metrics2, 0, NUM_OF_STATES * sizeof(uint16_t));
+
+	m_oldMetrics = m_metrics1;
+	m_newMetrics = m_metrics2;
+	m_dp = m_decisions;
 }
 
 void CYSFConvolution::decode(uint8_t s0, uint8_t s1)
@@ -71,7 +75,7 @@ void CYSFConvolution::decode(uint8_t s0, uint8_t s1)
 
 	assert((m_dp - m_decisions) <= 180);
 
-	uint16_t* tmp = m_oldMetrics;
+	uint16_t *tmp = m_oldMetrics;
 	m_oldMetrics = m_newMetrics;
 	m_newMetrics = tmp;
 }

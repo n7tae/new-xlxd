@@ -195,7 +195,7 @@ void CTranscoder::Task(void)
 ////////////////////////////////////////////////////////////////////////////////////////
 // manage streams
 
-std::shared_ptr<CCodecStream> CTranscoder::GetStream(CPacketStream *PacketStream, uint8 uiCodecIn)
+std::shared_ptr<CCodecStream> CTranscoder::GetCodecStream(CPacketStream *PacketStream, uint8 uiCodecIn)
 {
 	CBuffer     Buffer;
 

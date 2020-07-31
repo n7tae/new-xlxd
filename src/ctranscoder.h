@@ -60,7 +60,7 @@ public:
 	bool IsConnected(void) const        { return m_bConnected; }
 
 	// manage streams
-	std::shared_ptr<CCodecStream> GetStream(CPacketStream *, uint8);
+	std::shared_ptr<CCodecStream> GetCodecStream(CPacketStream *, uint8);
 	void ReleaseStream(std::shared_ptr<CCodecStream>);
 
 	// task

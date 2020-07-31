@@ -49,7 +49,7 @@ struct __attribute__ ((__packed__))dstar_dvframe
 
 class CDvFramePacket : public CPacket
 {
-	friend class CCodecStream;
+	//friend class CCodecStream;
 public:
 	// constructor
 	CDvFramePacket();

@@ -45,8 +45,8 @@ public:
 	CPacketStream();
 
 	// open / close
-	bool Open(const CDvHeaderPacket &, std::shared_ptr<CClient>);
-	void Close(void);
+	bool OpenPacketStream(const CDvHeaderPacket &, std::shared_ptr<CClient>);
+	void ClosePacketStream(void);
 
 	// push & pop
 	void Push(std::unique_ptr<CPacket> packet);

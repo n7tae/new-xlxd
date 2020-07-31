@@ -205,7 +205,7 @@ CPacketStream *CReflector::OpenStream(std::unique_ptr<CDvHeaderPacket> &DvHeader
 
 	stream->Lock();
 	// is it available ?
-	if ( stream->Open(*DvHeader, client) )
+	if ( stream->OpenPacketStream(*DvHeader, client) )
 	{
 		// stream open, mark client as master
 		// so that it can't be deleted
@@ -272,7 +272,7 @@ void CReflector::CloseStream(CPacketStream *stream)
 		stream->Unlock();
 
 		// and stop the queue
-		stream->Close();
+		stream->ClosePacketStream();
 	}
 }
 

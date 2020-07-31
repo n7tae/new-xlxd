@@ -42,7 +42,7 @@ CPacketStream::CPacketStream()
 ////////////////////////////////////////////////////////////////////////////////////////
 // open / close
 
-bool CPacketStream::Open(const CDvHeaderPacket &DvHeader, std::shared_ptr<CClient>client)
+bool CPacketStream::OpenPacketStream(const CDvHeaderPacket &DvHeader, std::shared_ptr<CClient>client)
 {
 	bool ok = false;
 
@@ -58,16 +58,16 @@ bool CPacketStream::Open(const CDvHeaderPacket &DvHeader, std::shared_ptr<CClien
 		m_LastPacketTime.Now();
 #ifdef TRANSCODER_IP
 		if (std::string::npos != std::string(TRANSCODED_MODULES).find(DvHeader.GetRpt2Module()))
-			m_CodecStream = g_Transcoder.GetStream(this, client->GetCodec());
+			m_CodecStream = g_Transcoder.GetCodecStream(this, client->GetCodec());
 		else
-			m_CodecStream = g_Transcoder.GetStream(this, CODEC_NONE);
+			m_CodecStream = g_Transcoder.GetCodecStream(this, CODEC_NONE);
 #endif
 		ok = true;
 	}
 	return ok;
 }
 
-void CPacketStream::Close(void)
+void CPacketStream::ClosePacketStream(void)
 {
 	// update status
 	m_bOpen = false;
