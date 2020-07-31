@@ -260,7 +260,7 @@ void CYsfProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Header, 
 		g_Reflector.ReleaseClients();
 
 		// update last heard
-		if ( g_Reflector.IsValidModule(Header->GetRpt2Module()) )
+		if ( g_Reflector.IsValidModule(rpt2.GetModule()) )
 		{
 			g_Reflector.GetUsers()->Hearing(my, rpt1, rpt2);
 			g_Reflector.ReleaseUsers();
