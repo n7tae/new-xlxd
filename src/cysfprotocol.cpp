@@ -245,9 +245,11 @@ void CYsfProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Header, 
 		if ( client )
 		{
 			// get client callsign
-			rpt2 = client->GetCallsign();
+			rpt1 = client->GetCallsign();
 			// get module it's linked to
-			Header->SetRpt2Module(client->GetReflectorModule());
+			auto m = client->GetReflectorModule();
+			Header->SetRpt2Module(m);
+			rpt2.SetModule(m);
 
 			// and try to open the stream
 			if ( (stream = g_Reflector.OpenStream(Header, client)) != nullptr )

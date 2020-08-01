@@ -423,7 +423,9 @@ void CDextraProtocol::OnDvHeaderPacketIn(std::unique_ptr<CDvHeaderPacket> &Heade
 			{
 				// update Header RPT2 module letter with
 				// the module the client is linked to
-				Header->SetRpt2Module(client->GetReflectorModule());
+				auto m = client->GetReflectorModule();
+				Header->SetRpt2Module(m);
+				rpt2.SetModule(m);
 			}
 			// and try to open the stream
 			if ( (stream = g_Reflector.OpenStream(Header, client)) != nullptr )

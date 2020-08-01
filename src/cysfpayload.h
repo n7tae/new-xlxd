@@ -26,6 +26,7 @@
 class CYSFPayload
 {
 public:
+	CYSFPayload() : m_uplink(nullptr), m_downlink(nullptr), m_source(nullptr), m_dest(nullptr) {}
 	bool processHeaderData(unsigned char* bytes);
 
 	void writeVDMode2Data(unsigned char* data, const unsigned char* dt);
