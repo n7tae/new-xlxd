@@ -74,8 +74,16 @@ bool CWiresxCmdHandler::Init(void)
 	// reset stop flag
 	keep_running = true;
 
-	// start  thread;
-	m_Future = std::async(std::launch::async, &CWiresxCmdHandler::Thread, this);
+	try
+	{
+		m_Future = std::async(std::launch::async, &CWiresxCmdHandler::Thread, this);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << "ERROR: could not start WiresX Command Handler: " << e.what() << std::endl;
+		return false;
+	}
+
 
 	// done
 	return true;
@@ -95,12 +103,12 @@ void CWiresxCmdHandler::Close(void)
 
 void CWiresxCmdHandler::Thread()
 {
-	std::cout << "Starting WiresX Command Handler" << std:: endl;
+	std::cout << "*********Starting WiresX Command Handler*********" << std:: endl;
 	while (keep_running)
 	{
 		Task();
 	}
-	std::cout << "WiresX Command Handler has stopped" << std::endl;
+	std::cout << "*********WiresX Command Handler has stopped*********" << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
