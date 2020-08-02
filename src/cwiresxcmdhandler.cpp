@@ -79,7 +79,7 @@ bool CWiresxCmdHandler::Init(void)
 	{
 		m_Future = std::async(std::launch::async, &CWiresxCmdHandler::Thread, this);
 	}
-	catch(const std::exception& e)
+	catch(const std::exception &e)
 	{
 		std::cerr << "ERROR: could not start WiresX Command Handler: " << e.what() << std::endl;
 		return false;
