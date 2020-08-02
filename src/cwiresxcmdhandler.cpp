@@ -74,6 +74,7 @@ bool CWiresxCmdHandler::Init(void)
 	// reset stop flag
 	keep_running = true;
 
+	std::cout << "==============> Launching WiresX Command Handler" << std::endl;
 	try
 	{
 		m_Future = std::async(std::launch::async, &CWiresxCmdHandler::Thread, this);
