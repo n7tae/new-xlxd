@@ -96,7 +96,6 @@ bool CProtocol::Initialize(const char *type, const uint16 port, const bool has_i
 	}
 #endif
 
-	std::cout << "Initializing protocol on port " << port << std::endl;
 	try {
 		m_Future = std::async(std::launch::async, &CProtocol::Thread, this);
 	}
@@ -108,7 +107,7 @@ bool CProtocol::Initialize(const char *type, const uint16 port, const bool has_i
 		return false;
 	}
 
-	// done
+	std::cout << "Initialized " << (type ? type : "DMR") << " protocol on port " << port << std::endl;
 	return true;
 }
 

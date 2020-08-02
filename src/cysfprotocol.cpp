@@ -181,7 +181,7 @@ void CYsfProtocol::Task(void)
 		}
 		else if ( IsValidwirexPacket(Buffer, &Fich, &Callsign, &iWiresxCmd, &iWiresxArg) )
 		{
-			std::cout << "Got a WiresX command from " << Callsign << " at " << Ip << " cmd=" <<iWiresxCmd << " arg=" << iWiresxArg << std::endl;
+			// std::cout << "Got a WiresX command from " << Callsign << " at " << Ip << " cmd=" <<iWiresxCmd << " arg=" << iWiresxArg << std::endl;
 			WiresxCmd = CWiresxCmd(Ip, Callsign, iWiresxCmd, iWiresxArg);
 			// and post it to hadler's queue
 			m_WiresxCmdHandler.GetCmdQueue()->push(WiresxCmd);
