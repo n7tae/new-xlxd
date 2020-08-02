@@ -49,7 +49,7 @@ CWiresxCmdHandler::CWiresxCmdHandler()
 
 CWiresxCmdHandler::~CWiresxCmdHandler()
 {
-	// kill threads
+	// kill thread
 	Close();
 
 	// empty queue
@@ -95,10 +95,12 @@ void CWiresxCmdHandler::Close(void)
 
 void CWiresxCmdHandler::Thread()
 {
+	std::cout << "Starting WiresX Command Handler" << std:: endl;
 	while (keep_running)
 	{
 		Task();
 	}
+	std::cout << "WiresX Command Handler has stopped" << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +122,7 @@ void CWiresxCmdHandler::Task(void)
 		// any cmd in our queue ?
 		if ( !m_CmdQueue.empty() )
 		{
-			// yes, get the command
+			// yes, get a command
 			Cmd = m_CmdQueue.front();
 			// check that the command is at least one second old
 			// so that the so delayed processing of the command
@@ -148,7 +150,7 @@ void CWiresxCmdHandler::Task(void)
 		cModule = ' ';
 		CClients *clients = g_Reflector.GetClients();
 		std::shared_ptr<CClient>client = clients->FindClient(Cmd.GetCallsign(), Cmd.GetIp(), PROTOCOL_YSF);
-		if ( client != nullptr )
+		if ( client )
 		{
 			cModule = client->GetReflectorModule();
 		}
@@ -178,7 +180,7 @@ void CWiresxCmdHandler::Task(void)
 				// change client's module
 				CClients *clients = g_Reflector.GetClients();
 				std::shared_ptr<CClient>client = clients->FindClient(Cmd.GetCallsign(), Cmd.GetIp(), PROTOCOL_YSF);
-				if ( client != nullptr )
+				if ( client )
 				{
 					client->SetReflectorModule(cModule);
 				}
@@ -206,14 +208,14 @@ void CWiresxCmdHandler::Task(void)
 			break;
 		case WIRESX_CMD_UNKNOWN:
 		default:
-			std::cout << "Wires-X non implemented command from " << Cmd.GetCallsign() << " at " << Cmd.GetIp() << std::endl;
+			std::cout << "Wires-X non implemented command from " << Cmd.GetCallsign() << " at " << Cmd.GetIp() << " cmd=" << Cmd.GetCmd() << " arg=" << Cmd.GetArg() << std::endl;
 			break;
 		}
 	}
 	else
 	{
 		// if nothing to do, sleep a bit
-		CTimePoint::TaskSleepFor(10);
+		CTimePoint::TaskSleepFor(100);
 	}
 
 }
