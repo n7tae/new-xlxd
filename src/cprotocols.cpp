@@ -75,7 +75,7 @@ bool CProtocols::Init(void)
 			return false;
 
 		m_Protocols.emplace_back(std::unique_ptr<CYsfProtocol>(new CYsfProtocol));
-		if (! m_Protocols.back()->Initialize("YSF", YSF_PORT, DMR_IPV4, DMR_IPV6))
+		if (! m_Protocols.back()->Initialize("YSF", YSF_PORT, YSF_IPV4, YSF_IPV6))
 			return false;
 
 		m_Protocols.emplace_back(std::unique_ptr<CXlxProtocol>(new CXlxProtocol));

@@ -96,13 +96,13 @@ bool CProtocol::Initialize(const char *type, const uint16 port, const bool has_i
 	}
 #endif
 
-	// start  thread;
+	std::cout << "Initializing protocol on port " << port << std::endl;
 	try {
 		m_Future = std::async(std::launch::async, &CProtocol::Thread, this);
 	}
 	catch (const std::exception &e)
 	{
-		std::cerr << "Could not start thread: " << e.what() << std::endl;
+		std::cerr << "Could not start protocol on port " << port << ": " << e.what() << std::endl;
 		m_Socket4.Close();
 		m_Socket6.Close();
 		return false;
