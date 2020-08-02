@@ -57,7 +57,7 @@ class CDmrplusProtocol : public CProtocol
 {
 public:
 	// initialization
-	bool Initalize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6);
+	bool Initialize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6);
 
 	// task
 	void Task(void);

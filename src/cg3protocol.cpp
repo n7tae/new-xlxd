@@ -38,7 +38,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // operation
 
-bool CG3Protocol::Initalize(const char */*type*/, const uint16 /*port*/, const bool /*has_ipv4*/, const bool /*has_ipv6*/)
+bool CG3Protocol::Initialize(const char */*type*/, const uint16 /*port*/, const bool /*has_ipv4*/, const bool /*has_ipv6*/)
 {
 	ReadOptions();
 

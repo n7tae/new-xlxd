@@ -34,7 +34,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // operation
 
-bool CDplusProtocol::Initalize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6)
+bool CDplusProtocol::Initialize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6)
 {
 	// base class
 	if (! CProtocol::Initialize(type, port, has_ipv4, has_ipv6))

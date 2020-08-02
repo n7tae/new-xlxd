@@ -47,7 +47,7 @@ static uint8 g_DmrSyncMSData[]     = { 0x0D,0x5D,0x7F,0x77,0xFD,0x75,0x70 };
 ////////////////////////////////////////////////////////////////////////////////////////
 // operation
 
-bool CDmrplusProtocol::Initalize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6)
+bool CDmrplusProtocol::Initialize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6)
 {
 	// base class
 	if (! CProtocol::Initialize(type, port, has_ipv4, has_ipv6))
