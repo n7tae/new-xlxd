@@ -36,16 +36,14 @@ CYsfNode::CYsfNode()
 	m_uiRxFreq = 0;
 }
 
-CYsfNode::CYsfNode(const CCallsign &callsign, uint32 txfreq, uint32 rxfreq)
+CYsfNode::CYsfNode(uint32 txfreq, uint32 rxfreq)
 {
-	m_Callsign = callsign;
 	m_uiTxFreq = txfreq;
 	m_uiRxFreq = rxfreq;
 }
 
 CYsfNode::CYsfNode(const CYsfNode &node)
 {
-	m_Callsign = node.m_Callsign;
 	m_uiTxFreq = node.m_uiTxFreq;
 	m_uiRxFreq = node.m_uiRxFreq;
 }
@@ -56,5 +54,5 @@ CYsfNode::CYsfNode(const CYsfNode &node)
 
 bool CYsfNode::IsValid(void) const
 {
-	return m_Callsign.IsValid();
+	return true;
 }

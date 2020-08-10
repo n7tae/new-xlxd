@@ -301,12 +301,10 @@ bool CWiresxCmdHandler::ReplyToWiresxDxReqPacket(const CIp &Ip, const CWiresxInf
 			sign = '+';
 		}
 		unsigned int freqHz = WiresxInfo.GetTxFrequency() % 1000000U;
-		unsigned int freqkHz = (freqHz + 500U) / 1000U;
+		//unsigned int freqkHz = (freqHz + 500U) / 1000U;
 
 		char freq[30U];
-		::sprintf(freq, "%05u.%03u000%c%03u.%06u",
-				  WiresxInfo.GetTxFrequency() / 1000000U,
-				  freqkHz, sign, offset / 1000000U, offset % 1000000U);
+		::sprintf(freq, "%05u.%06u%c%03u.%06u", WiresxInfo.GetTxFrequency() / 1000000U, freqHz, sign, offset / 1000000U, offset % 1000000U);
 
 		::memcpy(data + 84U, freq, 23U);
 	}

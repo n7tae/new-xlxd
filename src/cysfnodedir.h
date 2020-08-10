@@ -84,6 +84,7 @@ protected:
 	// reload helpers
 	bool Reload(void);
 	virtual bool NeedReload(void)                    { return false; }
+	bool ReadDb(void);
 	//bool IsValidDmrid(const char *);
 
 

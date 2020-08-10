@@ -35,6 +35,8 @@ sudo apt install git
 sudo apt install apache2 php5
 sudo apt install build-essential
 sudo apt install g++
+# the following is only needed for XLX, not for XRF
+sudo apt install libmysqlclient-dev
 ```
 
 ### Download the repository and enter the directory

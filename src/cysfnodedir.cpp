@@ -23,6 +23,7 @@
 // ----------------------------------------------------------------------------
 
 #include <string.h>
+#include <mysql/mysql.h>
 #include "main.h"
 #include "creflector.h"
 #include "cysfnodedir.h"
@@ -99,9 +100,7 @@ bool CYsfNodeDir::Reload(void)
 	if ( LoadContent(&buffer) )
 	{
 		Lock();
-		{
-			ok = RefreshContent(buffer);
-		}
+		ok = RefreshContent(buffer) && ReadDb();
 		Unlock();
 	}
 	return ok;
@@ -125,4 +124,59 @@ bool CYsfNodeDir::FindFrequencies(const CCallsign &callsign, uint32 *txfreq, uin
 		*rxfreq = YSF_DEFAULT_NODE_RX_FREQ;
 		return false;
 	}
+}
+
+bool CYsfNodeDir::ReadDb()
+{
+#if YSF_DB_SUPPORT==true
+	bool rval = false;
+	MYSQL *con = mysql_init(NULL);
+	if (con)
+	{
+		if (mysql_real_connect(con, "localhost", YSF_DB_USER, YSF_DB_PASSWORD, YSF_DB_NAME, 0, NULL, 0))
+		{
+			if (0 == mysql_query(con, "SELECT callsign,txfreq,rxfreq FROM ysfnodes"))
+			{
+				MYSQL_RES *result = mysql_store_result(con);
+  				if (result)
+				{
+					rval = true;
+					std::cout << "Adding " << mysql_num_rows(result) << " registered YSF stations from table " << YSF_DB_NAME << std::endl;
+					MYSQL_ROW row;
+
+					while ((row = mysql_fetch_row(result)))
+					{
+						CCallsign cs(row[0]);
+						CYsfNode node(atoi(row[1]), atoi(row[2]));
+						std::pair<CCallsign, CYsfNode> pair(cs, node);
+						insert(pair);
+					}
+
+					mysql_free_result(result);
+				}
+				else
+				{
+					std::cerr << "Could not fetch MySQL rows" << std::endl;
+				}
+			}
+			else
+			{
+				std::cerr << "MySQL query failed: " << mysql_error(con) << std::endl;
+			}
+		}
+		else
+		{
+			std::cerr << "Could not connect to database " << YSF_DB_NAME << ": " << mysql_error(con) << std::endl;
+		}
+		mysql_close(con);
+	}
+	else
+	{
+		std::cerr << "Could not init mysql." << std::endl;
+		return false;
+	}
+	return rval;
+#else
+	return true;
+#endif
 }

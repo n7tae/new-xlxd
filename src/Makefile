@@ -44,6 +44,7 @@ SRCS = $(XRFSRCS)
 
 ifeq ($(is_xlx), true)
 SRCS += $(XLXSRCS)
+LDFLAGS += `mysql_config --libs`
 endif
 
 ifdef tc_ip

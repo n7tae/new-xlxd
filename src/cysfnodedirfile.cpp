@@ -128,7 +128,7 @@ bool CYsfNodeDirFile::RefreshContent(const CBuffer &buffer)
 					{
 						// new entry
 						CCallsign cs(callsign);
-						CYsfNode node(cs, atoi(txfreq), atoi(rxfreq));
+						CYsfNode node(atoi(txfreq), atoi(rxfreq));
 						if ( cs.IsValid() && node.IsValid() )
 						{
 							insert(std::pair<CCallsign, CYsfNode>(cs, node));

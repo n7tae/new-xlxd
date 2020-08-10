@@ -26,7 +26,6 @@
 #define cysfnode_h
 
 #include "main.h"
-#include "ccallsign.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // define
@@ -40,7 +39,7 @@ class CYsfNode
 public:
 	// constructor
 	CYsfNode();
-	CYsfNode(const CCallsign &, uint32, uint32);
+	CYsfNode(uint32, uint32);
 	CYsfNode(const CYsfNode &);
 
 	// destructor
@@ -53,7 +52,6 @@ public:
 
 protected:
 	// data
-	CCallsign   m_Callsign;
 	uint32      m_uiTxFreq;
 	uint32      m_uiRxFreq;
 };
