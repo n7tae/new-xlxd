@@ -62,21 +62,21 @@ EvaluateVar () {
 WriteMemFile () {
 	local file
 	file="$rcfg"
-	echo "# created on `date`" > $file
-	[ -z ${callsign+x}   ] || echo   "callsign='$callsign'"   >> $file
-	[ -z ${nummod+x}     ] || echo     "nummod=$nummod"       >> $file
-	[ -z ${ip4addr+x}    ] || echo    "ip4addr='$ip4addr'"    >> $file
-	[ -z ${ip6addr+x}    ] || echo    "ip6addr='$ip6addr'"    >> $file
-	[ -z ${tcaddress+x}  ] || echo  "tcaddress='$tcaddress'"  >> $file
-	[ -z ${tcmodules+x}  ] || echo  "tcmodules='$tcmodules'"  >> $file
-	[ -z ${ysfenable+x}  ] || echo  "ysfenable=$ysfenable"    >> $file
-	[ -z ${ysfmodule+x}  ] || echo  "ysfmodule='$ysfmodule'"  >> $file
-	[ -z ${ysflocaldb+x} ] || echo "ysflocaldb=$ysflocaldb"   >> $file
-	[ -z ${ysfdbname+x}  ] || echo  "ysfdbname='$ysfdbname'"  >> $file
-	[ -z ${ysfdbuser+x}  ] || echo  "ysfdbuser='$ysflocaldb'" >> $file
-	[ -z ${ysfdbpw+x}    ] || echo    "ysfdbpw='$ysfdbpw'"    >> $file
-	[ -z ${g3support+x}  ] || echo  "g3support=$g3support"    >> $file
-	[ -z ${dbsupport+x}  ] || echo  "dbsupport=$dbsupport"    >> $file
+	echo "# created on `date`"                                > $file
+	[ -z ${callsign+x}   ] || echo   "callsign='$callsign'"  >> $file
+	[ -z ${nummod+x}     ] || echo     "nummod=$nummod"      >> $file
+	[ -z ${ip4addr+x}    ] || echo    "ip4addr='$ip4addr'"   >> $file
+	[ -z ${ip6addr+x}    ] || echo    "ip6addr='$ip6addr'"   >> $file
+	[ -z ${tcaddress+x}  ] || echo  "tcaddress='$tcaddress'" >> $file
+	[ -z ${tcmodules+x}  ] || echo  "tcmodules='$tcmodules'" >> $file
+	[ -z ${ysfenable+x}  ] || echo  "ysfenable=$ysfenable"   >> $file
+	[ -z ${ysfmodule+x}  ] || echo  "ysfmodule='$ysfmodule'" >> $file
+	[ -z ${ysflocaldb+x} ] || echo "ysflocaldb=$ysflocaldb"  >> $file
+	[ -z ${ysfdbname+x}  ] || echo  "ysfdbname='$ysfdbname'" >> $file
+	[ -z ${ysfdbuser+x}  ] || echo  "ysfdbuser='$ysfuserdb'" >> $file
+	[ -z ${ysfdbpw+x}    ] || echo    "ysfdbpw='$ysfdbpw'"   >> $file
+	[ -z ${g3support+x}  ] || echo  "g3support=$g3support"   >> $file
+	[ -z ${dbsupport+x}  ] || echo  "dbsupport=$dbsupport"   >> $file
 }
 
 WriteSRCHFile () {
