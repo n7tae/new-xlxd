@@ -79,8 +79,10 @@ int main()
 	std::cout << "Reflector " << g_Reflector.GetCallsign()  << "started and listening on ";
 #if defined LISTEN_IPV4
 	std::cout << g_Reflector.GetListenIPv4() << " for IPv4";
-#ifdef LISTEN_IPV6
+#if defined LISTEN_IPV6
 	std::cout << " and " << g_Reflector.GetListenIPv6() << " for IPv6" << std::endl;
+#else
+	std::cout << std::endl;
 #endif
 #elif defined LISTEN_IPV6
 	std::cout << g_Reflector.GetListenIPv6() << " for IPv6" << std::endl;

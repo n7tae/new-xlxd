@@ -146,7 +146,7 @@ void CYsfNodeDir::ReadDb()
 				MYSQL_RES *result = mysql_store_result(con);
   				if (result)
 				{
-					std::cout << "Adding " << mysql_num_rows(result) << " registered YSF stations from table " << YSF_DB_NAME << std::endl;
+					std::cout << "Adding " << mysql_num_rows(result) << " registered YSF stations from database " << YSF_DB_NAME << std::endl;
 					MYSQL_ROW row;
 
 					while ((row = mysql_fetch_row(result)))
