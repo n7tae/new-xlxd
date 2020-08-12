@@ -58,7 +58,6 @@ bool CYsfProtocol::Initialize(const char *type, const uint16 port, const bool ha
 	// update time
 	m_LastKeepaliveTime.Now();
 
-	std::cout << "YSF Protocol successfully initialized" << std::endl;
 	return true;
 }
 
