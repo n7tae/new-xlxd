@@ -12,7 +12,7 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
 require_once "configure.php";
 
 // find current frequencies and initialize
-$sql = "SELECT txfreq, rxfreq FROM users WHERE callsign = ?";
+$sql = "SELECT txfreq, rxfreq FROM ysfnodes WHERE callsign = ?";
 if ($stmt = mysqli_prepare($link, $sql)) {
 	// Bind variables to the prepared statement as parameters
 	mysqli_stmt_bind_param($stmt, "s", $_SESSION["callsign"]);

@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 		$callsign_err = "Not a valid callsign.";
     } else {
         // Prepare a select statement
-        $sql = "SELECT * FROM users WHERE callsign = ?";
+        $sql = "SELECT * FROM ysfnodes WHERE callsign = ?";
 
         if ($stmt = mysqli_prepare($link, $sql)) {
             // Bind variables to the prepared statement as parameters

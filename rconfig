@@ -176,7 +176,6 @@ WriteAmbeMKFile () {
 
 WriteCfgPhpFile () {
 	cat << EOF > $ysfs
-// Created on $(date)
 <?php
 define('DB_SERVER', 'localhost');
 define('DB_USERNAME', '${ysfdbuser}');
