@@ -73,7 +73,7 @@ WriteMemFile () {
 	[ -z ${ysfmodule+x}  ] || echo  "ysfmodule='$ysfmodule'" >> $file
 	[ -z ${ysflocaldb+x} ] || echo "ysflocaldb=$ysflocaldb"  >> $file
 	[ -z ${ysfdbname+x}  ] || echo  "ysfdbname='$ysfdbname'" >> $file
-	[ -z ${ysfdbuser+x}  ] || echo  "ysfdbuser='$ysfuserdb'" >> $file
+	[ -z ${ysfdbuser+x}  ] || echo  "ysfdbuser='$ysfdbuser'" >> $file
 	[ -z ${ysfdbpw+x}    ] || echo    "ysfdbpw='$ysfdbpw'"   >> $file
 	[ -z ${g3support+x}  ] || echo  "g3support=$g3support"   >> $file
 	[ -z ${dbsupport+x}  ] || echo  "dbsupport=$dbsupport"   >> $file
