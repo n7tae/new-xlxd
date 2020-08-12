@@ -59,9 +59,10 @@ if ($stmt = mysqli_prepare($link, $sql)) {
     </div>
     <div class="wrapper">
         <h2>Hot-Spot Frequencies Summary</h2>
-        <p>Hot-spot Callsign: <?php echo $_SESSION["callsign"]; ?></p>
+        <p>Hot-spot Callsign: <?php echo htmlspecialchars($_SESSION["callsign"]); ?></p>
 		<p>Transmit Frequency: <?php echo $txfreq; ?> MHz</p>
 		<p>Receive Frequency: <?php echo $rxfreq; ?> MHz</p>
+		<p>It can take up to 15 minutes for the frequency data to be available to the reflector. Please be patient.</p>
     </div>
     <p>
 		<a href="frequency.php" class="btn btn-primary">Reset Frequencies</a>

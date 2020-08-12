@@ -78,11 +78,18 @@ void CYsfNodeDir::Thread()
 	while (keep_running)
 	{
 		// Wait YSFNODEDB_REFRESH_RATE minutes
-		for (int i=0; i<30*YSFNODEDB_REFRESH_RATE && keep_running; i++)
+		for (int i=0; keep_running && (i < 30*YSFNODEDB_REFRESH_RATE); i++)
+		{
 			CTimePoint::TaskSleepFor(2000);
-
+#if YSF_DB_SUPPORT==true
+			if (keep_running && (0 == i % 450))
+			{
+				ReadDb();	// update from the db every 15 minutes
+			}
+#endif
+		}
 		// have lists files changed ?
-		if ( NeedReload() )
+		if (keep_running && NeedReload())
 		{
 			Reload();
 		}
@@ -100,7 +107,7 @@ bool CYsfNodeDir::Reload(void)
 	if ( LoadContent(&buffer) )
 	{
 		Lock();
-		ok = RefreshContent(buffer) && ReadDb();
+		ok = RefreshContent(buffer);
 		Unlock();
 	}
 	return ok;
@@ -126,10 +133,9 @@ bool CYsfNodeDir::FindFrequencies(const CCallsign &callsign, uint32 *txfreq, uin
 	}
 }
 
-bool CYsfNodeDir::ReadDb()
-{
 #if YSF_DB_SUPPORT==true
-	bool rval = false;
+void CYsfNodeDir::ReadDb()
+{
 	MYSQL *con = mysql_init(NULL);
 	if (con)
 	{
@@ -140,7 +146,6 @@ bool CYsfNodeDir::ReadDb()
 				MYSQL_RES *result = mysql_store_result(con);
   				if (result)
 				{
-					rval = true;
 					std::cout << "Adding " << mysql_num_rows(result) << " registered YSF stations from table " << YSF_DB_NAME << std::endl;
 					MYSQL_ROW row;
 
@@ -148,8 +153,7 @@ bool CYsfNodeDir::ReadDb()
 					{
 						CCallsign cs(row[0]);
 						CYsfNode node(atoi(row[1]), atoi(row[2]));
-						std::pair<CCallsign, CYsfNode> pair(cs, node);
-						insert(pair);
+						m_map[cs] = node;
 					}
 
 					mysql_free_result(result);
@@ -172,11 +176,7 @@ bool CYsfNodeDir::ReadDb()
 	}
 	else
 	{
-		std::cerr << "Could not init mysql." << std::endl;
-		return false;
+		std::cerr << "Could not init mysql." << std::endl;;
 	}
-	return rval;
-#else
-	return true;
-#endif
 }
+#endif

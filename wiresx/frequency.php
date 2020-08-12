@@ -57,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Check input errors before updating the database
     if (empty($txfreq_err) && empty($rxfreq_err)) {
         // Prepare an update statement
-        $sql = "UPDATE users SET txfreq = ?, rxfreq = ? WHERE callsign = ?";
+        $sql = "UPDATE ysfnodes SET txfreq = ?, rxfreq = ? WHERE callsign = ?";
 
         if($stmt = mysqli_prepare($link, $sql)){
 			// Bind variables to the prepared statement as parameters

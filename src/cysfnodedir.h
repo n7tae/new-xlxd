@@ -84,7 +84,9 @@ protected:
 	// reload helpers
 	bool Reload(void);
 	virtual bool NeedReload(void)                    { return false; }
-	bool ReadDb(void);
+#if YSF_DB_SUPPORT==true;
+	void ReadDb(void);
+#endif
 	//bool IsValidDmrid(const char *);
 
 
