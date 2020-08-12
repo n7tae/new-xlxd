@@ -36,7 +36,9 @@ sudo apt install apache2 php5
 sudo apt install build-essential
 sudo apt install g++
 # the following is only needed for XLX, not for XRF
-sudo apt install libmysqlclient-dev
+sudo apt install libmariadb-dev-compat
+# the following is needed if you plan on supporting local YSF frequency registration database
+sudo apt install php-mysql mariadb-server mariadb-client
 ```
 
 ### Download the repository and enter the directory
@@ -80,6 +82,8 @@ There are only a few things that need to be specified. Most important are, the r
 
 Be sure to write out the configuration files and look over the up to 5 different configration files that are created. The first file, reflector.cfg is the memory file for rconfig so that if you start that script again, it will remember how you left things. There are one or two `.h` files for the reflector and ambed and there are one or two `.mk` files for the reflector and ambed makefiles. You should **not** modify these files by hand unless you really know exactly how they work. The rconfig script will not start if it detects that an XLX or XRF server is already running. You can override this behavior in expert mode: `./rconfig expert`. If you do change the configuration after you have already compiled the code, it is safest if you clean the repo and then recompile.
 
+You can support your own YSF frequency database. This is very useful for hot-spots that use YSF linking. These linked hot-spots can then use the *WiresX* command on their radios to be able to connect to any configured XLX module. Users can register their TX and RX frequency (typically the same for most hot-spot configurations) on http:<*xlx url*>/wiresx/login.php. Once their hot-spot is registered, XLX will return the correct frequency for their hot-spot when a *WiresX* command is sent to the reflector. You'll need to enable YSF auto-linking, specify a default module and define a database name, user and user password. When you write you XLX configuration, a database **configure.sql** script will be built to not only create the database and database user, but also the table for the hot-spot frequency data.
+
 ### Compling and installing your system
 
 After you have written your configutation files, you can build and install your system:
@@ -110,6 +114,12 @@ sudo cp -r ~/xlxd/dashboard.xlx /var/www/db     # or dashboard.xrf
 Please note that your www root directory might be some place else. There is one file that needs configuration. Edit the copied files, not the ones from the repository:
 
 - **pgs/config.inc.php** - At a minimum set your email address, country and comment. **Do not** enable the calling home feature if you built an XRF reflector. This feature is for **XLX systems only**.
+
+If you have configured support of hot-spot frequency registation, recursively copy the **wiresx** directory where the index.php file is for your dashboard. Also from the build directory, create the database and database user and hot-spot frequency table:
+
+```bash
+sudo mysql < configure.sql
+```
 
 ## Updating xlxd and ambed
 
