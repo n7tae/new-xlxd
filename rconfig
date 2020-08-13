@@ -346,7 +346,7 @@ do
 		callsign="${value^^}"
 		callsign="${callsign:0:6}"
 		if [[ "$callsign" == XRF* ]]; then
-			unset tcaddress tcmodules ysfautolink ysflocaldb ysfdbname ysfdbuser ysfdbpw
+			unset tcaddress tcmodules ysfautolink ysfmodule ysflocaldb ysfdbname ysfdbuser ysfdbpw
 		fi
 	elif [[ "$key" == nm* ]]; then nummod="$value"
 	elif [[ "$key" == i4* ]]; then ip4addr="$value"
