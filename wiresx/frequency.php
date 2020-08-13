@@ -100,7 +100,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
     <div class="wrapper">
         <h2>Hot-Spot Frequencies</h2>
-        <p>Set your hot-spot WiresX frequencies (in MHz) here.</p>
+        <p>Set your hot-spot frequencies (in MHz) here.</p>
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
             <div class="form-group <?php echo (!empty($new_txfreq_err)) ? 'has-error' : ''; ?>">
                 <label>Tx Frequency (MHz)</label>
