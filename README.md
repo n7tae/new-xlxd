@@ -80,9 +80,9 @@ Configuring, compiling and maintaining your reflector build is easy! Start the c
 
 There are only a few things that need to be specified. Most important are, the reflector callsign and the IP addresses for the IPv4 and IPv6 listen ports and a transcoder port, if there is a transcoder. Dual-stack operation is enabled by specifying both an IPv4 and IPv6 address. IPv6-only single stack can be specified by leaving the IPv6 address set to `none`. It's even possible to operate in an IPv6-only configuration by leaving the IPv4 address to the default `none`. Obviously the transcoder is only specified for an XLX reflector. If you are building an XLX system with a transcoder, you can also specify which channels get transcoder support. There are also true/false flags to prevent G3 support and so that you can build executables that will support gdb debugging.
 
-Be sure to write out the configuration files and look over the up to 5 different configration files that are created. The first file, reflector.cfg is the memory file for rconfig so that if you start that script again, it will remember how you left things. There are one or two `.h` files for the reflector and ambed and there are one or two `.mk` files for the reflector and ambed makefiles. You should **not** modify these files by hand unless you really know exactly how they work. The rconfig script will not start if it detects that an XLX or XRF server is already running. You can override this behavior in expert mode: `./rconfig expert`. If you do change the configuration after you have already compiled the code, it is safest if you clean the repo and then recompile.
-
 You can support your own YSF frequency database. This is very useful for hot-spots that use YSF linking. These linked hot-spots can then use the *WiresX* command on their radios to be able to connect to any configured XLX module. Users can register their TX and RX frequency (typically the same for most hot-spot configurations) on http:<*xlx url*>/wiresx/login.php. Once their hot-spot is registered, XLX will return the correct frequency for their hot-spot when a *WiresX* command is sent to the reflector. You'll need to enable YSF auto-linking, specify a default module and define a database name, user and user password. When you write you XLX configuration, a database **configure.sql** script will be built to not only create the database and database user, but also the table for the hot-spot frequency data.
+
+Be sure to write out the configuration files and look over the up to seven different configration files that are created. The first file, reflector.cfg is the memory file for rconfig so that if you start that script again, it will remember how you left things. There are one or two `.h` files for the reflector and ambed and there are one or two `.mk` files for the reflector and ambed makefiles. You should **not** modify these files by hand unless you really know exactly how they work. The rconfig script will not start if it detects that an XLX or XRF server is already running. You can override this behavior in expert mode: `./rconfig expert`. If you do change the configuration after you have already compiled the code, it is safest if you clean the repo and then recompile.
 
 ### Compling and installing your system
 
@@ -123,7 +123,11 @@ sudo mysql < configure.sql
 
 ## Updating xlxd and ambed
 
-Go to the build directory and do a `git pull`. If you notice there is new version of the `Makefile` after you do the `git pull`, you will want to reconcile those new files with your copies **before** you make and install the executables.
+Updating can be performed entirely in the radmin script, but just in case there is a new version of the radmin script, you can start first with a simple `git pull`. If any .h or .cpp fiiles have updates, you can then start radmin and do a clean and compile and then uninstall and install: `cl, co, us, is`. Follow that with a `rl` to watch the reflector log, or an `rt` to watch the transcoder while it comes up.
+
+If rconfig was updated with the `git pull`, it might be wise to run it first to see if there have been any new options added to the code base. If so, be sure to write out the new configuration files before exiting rconfig. THen you can rebuild and reinstall your reflector.
+
+If you are change any configuration after your reflector has been compiled, be sure to do a clean/compile/uninstall/reinstall to sync your system to the new configuration.
 
 ## Firewall settings
 
