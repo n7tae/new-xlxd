@@ -220,7 +220,7 @@ WriteCFGFiles () {
 		WriteCfgPhpFile
 		WriteDBCreateFile
 	else
-		rm -f $ysfs
+		rm -f $ysfs $dbcr
 	fi
 }
 
@@ -307,7 +307,7 @@ while [[ "$key" != q* ]]
 do
 	clear
 	echo
-	echo "        Reflector Configuration, Version #200810"
+	echo "        Reflector Configuration, Version #200813"
 	echo
 	echo -n "cs : Reflector Callsign     = "; EvaluateVar callsign{,_d}
 	echo -n "nm : Number of Modules      = "; EvaluateVar nummod{,_d}
