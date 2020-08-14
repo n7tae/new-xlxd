@@ -42,13 +42,6 @@ CYsfNode::CYsfNode(uint32 txfreq, uint32 rxfreq)
 	m_uiRxFreq = rxfreq;
 }
 
-CYsfNode::CYsfNode(const CYsfNode &node)
-{
-	m_uiTxFreq = node.m_uiTxFreq;
-	m_uiRxFreq = node.m_uiRxFreq;
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////////////
 // get
 

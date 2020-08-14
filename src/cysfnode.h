@@ -40,10 +40,6 @@ public:
 	// constructor
 	CYsfNode();
 	CYsfNode(uint32, uint32);
-	CYsfNode(const CYsfNode &);
-
-	// destructor
-	virtual ~CYsfNode() {}
 
 	// get
 	uint32  GetTxFrequency(void) const          { return m_uiTxFreq; }
