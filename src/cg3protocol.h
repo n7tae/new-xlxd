@@ -40,10 +40,10 @@
 //
 // There are 3 steps in handling an incoming connection
 //
-// 1 - Notification of terminal call on port UDP 12346
+// 1 - Notification of terminal call on port UDP 12346, Presence port, aCUdpSocket.
 //      - Call will be rejected if in blacklisted
 //
-// 2 - Destination request on port UDP 12345
+// 2 - Destination request on port UDP 12345, Config port, a CUdpMsgSocket.
 //      - Calls to specific callsigns will be accepted for a default module
 //      - Repeater calls will be accepted for local modules
 //      - All other calls are rejected

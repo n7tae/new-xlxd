@@ -49,7 +49,7 @@ bool CG3Protocol::Initialize(const char */*type*/, const uint16 /*port*/, const 
 	keep_running = true;
 
 	// update the reflector callsign
-	m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)"XLX", 3);
+	//m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)"XLX", 3);
 
 	// create our sockets
 	CIp ip(AF_INET, G3_DV_PORT, g_Reflector.GetListenIPv4());
@@ -166,7 +166,7 @@ void CG3Protocol::PresenceTask(void)
 			Owner.SetCallsign(&Buffer.data()[16], 8);
 			Terminal.SetCallsign(&Buffer.data()[24], 8);
 
-			std::cout << "Presence from " << Ip << " as " << Callsign << " on terminal " << Terminal << std::endl;
+			std::cout << "Presence from owner " << Owner << " on " << Ip << " as " << Callsign << " on terminal " << Terminal << std::endl;
 
 			// accept
 			Buffer.data()[2] = 0x80; // response
@@ -200,13 +200,11 @@ void CG3Protocol::PresenceTask(void)
 				// do we already have a client with the same call (IP changed)?
 				while ( (extant = clients->FindNextClient(PROTOCOL_G3, it)) != nullptr )
 				{
+					if (extant->GetCallsign().HasSameCallsign(Terminal))
 					{
-						if (extant->GetCallsign().HasSameCallsign(Terminal))
-						{
-							//delete old client
-							clients->RemoveClient(extant);
-							break;
-						}
+						//delete old client
+						clients->RemoveClient(extant);
+						break;
 					}
 				}
 
@@ -690,7 +688,8 @@ char *CG3Protocol::TrimWhiteSpaces(char *str)
 	if (*str == 0)
 		return str;
 	end = str + strlen(str) - 1;
-	while ((end > str) && ((*end == ' ') || (*end == '\t') || (*end == '\r'))) end --;
+	while ((end > str) && ((*end == ' ') || (*end == '\t') || (*end == '\r')))
+		end--;
 	*(end + 1) = 0;
 	return str;
 }
