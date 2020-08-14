@@ -119,7 +119,6 @@ protected:
 	CTimePoint          m_LastKeepaliveTime;
 
 	// sockets
-	CUdpSocket          m_DvOutSocket;
 	CUdpSocket          m_PresenceSocket;
 	CUdpMsgSocket       m_ConfigSocket;
 	CRawSocket          m_IcmpRawSocket;
