@@ -65,33 +65,33 @@ bool CG3Protocol::Initialize(const char */*type*/, const uint16 /*port*/, const 
 	ip.SetPort(G3_PRESENCE_PORT);
 	if (! m_PresenceSocket.Open(ip))
 	{
-		std::cout << "Error opening socket on port UDP" << G3_PRESENCE_PORT << " on ip " << ip << std::endl;
+		std::cerr << "Error opening socket on port UDP" << G3_PRESENCE_PORT << " on ip " << ip << std::endl;
 		return false;
 	}
 
 	ip.SetPort(G3_CONFIG_PORT);
 	if (! m_ConfigSocket.Open(ip))
 	{
-		std::cout << "Error opening G3 config socket on port UDP" << G3_CONFIG_PORT << " on ip " << ip << std::endl;
+		std::cerr << "Error opening G3 config socket on port UDP" << G3_CONFIG_PORT << " on ip " << ip << std::endl;
 		return false;
 	}
 
 	if (! m_IcmpRawSocket.Open(IPPROTO_ICMP))
 	{
-		std::cout << "Error opening raw socket for ICMP" << std::endl;
+		std::cerr << "Error opening raw socket for ICMP" << std::endl;
 		return false;
 	}
 
 	// start helper threads
-	m_Future         = std::async(std::launch::async, &CProtocol::Thread, this);
+	m_Future         = std::async(std::launch::async, &CG3Protocol::Thread, this);
 	m_PresenceFuture = std::async(std::launch::async, &CG3Protocol::PresenceThread, this);
-	m_PresenceFuture = std::async(std::launch::async, &CG3Protocol::ConfigThread, this);
-	m_PresenceFuture = std::async(std::launch::async, &CG3Protocol::IcmpThread, this);
+	m_ConfigFuture   = std::async(std::launch::async, &CG3Protocol::ConfigThread, this);
+	m_IcmpFuture     = std::async(std::launch::async, &CG3Protocol::IcmpThread, this);
 
 	// update time
 	m_LastKeepaliveTime.Now();
 
-	// done
+	std::cout << "Initialized G3 Protocol, all threads started" << std::endl;
 	return true;
 }
 
