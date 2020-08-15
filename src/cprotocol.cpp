@@ -135,27 +135,18 @@ void CProtocol::Close(void)
 
 bool CProtocol::EncodeDvPacket(const CPacket &packet, CBuffer *buffer) const
 {
-	bool ok = false;
 	if ( packet.IsDvFrame() )
 	{
 		if ( packet.IsLastPacket() )
-		{
-			ok = EncodeDvLastFramePacket((const CDvLastFramePacket &)packet, buffer);
-		}
+			return EncodeDvLastFramePacket((CDvLastFramePacket &)packet, buffer);
 		else
-		{
-			ok = EncodeDvFramePacket((const CDvFramePacket &)packet, buffer);
-		}
+			return EncodeDvFramePacket((CDvFramePacket &)packet, buffer);
 	}
-	else if ( packet.IsDvHeader() )
-	{
-		ok = EncodeDvHeaderPacket((const CDvHeaderPacket &)packet, buffer);
-	}
-	else
-	{
-		buffer->clear();
-	}
-	return ok;
+	if ( packet.IsDvHeader() )
+		return EncodeDvHeaderPacket((CDvHeaderPacket &)packet, buffer);
+
+	std::cerr << "Can't encode an unknown packet type!" << std::endl;
+	return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

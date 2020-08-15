@@ -292,10 +292,10 @@ void CYsfProtocol::HandleQueue(void)
 		{
 			// update local stream cache
 			// this relies on queue feeder setting valid module id
-			m_StreamsCache[iModId].m_dvHeader = CDvHeaderPacket((const CDvHeaderPacket &)*packet);
+			m_StreamsCache[iModId].m_dvHeader = CDvHeaderPacket((CDvHeaderPacket &)*packet);
 
 			// encode it
-			EncodeDvHeaderPacket((const CDvHeaderPacket &)*packet.get(), &buffer);
+			EncodeDvHeaderPacket((CDvHeaderPacket &)*packet.get(), &buffer);
 		}
 		// check if it's a last frame
 		else if ( packet->IsLastPacket() )
@@ -311,7 +311,7 @@ void CYsfProtocol::HandleQueue(void)
 			if (sid <= 4)
 			{
 				//std::cout << (int)sid;
-				m_StreamsCache[iModId].m_dvFrames[sid] = CDvFramePacket((const CDvFramePacket &)*packet);
+				m_StreamsCache[iModId].m_dvFrames[sid] = CDvFramePacket((CDvFramePacket &)*packet);
 				if ( sid == 4 )
 				{
 

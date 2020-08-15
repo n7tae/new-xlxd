@@ -636,43 +636,43 @@ bool CG3Protocol::IsValidDvLastFramePacket(const CBuffer &Buffer, std::unique_pt
 ////////////////////////////////////////////////////////////////////////////////////////
 // packet encoding helpers
 
-bool CG3Protocol::EncodeDvHeaderPacket(const std::unique_ptr<CDvHeaderPacket> &Packet, CBuffer *Buffer) const
+bool CG3Protocol::EncodeDvHeaderPacket(const CDvHeaderPacket &Packet, CBuffer *Buffer) const
 {
 	uint8 tag[]	= { 'D','S','V','T',0x10,0x00,0x00,0x00,0x20,0x00,0x01,0x02 };
 	struct dstar_header DstarHeader;
 
-	Packet->ConvertToDstarStruct(&DstarHeader);
+	Packet.ConvertToDstarStruct(&DstarHeader);
 
 	Buffer->Set(tag, sizeof(tag));
-	Buffer->Append(Packet->GetStreamId());
+	Buffer->Append(Packet.GetStreamId());
 	Buffer->Append((uint8)0x80);
 	Buffer->Append((uint8 *)&DstarHeader, sizeof(struct dstar_header));
 
 	return true;
 }
 
-bool CG3Protocol::EncodeDvFramePacket(const std::unique_ptr<CDvFramePacket> &Packet, CBuffer *Buffer) const
+bool CG3Protocol::EncodeDvFramePacket(const CDvFramePacket &Packet, CBuffer *Buffer) const
 {
 	uint8 tag[] = { 'D','S','V','T',0x20,0x00,0x00,0x00,0x20,0x00,0x01,0x02 };
 
 	Buffer->Set(tag, sizeof(tag));
-	Buffer->Append(Packet->GetStreamId());
-	Buffer->Append((uint8)(Packet->GetPacketId() % 21));
-	Buffer->Append((uint8 *)Packet->GetAmbe(), AMBE_SIZE);
-	Buffer->Append((uint8 *)Packet->GetDvData(), DVDATA_SIZE);
+	Buffer->Append(Packet.GetStreamId());
+	Buffer->Append((uint8)(Packet.GetPacketId() % 21));
+	Buffer->Append((uint8 *)Packet.GetAmbe(), AMBE_SIZE);
+	Buffer->Append((uint8 *)Packet.GetDvData(), DVDATA_SIZE);
 
 	return true;
 
 }
 
-bool CG3Protocol::EncodeDvLastFramePacket(const std::unique_ptr<CDvLastFramePacket> &Packet, CBuffer *Buffer) const
+bool CG3Protocol::EncodeDvLastFramePacket(const CDvLastFramePacket &Packet, CBuffer *Buffer) const
 {
 	uint8 tag1[] = { 'D','S','V','T',0x20,0x00,0x00,0x00,0x20,0x00,0x01,0x02 };
 	uint8 tag2[] = { 0x55,0xC8,0x7A,0x00,0x00,0x00,0x00,0x00,0x00,0x25,0x1A,0xC6 };
 
 	Buffer->Set(tag1, sizeof(tag1));
-	Buffer->Append(Packet->GetStreamId());
-	Buffer->Append((uint8)((Packet->GetPacketId() % 21) | 0x40));
+	Buffer->Append(Packet.GetStreamId());
+	Buffer->Append((uint8)((Packet.GetPacketId() % 21) | 0x40));
 	Buffer->Append(tag2, sizeof(tag2));
 
 	return true;
