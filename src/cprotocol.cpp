@@ -156,11 +156,7 @@ void CProtocol::OnDvFramePacketIn(std::unique_ptr<CDvFramePacket> &Frame, const 
 {
 	// find the stream
 	CPacketStream *stream = GetStream(Frame->GetStreamId(), Ip);
-	if ( stream == nullptr )
-	{
-		std::cout << "Orphaned Frame with ID " << Frame->GetStreamId() << " on " << *Ip << std::endl;
-	}
-	else
+	if ( stream )
 	{
 		//std::cout << "DV frame" << "from "  << *Ip << std::endl;
 		// and push
@@ -168,17 +164,17 @@ void CProtocol::OnDvFramePacketIn(std::unique_ptr<CDvFramePacket> &Frame, const 
 		stream->Push(std::move(Frame));
 		stream->Unlock();
 	}
+	// else
+	// {
+	// 	std::cout << "Orphaned Frame with ID " << Frame->GetStreamId() << " on " << *Ip << std::endl;
+	// }
 }
 
 void CProtocol::OnDvLastFramePacketIn(std::unique_ptr<CDvLastFramePacket> &Frame, const CIp *Ip)
 {
 	// find the stream
 	CPacketStream *stream = GetStream(Frame->GetStreamId(), Ip);
-	if ( stream == nullptr )
-	{
-		std::cout << "Orphaned Last Frame with ID " << Frame->GetStreamId() << " on " << *Ip << std::endl;
-	}
-	else
+	if ( stream )
 	{
 		// push
 		stream->Lock();
@@ -188,6 +184,10 @@ void CProtocol::OnDvLastFramePacketIn(std::unique_ptr<CDvLastFramePacket> &Frame
 		// and close the stream
 		g_Reflector.CloseStream(stream);
 	}
+	// else
+	// {
+	// 	std::cout << "Orphaned Last Frame with ID " << Frame->GetStreamId() << " on " << *Ip << std::endl;
+	// }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
