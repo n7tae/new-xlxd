@@ -340,11 +340,11 @@ void CG3Protocol::ConfigTask(void)
 
 void CG3Protocol::IcmpTask(void)
 {
-	CBuffer Buffer;
+	uint8_t Buffer[RAW_BUFFER_LENMAX];
 	CIp Ip;
 	int iIcmpType;
 
-	if ((iIcmpType = m_IcmpRawSocket.IcmpReceive(&Buffer, &Ip, 20)) != -1)
+	if ((iIcmpType = m_IcmpRawSocket.IcmpReceive(Buffer, &Ip, 20)) != -1)
 	{
 		if (iIcmpType == ICMP_DEST_UNREACH)
 		{

@@ -56,7 +56,7 @@ bool CRawSocket::Open(uint16 uiProto)
 	int on = 1;
 
 	// create socket
-	m_Socket = socket(AF_INET,SOCK_RAW,uiProto);
+	m_Socket = socket(AF_INET, SOCK_RAW, uiProto);
 	if ( m_Socket != -1 )
 	{
 		fcntl(m_Socket, F_SETFL, O_NONBLOCK);
@@ -80,7 +80,7 @@ void CRawSocket::Close(void)
 ////////////////////////////////////////////////////////////////////////////////////////
 // read
 
-int CRawSocket::Receive(CBuffer *Buffer, CIp *Ip, int timeout)
+int CRawSocket::Receive(uint8_t *Buffer, CIp *Ip, int timeout)
 {
 	struct sockaddr_in Sin;
 	fd_set FdSet;
@@ -91,9 +91,6 @@ int CRawSocket::Receive(CBuffer *Buffer, CIp *Ip, int timeout)
 	// socket valid ?
 	if ( m_Socket != -1 )
 	{
-		// allocate buffer
-		Buffer->resize(UDP_BUFFER_LENMAX);
-
 		// control socket
 		FD_ZERO(&FdSet);
 		FD_SET(m_Socket, &FdSet);
@@ -102,16 +99,11 @@ int CRawSocket::Receive(CBuffer *Buffer, CIp *Ip, int timeout)
 		select(m_Socket + 1, &FdSet, 0, 0, &tv);
 
 		// read
-		iRecvLen = (int)recvfrom(m_Socket,
-								 (void *)Buffer->data(), RAW_BUFFER_LENMAX,
-								 0, (struct sockaddr *)&Sin, &uiFromLen);
+		iRecvLen = (int)recvfrom(m_Socket, Buffer, RAW_BUFFER_LENMAX, 0, (struct sockaddr *)&Sin, &uiFromLen);
 
 		// handle
 		if ( iRecvLen != -1 )
 		{
-			// adjust buffer size
-			Buffer->resize(iRecvLen);
-
 			// get IP
 			memcpy(Ip->GetPointer(), &Sin, sizeof(struct sockaddr_in));
 		}
@@ -125,7 +117,7 @@ int CRawSocket::Receive(CBuffer *Buffer, CIp *Ip, int timeout)
 
 // ICMP
 
-int CRawSocket::IcmpReceive(CBuffer *Buffer, CIp *Ip, int timeout)
+int CRawSocket::IcmpReceive(uint8_t *Buffer, CIp *Ip, int timeout)
 {
 	int iIcmpType = -1;
 	int iRecv;
@@ -136,7 +128,7 @@ int CRawSocket::IcmpReceive(CBuffer *Buffer, CIp *Ip, int timeout)
 
 		if (iRecv >= (int)(sizeof(struct ip) + sizeof(struct icmp)))
 		{
-			struct ip *iph = (struct ip *)Buffer->data();
+			struct ip *iph = (struct ip *)Buffer;
 			int iphdrlen = iph->ip_hl * 4;
 			struct icmp *icmph = (struct icmp *)((unsigned char *)iph + iphdrlen);
 			struct ip *remote_iph = (struct ip *)((unsigned char *)icmph + 8);

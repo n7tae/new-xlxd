@@ -44,7 +44,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // define
 
-#define RAW_BUFFER_LENMAX       65536
+#define RAW_BUFFER_LENMAX 65536
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -72,7 +72,8 @@ public:
 	// For specific protocols, the data content may vary depending on the protocol
 	// Returns the number of received bytes in buffer
 
-	int Receive(CBuffer *, CIp *, int);
+protected:
+	int Receive(uint8_t *, CIp *, int);
 
 	// ICMP receive helper
 	// parameters:
@@ -82,7 +83,8 @@ public:
 	// return value:
 	//   ICMP type, -1 if nothing was received
 
-	int IcmpReceive(CBuffer *, CIp *, int);
+public:
+	int IcmpReceive(uint8_t *, CIp *, int);
 
 	// write
 	// no write support - complexity makes it out of scope for now
