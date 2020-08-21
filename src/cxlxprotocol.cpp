@@ -35,9 +35,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // operation
 
-bool CXlxProtocol::Initialize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6)
+bool CXlxProtocol::Initialize(const char *type, const int ptype, const uint16 port, const bool has_ipv4, const bool has_ipv6)
 {
-	if (! CProtocol::Initialize(type, port, has_ipv4, has_ipv6))
+	if (! CProtocol::Initialize(type, ptype, port, has_ipv4, has_ipv6))
 		return false;
 
 	// update time

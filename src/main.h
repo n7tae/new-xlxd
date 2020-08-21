@@ -79,8 +79,6 @@
 
 // protocols ---------------------------------------------------
 
-#define NB_OF_PROTOCOLS                 8
-
 #define PROTOCOL_ANY                    -1
 #define PROTOCOL_NONE                   0
 #define PROTOCOL_DEXTRA                 1

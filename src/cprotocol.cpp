@@ -56,7 +56,7 @@ CProtocol::~CProtocol()
 ////////////////////////////////////////////////////////////////////////////////////////
 // initialization
 
-bool CProtocol::Initialize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6)
+bool CProtocol::Initialize(const char *type, int ptype, const uint16 port, const bool has_ipv4, const bool has_ipv6)
 {
 	// init reflector apparent callsign
 	m_ReflectorCallsign = g_Reflector.GetCallsign();
@@ -72,19 +72,20 @@ bool CProtocol::Initialize(const char *type, const uint16 port, const bool has_i
 #ifdef LISTEN_IPV4
 	if (has_ipv4)
 	{
-		CIp ip4(AF_INET, port, g_Reflector.GetListenIPv4());
+		CIp ip4(AF_INET, port, g_Reflector.m_Address.GetV4Address(ptype).c_str());
 		if ( ip4.IsSet() )
 		{
 			if (! m_Socket4.Open(ip4))
 				return false;
 		}
+		std::cout << "Listening on " << ip4 << std::endl;
 	}
 #endif
 
 #ifdef LISTEN_IPV6
 	if (has_ipv6)
 	{
-		CIp ip6(AF_INET6, port, g_Reflector.GetListenIPv6());
+		CIp ip6(AF_INET6, port, g_Reflector.m_Address.GetV6Address(ptype).c_str());
 		if ( ip6.IsSet() )
 		{
 			if (! m_Socket6.Open(ip6))
@@ -92,6 +93,7 @@ bool CProtocol::Initialize(const char *type, const uint16 port, const bool has_i
 				m_Socket4.Close();
 				return false;
 			}
+			std::cout << "Listening on " << ip6 << std::endl;
 		}
 	}
 #endif
@@ -107,7 +109,6 @@ bool CProtocol::Initialize(const char *type, const uint16 port, const bool has_i
 		return false;
 	}
 
-	std::cout << "Initialized " << (type ? type : "DMR") << " protocol on port " << port << std::endl;
 	return true;
 }
 

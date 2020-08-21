@@ -38,7 +38,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // operation
 
-bool CG3Protocol::Initialize(const char */*type*/, const uint16 /*port*/, const bool /*has_ipv4*/, const bool /*has_ipv6*/)
+bool CG3Protocol::Initialize(const char */*type*/, const int /*type*/, const uint16 /*port*/, const bool /*has_ipv4*/, const bool /*has_ipv6*/)
+// everything is hard coded until ICOM gets their act together and start supporting IPv6
 {
 	ReadOptions();
 
@@ -52,7 +53,7 @@ bool CG3Protocol::Initialize(const char */*type*/, const uint16 /*port*/, const 
 	//m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)"XLX", 3);
 
 	// create our sockets
-	CIp ip(AF_INET, G3_DV_PORT, g_Reflector.GetListenIPv4());
+	CIp ip(AF_INET, G3_DV_PORT, g_Reflector.m_Address.GetV4Address(PROTOCOL_G3).c_str());
 	if ( ip.IsSet() )
 	{
 		if (! m_Socket4.Open(ip))
@@ -60,6 +61,8 @@ bool CG3Protocol::Initialize(const char */*type*/, const uint16 /*port*/, const 
 	}
 	else
 		return false;
+
+	std::cout << "Listening on " << ip << std::endl;
 
 	//create helper socket
 	ip.SetPort(G3_PRESENCE_PORT);

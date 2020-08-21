@@ -36,7 +36,7 @@ endif
 
 LDFLAGS=-pthread
 
-XRFSRCS = cbuffer.cpp ccallsign.cpp ccallsignlist.cpp ccallsignlistitem.cpp cclient.cpp cclients.cpp cdcsclient.cpp cdcsprotocol.cpp cdextraclient.cpp cdextrapeer.cpp cdextraprotocol.cpp cdplusclient.cpp cdplusprotocol.cpp cdvframepacket.cpp cdvheaderpacket.cpp cdvlastframepacket.cpp cgatekeeper.cpp cip.cpp cnotification.cpp cpacket.cpp cpacketstream.cpp cpeercallsignlist.cpp cpeer.cpp cpeers.cpp cprotocol.cpp cprotocols.cpp creflector.cpp ctimepoint.cpp cudpsocket.cpp cuser.cpp cusers.cpp cversion.cpp main.cpp
+XRFSRCS = cbuffer.cpp ccallsign.cpp ccallsignlist.cpp ccallsignlistitem.cpp cclient.cpp cclients.cpp cdcsclient.cpp cdcsprotocol.cpp cdextraclient.cpp cdextrapeer.cpp cdextraprotocol.cpp cdplusclient.cpp cdplusprotocol.cpp cdvframepacket.cpp cdvheaderpacket.cpp cdvlastframepacket.cpp cgatekeeper.cpp cip.cpp cnotification.cpp cpacket.cpp cpacketstream.cpp cpeercallsignlist.cpp cpeer.cpp cpeers.cpp cprotoaddress.cpp cprotocol.cpp cprotocols.cpp creflector.cpp ctimepoint.cpp cudpsocket.cpp cuser.cpp cusers.cpp cversion.cpp main.cpp
 XLXSRCS = cbmclient.cpp cbmpeer.cpp cbptc19696.cpp ccrc.cpp cdmriddir.cpp cdmriddirfile.cpp cdmriddirhttp.cpp cdmrmmdvmclient.cpp cdmrmmdvmprotocol.cpp cdmrplusclient.cpp cdmrplusprotocol.cpp cgolay2087.cpp cgolay24128.cpp chamming.cpp cqr1676.cpp crs129.cpp csemaphore.cpp cutils.cpp cwiresxcmd.cpp cwiresxcmdhandler.cpp cwiresxinfo.cpp cxlxclient.cpp cxlxprotocol.cpp cxlxpeer.cpp cysfclient.cpp cysfconvolution.cpp cysffich.cpp cysfnode.cpp cysfnodedir.cpp cysfnodedirfile.cpp cysfnodedirhttp.cpp cysfpayload.cpp cysfprotocol.cpp cysfutils.cpp
 G3SRCS = cg3client.cpp cg3protocol.cpp crawsocket.cpp cudpmsgsocket.cpp
 

@@ -82,12 +82,12 @@ bool CTranscoder::Init(void)
 	// now open the transcoder port
 #ifdef LISTEN_IPV4
 #ifdef LISTEN_IPV6
-	s = (AF_INET == m_Ip.GetFamily()) ? g_Reflector.GetListenIPv4() : g_Reflector.GetListenIPv6();
+	s = (AF_INET == m_Ip.GetFamily()) ? g_Reflector.m_Address.GetV4Address(PROTOCOL_ANY).c_str() : g_Reflector.m_Address.GetV6Address(PROTOCOL_ANY).c_str();
 #else
-	s = g_Reflector.GetListenIPv4();
+	s = g_Reflector.m_Address.GetV4Address(PROTOCOL_ANY).c_str();
 #endif
 #else
-	s = g_Reflector.GetListenIPv6();
+	s = g_Reflector.m_address.GetV6Address(PROTOCOL_ANY).c_str();
 #endif
 	CIp tc(m_Ip.GetFamily(), TRANSCODER_PORT, s);
 

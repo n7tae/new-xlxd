@@ -35,10 +35,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // operation
 
-bool CDextraProtocol::Initialize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6)
+bool CDextraProtocol::Initialize(const char *type, int ptype, const uint16 port, const bool has_ipv4, const bool has_ipv6)
 {
 	// base class
-	if (! CProtocol::Initialize(type, port, has_ipv4, has_ipv6))
+	if (! CProtocol::Initialize(type, ptype, port, has_ipv4, has_ipv6))
 		return false;
 
 	// update time

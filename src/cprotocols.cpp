@@ -54,38 +54,38 @@ bool CProtocols::Init(void)
 	m_Mutex.lock();
 	{
 		m_Protocols.emplace_back(std::unique_ptr<CDextraProtocol>(new CDextraProtocol));
-		if (! m_Protocols.back()->Initialize("XRF", DEXTRA_PORT, DSTAR_IPV4, DSTAR_IPV6))
+		if (! m_Protocols.back()->Initialize("XRF", PROTOCOL_DEXTRA, DEXTRA_PORT, DSTAR_IPV4, DSTAR_IPV6))
 			return false;
 
 		m_Protocols.emplace_back(std::unique_ptr<CDplusProtocol>(new CDplusProtocol));
-		if (! m_Protocols.back()->Initialize("REF", DPLUS_PORT, DSTAR_IPV4, DSTAR_IPV6))
+		if (! m_Protocols.back()->Initialize("REF", PROTOCOL_DPLUS, DPLUS_PORT, DSTAR_IPV4, DSTAR_IPV6))
 			return false;
 
 		m_Protocols.emplace_back(std::unique_ptr<CDcsProtocol>(new CDcsProtocol));
-		if (! m_Protocols.back()->Initialize("DCS", DCS_PORT, DSTAR_IPV4, DSTAR_IPV6))
+		if (! m_Protocols.back()->Initialize("DCS", PROTOCOL_DCS, DCS_PORT, DSTAR_IPV4, DSTAR_IPV6))
 			return false;
 
 #ifndef NO_XLX
 		m_Protocols.emplace_back(std::unique_ptr<CDmrmmdvmProtocol>(new CDmrmmdvmProtocol));
-		if (! m_Protocols.back()->Initialize(nullptr, DMRMMDVM_PORT, DMR_IPV4, DMR_IPV6))
+		if (! m_Protocols.back()->Initialize(nullptr, PROTOCOL_DMRMMDVM, DMRMMDVM_PORT, DMR_IPV4, DMR_IPV6))
 			return false;
 
 		m_Protocols.emplace_back(std::unique_ptr<CDmrplusProtocol>(new CDmrplusProtocol));
-		if (! m_Protocols.back()->Initialize(nullptr, DMRPLUS_PORT, DMR_IPV4, DMR_IPV6))
+		if (! m_Protocols.back()->Initialize(nullptr, PROTOCOL_DMRPLUS, DMRPLUS_PORT, DMR_IPV4, DMR_IPV6))
 			return false;
 
 		m_Protocols.emplace_back(std::unique_ptr<CYsfProtocol>(new CYsfProtocol));
-		if (! m_Protocols.back()->Initialize("YSF", YSF_PORT, YSF_IPV4, YSF_IPV6))
+		if (! m_Protocols.back()->Initialize("YSF", PROTOCOL_YSF, YSF_PORT, YSF_IPV4, YSF_IPV6))
 			return false;
 
 		m_Protocols.emplace_back(std::unique_ptr<CXlxProtocol>(new CXlxProtocol));
-		if (! m_Protocols.back()->Initialize("XLX", XLX_PORT, DMR_IPV4, DMR_IPV6))
+		if (! m_Protocols.back()->Initialize("XLX", PROTOCOL_XLX, XLX_PORT, DMR_IPV4, DMR_IPV6))
 			return false;
 #endif
 
 #ifndef NO_G3
 		m_Protocols.emplace_back(std::unique_ptr<CG3Protocol>(new CG3Protocol));
-		if (! m_Protocols.back()->Initialize("XLX", G3_DV_PORT, DMR_IPV4, DMR_IPV6))
+		if (! m_Protocols.back()->Initialize("XLX", PROTOCOL_G3, G3_DV_PORT, DMR_IPV4, DMR_IPV6))
 			return false;
 #endif
 

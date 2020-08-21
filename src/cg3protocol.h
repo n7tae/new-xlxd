@@ -67,7 +67,7 @@ public:
 	CG3Protocol() : m_GwAddress(0u), m_Modules("*"), m_LastModTime(0) {}
 
 	// initialization
-	bool Initialize(const char *type, const uint16 port, const bool has_ipv4, const bool has_ipv6);
+	bool Initialize(const char *type, const int ptype, const uint16 port, const bool has_ipv4, const bool has_ipv6);
 
 	// close
 	void Close(void);

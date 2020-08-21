@@ -26,6 +26,7 @@
 #ifndef creflector_h
 #define creflector_h
 
+#include "cprotoaddress.h"
 #include "cusers.h"
 #include "cclients.h"
 #include "cpeers.h"
@@ -59,16 +60,6 @@ public:
 	void SetCallsign(const CCallsign &callsign)      { m_Callsign = callsign; }
 	const CCallsign &GetCallsign(void) const         { return m_Callsign; }
 
-#ifdef LISTEN_IPV4
-	void SetListenIPv4(const char *a, const int n)   { memset(m_IPv4, 0, n);    strncpy(m_IPv4, a, n-1); }
-	const char *GetListenIPv4(void) const            { return m_IPv4; }
-#endif
-
-#ifdef LISTEN_IPV6
-	void SetListenIPv6(const char *a, const int n)   { memset(m_IPv6, 0, n);    strncpy(m_IPv6, a, n-1); }
-	const char *GetListenIPv6(void) const            { return m_IPv6; }
-#endif
-
 #ifdef TRANSCODER_IP
 	void SetTranscoderIp(const char *a, const int n) { memset(m_AmbedIp, 0, n); strncpy(m_AmbedIp, a, n-1); }
 	const char *GetTranscoderIp(void) const          { return m_AmbedIp; }
@@ -94,6 +85,9 @@ public:
 	// users
 	CUsers  *GetUsers(void)                         { m_Users.Lock(); return &m_Users; }
 	void    ReleaseUsers(void)                      { m_Users.Unlock(); }
+
+	// IP Addresses
+	CProtoAddress m_Address;
 
 	// get
 	bool IsValidModule(char c) const                { return (GetModuleIndex(c) >= 0); }
@@ -135,12 +129,6 @@ protected:
 protected:
 	// identity
 	CCallsign m_Callsign;
-#ifdef LISTEN_IPV4
-	char      m_IPv4[INET_ADDRSTRLEN];
-#endif
-#ifdef LISTEN_IPV6
-	char      m_IPv6[INET6_ADDRSTRLEN];
-#endif
 #ifdef TRANSCODER_IP
 	char      m_AmbedIp[INET6_ADDRSTRLEN];
 #endif

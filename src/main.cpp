@@ -56,14 +56,6 @@ int main()
 	// initialize reflector
 	g_Reflector.SetCallsign(cs.c_str());
 
-#ifdef LISTEN_IPV4
-	g_Reflector.SetListenIPv4(LISTEN_IPV4, INET_ADDRSTRLEN);
-#endif
-
-#ifdef LISTEN_IPV6
-	g_Reflector.SetListenIPv6(LISTEN_IPV6, INET6_ADDRSTRLEN);
-#endif
-
 #ifdef TRANSCODER_IP
 	g_Reflector.SetTranscoderIp(TRANSCODER_IP, INET6_ADDRSTRLEN);
 #endif
@@ -76,20 +68,7 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	std::cout << "Reflector " << g_Reflector.GetCallsign()  << "started and listening on ";
-#if defined LISTEN_IPV4
-	std::cout << g_Reflector.GetListenIPv4() << " for IPv4";
-#if defined LISTEN_IPV6
-	std::cout << " and " << g_Reflector.GetListenIPv6() << " for IPv6" << std::endl;
-#else
-	std::cout << std::endl;
-#endif
-#elif defined LISTEN_IPV6
-	std::cout << g_Reflector.GetListenIPv6() << " for IPv6" << std::endl;
-#else
-	std::cout << "...ABORTING! No IP addresses defined!" << std::endl;
-	return EXIT_FAILURE;
-#endif
+	std::cout << "Reflector " << g_Reflector.GetCallsign()  << "started and listening" << std::endl;
 
 	// write new pid file
 	std::ofstream ofs(PIDFILE_PATH, std::ofstream::out);

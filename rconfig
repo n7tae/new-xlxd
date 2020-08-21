@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-SetBooleanValue () {
+SetBooleanValue ()
+{
 	local dvname
 	local cv
 	if [ -z $2 ]; then
@@ -43,7 +44,8 @@ SetBooleanValue () {
 	fi
 }
 
-EvaluateVar () {
+EvaluateVar ()
+{
 	if [ -z ${!1+x} ]; then
 		if [ -z "${!2}" ]; then
 			echo "'' <DEFAULT>"
@@ -59,7 +61,8 @@ EvaluateVar () {
 	fi
 }
 
-WriteMemFile () {
+WriteMemFile ()
+{
 	local file
 	file="$rcfg"
 	echo "# created on `date`"                                  > $file
@@ -67,6 +70,22 @@ WriteMemFile () {
 	[ -z ${nummod+x}      ] || echo      "nummod=$nummod"      >> $file
 	[ -z ${ip4addr+x}     ] || echo     "ip4addr='$ip4addr'"   >> $file
 	[ -z ${ip6addr+x}     ] || echo     "ip6addr='$ip6addr'"   >> $file
+	[ -z ${refv4addr+x}   ] || echo   "refv4addr='$refv4addr'" >> $file
+	[ -z ${refv6addr+x}   ] || echo   "refv6addr='$refv6addr'" >> $file
+	[ -z ${dcsv4addr+x}   ] || echo   "dcsv4addr='$dcsv4addr'" >> $file
+	[ -z ${dcsv6addr+x}   ] || echo   "dcsv6addr='$dcsv6addr'" >> $file
+	[ -z ${xrfv4addr+x}   ] || echo   "xrfv4addr='$xrfv4addr'" >> $file
+	[ -z ${xrfv6addr+x}   ] || echo   "xrfv6addr='$xrfv6addr'" >> $file
+	[ -z ${g3_v4addr+x}   ] || echo   "g3_v4addr='$g3_v4addr'" >> $file
+#	[ -z ${g3_v6addr+x}   ] || echo   "g3_v6addr='$g3_v6addr'" >> $file
+	[ -z ${dmrv4addr+x}   ] || echo   "dmrv4addr='$dmrv4addr'" >> $file
+	[ -z ${dmrv6addr+x}   ] || echo   "dmrv6addr='$dmrv6addr'" >> $file
+	[ -z ${dmpv4addr+x}   ] || echo   "dmpv4addr='$dmpv4addr'" >> $file
+	[ -z ${dmpv6addr+x}   ] || echo   "dmpv6addr='$dmpv6addr'" >> $file
+	[ -z ${ysfv4addr+x}   ] || echo   "ysfv4addr='$ysfv4addr'" >> $file
+	[ -z ${ysfv6addr+x}   ] || echo   "ysfv6addr='$ysfv6addr'" >> $file
+	[ -z ${xlxv4addr+x}   ] || echo   "xlxv4addr='$xlxv4addr'" >> $file
+	[ -z ${xlxv6addr+x}   ] || echo   "xlxv6addr='$xlxv6addr'" >> $file
 	[ -z ${tcaddress+x}   ] || echo   "tcaddress='$tcaddress'" >> $file
 	[ -z ${tcmodules+x}   ] || echo   "tcmodules='$tcmodules'" >> $file
 	[ -z ${ysfautolink+x} ] || echo "ysfautolink=$ysfautolink" >> $file
@@ -79,7 +98,8 @@ WriteMemFile () {
 	[ -z ${dbsupport+x}   ] || echo   "dbsupport=$dbsupport"   >> $file
 }
 
-WriteSRCHFile () {
+WriteSRCHFile ()
+{
 	local file m
 	file="$srch"
 	echo "// Created on `date`" > $file
@@ -92,14 +112,62 @@ WriteSRCHFile () {
 	else
 		echo "#define NB_OF_MODULES ${nummod}" >> $file
 	fi
-	[ -z ${ip4addr+x} ] || echo "#define LISTEN_IPV4 \"${ip4addr}\"" >> $file
-	[ -z ${ip6addr+x} ] || echo "#define LISTEN_IPV6 \"${ip6addr}\"" >> $file
-	if [ ! -z ${tcaddress+x} ]; then
-		echo "#define TRANSCODER_IP \"${tcaddress}\"" >> $file
-		if [ -z ${tcmodules+x} ]; then
-			echo "#define TRANSCODED_MODULES \"${tcmodules_d}\"" >> $file
-		else
-			echo "#define TRANSCODED_MODULES \"${tcmodules}\"" >> $file
+	if [ ! -z ${ip4addr+x} ]; then
+		echo "#define LISTEN_IPV4 \"${ip4addr}\"" >> $file
+		if [ ! -z ${refv4addr+x} ]; then
+			echo "#define LISTEN_V4_DPLUS \"$refv4addr\"" >> $file
+		fi
+		if [ ! -z ${dcsv4addr+x} ]; then
+			echo "#define LISTEN_V4_DCS \"$dcsv4addr\"" >> $file
+		fi
+		if [ ! -z ${xrfv4addr+x} ]; then
+			echo "#define LISTEN_V4_DEXTRA \"$xrfv4addr\"" >> $file
+		fi
+		if [[ "$g3support" == true ]] && [ ! -z ${g3_v4addr+x} ]; then
+			echo "#define LISTEN_V4_G3 \"$g3_v4addr\"" >> $file
+		fi
+		if [[ "$callsign" == XLX* ]]; then
+			if [ ! -z ${dmrv4addr+x} ]; then
+				echo "#define LISTEN_V4_DMRMMDVM \"$dmrv4addr\"" >> $file
+			fi
+			if [ ! -z ${dmpv4addr+x} ]; then
+				echo "#define LISTEN_V4_DMRPLUS \"$dmpv4addr\"" >> $file
+			fi
+			if [ ! -z ${ysfv4addr+x} ]; then
+				echo "#define LISTEN_V4_YSF \"$ysfv4addr\"" >> $file
+			fi
+			if [ ! -z ${xlxv4addr+x} ]; then
+				echo "#define LISTEN_V4_XLX \"$xlxv4addr\"" >> $file
+			fi
+		fi
+	fi
+	if [ ! -z ${ip6addr+x} ]; then
+		echo "#define LISTEN_IPV6 \"${ip6addr}\"" >> $file
+		if [ ! -z ${refv6addr+x} ]; then
+			echo "#define LISTEN_V6_PLUS \"$refv6addr\"" >> $file
+		fi
+		if [ ! -z ${dcsv6addr+x} ]; then
+			echo "#define LISTEN_V6_DCS \"$dcsv6addr\"" >> $file
+		fi
+		if [ ! -z ${refv6addr+x} ]; then
+			echo "#define LISTEN_V6_DEXTRA \"$xrfv6addr\"" >> $file
+		fi
+		if [[ "$g3support" == true ]] && [ ! -z ${g3_v6addr+x} ]; then
+			echo "#define LISTEN_V4_G3 \"$g3_v6addr\"" >> $file
+		fi
+		if [[ "$callsign" == XLX* ]]; then
+			if [ ! -z ${dmrv6addr+x} ]; then
+				echo "#define LISTEN_V4_DMRMMDVM \"$dmrv6addr\"" >> $file
+			fi
+			if [ ! -z ${dmpv6addr+x} ]; then
+				echo "#define LISTEN_V4_DMRPLUS \"$dmpv6addr\"" >> $file
+			fi
+			if [ ! -z ${ysfv6addr+x} ]; then
+				echo "#define LISTEN_V4_YSF \"$ysfv6addr\"" >> $file
+			fi
+			if [ ! -z ${xlxv6addr+x} ]; then
+				echo "#define LISTEN_V4_XLX \"$xlxv6addr\"" >> $file
+			fi
 		fi
 	fi
 	if [[ "$callsign" == XLX* ]]; then
@@ -122,6 +190,14 @@ WriteSRCHFile () {
 			echo '#define YSF_DB_SUPPORT false' >> $file
 		fi
 	fi
+	if [ ! -z ${tcaddress+x} ]; then
+		echo "#define TRANSCODER_IP \"${tcaddress}\"" >> $file
+		if [ -z ${tcmodules+x} ]; then
+			echo "#define TRANSCODED_MODULES \"${tcmodules_d}\"" >> $file
+		else
+			echo "#define TRANSCODED_MODULES \"${tcmodules}\"" >> $file
+		fi
+	fi
 	if [ -z ${g3support+x} ]; then
 		m=${g3support_d}
 	else
@@ -132,7 +208,8 @@ WriteSRCHFile () {
 	fi
 }
 
-WriteSRCMKFile () {
+WriteSRCMKFile ()
+{
 	local file
 	file="$srcm"
 	echo "# Created on `date`" > $file
@@ -156,14 +233,16 @@ WriteSRCMKFile () {
 	fi
 }
 
-WriteAmbeHFile () {
+WriteAmbeHFile ()
+{
 	local file
 	file="$ambh"
 	echo "// Created on `date`" > $file
 	echo "#define TRANSCODER_IP \"${tcaddress}\"" >> $file
 }
 
-WriteAmbeMKFile () {
+WriteAmbeMKFile ()
+{
 	local file
 	file="$ambm"
 	echo "# created on `date`" > $file
@@ -174,7 +253,8 @@ WriteAmbeMKFile () {
 	fi
 }
 
-WriteCfgPhpFile () {
+WriteCfgPhpFile ()
+{
 	cat << EOF > $ysfs
 <?php
 define('DB_SERVER', 'localhost');
@@ -189,7 +269,8 @@ if (\$link === false) { die("ERROR: Could not connect. " . mysqli_connect_error(
 EOF
 }
 
-WriteDBCreateFile () {
+WriteDBCreateFile ()
+{
 	cat << EOF > $dbcr
 CREATE DATABASE IF NOT EXISTS ${ysfdbname};
 USE ${ysfdbname};
@@ -206,7 +287,8 @@ FLUSH PRIVILEGES;
 EOF
 }
 
-WriteCFGFiles () {
+WriteCFGFiles ()
+{
 	WriteMemFile
 	WriteSRCHFile
 	WriteSRCMKFile
@@ -244,6 +326,84 @@ ListCFGFiles ()
 		echo "===========${dbcr}============="
 		cat $dbcr
 	fi
+}
+
+AddressMenu ()
+{
+	while [[ "$key" != q* ]]
+	do
+		clear
+		echo
+		echo "          IP Address For Each Protocol"
+		echo
+		if [ ! -z ${ip4addr+x} ]; then echo " p4 : DPlus  IPv4 address = '$refv4addr'"; fi
+		if [ ! -z ${ip6addr+x} ]; then echo " p6 : DPlus  IPv6 address = '$refv6addr'"; fi
+		if [ ! -z ${ip4addr+x} ]; then echo " c4 : DCS    IPv4 address = '$dcsv4addr'"; fi
+		if [ ! -z ${ip6addr+x} ]; then echo " c6 : DCS    IPV6 address = '$dcsv6addr'"; fi
+		if [ ! -z ${ip4addr+x} ]; then echo " e4 : DExtra IPv4 address = '$xrfv4addr'"; fi
+		if [ ! -z ${ip6addr+x} ]; then echo " e6 : DExtra IPv6 address = '$xrfv6addr'"; fi
+		if [[ "$g3support" == true ]]; then
+			if [ ! -z ${ip4addr+x} ]; then echo " g4 : G3     IPv4 address = '$g3_v4addr'"; fi
+		#	if [ ! -z ${ip6addr+x} ]; then echo " g6 : G3     IPv6 address = '$g3_v6addr'"; fi
+		fi
+		if [[ "$callsign" == XLX* ]]; then
+			if [ ! -z ${ip4addr+x} ]; then echo " d4 : DMR    IPv4 address = '$dmrv4addr'"; fi
+			if [ ! -z ${ip6addr+x} ]; then echo " d6 : DMR    IPv6 address = '$dmrv6addr'"; fi
+			if [ ! -z ${ip4addr+x} ]; then echo " m4 : DMR+   IPv4 address = '$dmpv4addr'"; fi
+			if [ ! -z ${ip6addr+x} ]; then echo " m6 : DMR+   IPV6 address = '$dmpv6addr'"; fi
+			if [ ! -z ${ip4addr+x} ]; then echo " y4 : YSF    IPv4 address = '$ysfv4addr'"; fi
+			if [ ! -z ${ip6addr+x} ]; then echo " y6 : YSF    IPv6 address = '$ysfv6addr'"; fi
+			if [ ! -z ${ip4addr+x} ]; then echo " x4 : XLX    IPv4 address = '$xlxv4addr'"; fi
+			if [ ! -z ${ip6addr+x} ]; then echo " x6 : XLX    IPv6 address = '$xlxv6addr'"; fi
+		fi
+		echo
+		echo "xx : Clear all Protocol addresses"
+		echo
+		echo "q  : Return to main menu"
+		echo "u  : Unset the value of <key>."
+		echo
+		read -p "Please input <key> <value> : " key value garbage
+		if   [[ "$key" == p4* ]]; then refv4addr="$value"
+		elif [[ "$key" == p6* ]]; then refv6addr="$value"
+		elif [[ "$key" == c4* ]]; then dcsv4addr="$value"
+		elif [[ "$key" == c6* ]]; then dcsv6addr="$value"
+		elif [[ "$key" == e4* ]]; then xrfv4addr="$value"
+		elif [[ "$key" == e6* ]]; then xrfv6addr="$value"
+		elif [[ "$key" == g4* ]]; then g3_v4addr="$value"
+	#	elif [[ "$key" == g6* ]]; then g3_v6addr="$value"
+		elif [[ "$key" == d4* ]]; then dmrv4addr="$value"
+		elif [[ "$key" == d6* ]]; then dmrv6addr="$value"
+		elif [[ "$key" == m4* ]]; then dmpv4addr="$value"
+		elif [[ "$key" == m6* ]]; then dmpv6addr="$value"
+		elif [[ "$key" == y4* ]]; then ysfv4addr="$value"
+		elif [[ "$key" == y6* ]]; then ysfv6addr="$value"
+		elif [[ "$key" == x4* ]]; then xlxv4addr="$value"
+		elif [[ "$key" == x6* ]]; then xlxv6addr="$value"
+		elif [[ "$key" == xx* ]]; then unset {dcs,dmr,xrf,g3_,dmp,ref,xlx,ysf}v{4,6}addr
+		elif [[ "$key" == u*  ]]; then
+			if   [[ "$value" == p4* ]]; then unset refv4addr
+			elif [[ "$value" == p6* ]]; then unset refv6addr
+			elif [[ "$value" == c4* ]]; then unset dcsv4addr
+			elif [[ "$value" == c6* ]]; then unset dcsv6addr
+			elif [[ "$value" == e4* ]]; then unset xrfv4addr
+			elif [[ "$value" == e6* ]]; then unset xrfv6addr
+			elif [[ "$value" == g4* ]]; then unset g3_v4addr
+		#	elif [[ "$value" == g6* ]]; then unset g3_v6addr
+			elif [[ "$value" == d4* ]]; then unset dmrv4addr
+			elif [[ "$value" == d6* ]]; then unset dmrv6addr
+			elif [[ "$value" == m4* ]]; then unset dmpv4addr
+			elif [[ "$value" == m6* ]]; then unset dmpv6addr
+			elif [[ "$value" == y4* ]]; then unset ysfv4addr
+			elif [[ "$value" == y6* ]]; then unset ysfv6addr
+			elif [[ "$value" == x4* ]]; then unset xlxv4addr
+			elif [[ "$value" == x6* ]]; then unset xlxv6addr
+			fi
+		fi
+		if [[ "$callsign" != XLX* ]]; then unset {dmr,dmp,ysf,xlx}v{4,6}v{4,6}addr; fi
+		if [ -z ${ip4addr+x} ]; then unset {ref,dcs,xrf,dmr,dmp,ysf,xlx,g3_}v4addr; fi
+		if [ -z ${ip6addr+x} ]; then unset {ref,dcs,xrf,dmr,dmp,ysf,xlx,g3_}v6addr; fi
+		if [[ "$g3support" != true ]]; then unset g3_v{4,6}addr; fi
+	done
 }
 
 # Execution starts here!
@@ -307,17 +467,27 @@ while [[ "$key" != q* ]]
 do
 	clear
 	echo
-	echo "        Reflector Configuration, Version #200813"
+	echo "        Reflector Configuration, Version #200821"
 	echo
+	echo    "     ******* REFLECTOR ********"
 	echo -n "cs : Reflector Callsign     = "; EvaluateVar callsign{,_d}
 	echo -n "nm : Number of Modules      = "; EvaluateVar nummod{,_d}
+	echo -n "g3 : Icom G3 Support        = "; EvaluateVar g3support{,_d}
+	echo    "     ******* ADDRESSES ********"
 	echo -n "i4 : IPv4 Listen Address    = "; EvaluateVar ip4addr{,_d}
 	echo -n "i6 : IPv6 Listen Address    = "; EvaluateVar ip6addr{,_d}
+	if [ ! -z ${ip4addr+x} ] || [ ! -z ${ip6addr+x} ]; then
+		if [[ "$callsign" == XLX* ]] || [[ "$callsign" == XRF* ]]; then
+			echo "am : Protocol IP Address Override Sub-menu"
+		fi
+	fi
 	if [[ "$callsign" == XLX* ]]; then
+		echo    "     ******* TRANSCODER ********"
 		echo -n "tc : Transcoder Address     = "; EvaluateVar tcaddress{,_d}
 		if [ ! -z ${tcaddress+x} ]; then
 			echo -n "tm : Transcoder Modules     = "; EvaluateVar tcmodules{,_d}
 		fi
+		echo    "     ******* SYSTEM FUSION ********"
 		echo -n "ye : YSF Autolink Enable    = "; EvaluateVar ysfautolink{,_d}
 		if [ ! -z ${ysfautolink+x} ]; then
 			if [[ "$ysfautolink" == true ]]; then
@@ -331,7 +501,7 @@ do
 			echo -n "yp : YSF Database Password  = "; EvaluateVar ysfdbpw{,_d}
 		fi
 	fi
-	echo -n "g3 : Icom G3 Support        = "; EvaluateVar g3support{,_d}
+	echo    "     ******* DEBUGGING ********"
 	echo -n "db : Debugging Support      = "; EvaluateVar dbsupport{,_d}
 	echo
 	if [[ "$callsign" == XLX* ]] || [[ "$callsign" == XRF* ]]; then
@@ -342,11 +512,18 @@ do
 	echo
 	read -p "Please input <key> <value> - omit value to toggle a true/false : " key value garbage
 
-	if [[ "$key" == cs*  && ( ${value^^} == XRF* || ${value^^} == XLX* ) ]]; then
+	if   [[ "$key" == am* ]]; then
+		if [ ! -z ${ip4addr+x} ] || [ ! -z ${ip6addr+x} ];then
+			if [[ "$callsign" == XLX* ]] || [[ "$callsign" == XRF* ]]; then
+				AddressMenu
+				key="continue"
+			fi
+		fi
+	elif [[ "$key" == cs*  && ( ${value^^} == XRF* || ${value^^} == XLX* ) ]]; then
 		callsign="${value^^}"
 		callsign="${callsign:0:6}"
 		if [[ "$callsign" == XRF* ]]; then
-			unset tcaddress tcmodules ysfautolink ysfmodule ysflocaldb ysfdbname ysfdbuser ysfdbpw
+			unset tcaddress tcmodules ysf{autolink,module,localdb,dbname,dbuser,dbpw} {dmr,dmp,ysf,xlx}v{4,6}addr
 		fi
 	elif [[ "$key" == nm* ]]; then nummod="$value"
 	elif [[ "$key" == i4* ]]; then ip4addr="$value"
@@ -368,15 +545,15 @@ do
 		ListCFGFiles
 		exit 0
 	elif [[ "$key" == u* ]]; then
-		if   [[ "$value" == cs* ]]; then unset callsign
+		if   [[ "$value" == cs* ]]; then unset callsign {ref,dcs,xrf,dmr,dmp,ysf,xlx,g3_}v{4,6}addr
 		elif [[ "$value" == nm* ]]; then unset nummod
-		elif [[ "$value" == i4* ]]; then unset ip4addr
-		elif [[ "$value" == i6* ]]; then unset ip6addr
+		elif [[ "$value" == i4* ]]; then unset ip4addr {ref,dcs,xrf,dmr,dmp,ysf,xlx,g3_}v4addr
+		elif [[ "$value" == i6* ]]; then unset ip6addr {ref,dcs,xrf,dmr,dmp,ysf,xlx,g3_}v6addr
 		elif [[ "$value" == tc* ]]; then unset tcaddress
 		elif [[ "$value" == tm* ]]; then unset tcmodules
 		elif [[ "$value" == ye* ]]; then unset ysfautolink ysfmodule
 		elif [[ "$value" == ym* ]]; then unset ysfmodule
-		elif [[ "$value" == g3* ]]; then unset g3support
+		elif [[ "$value" == g3* ]]; then unset g3support g3_v{4,6}addr
 		elif [[ "$value" == db* ]]; then unset dbsupport
 		elif [[ "$value" == yl* ]]; then unset ysflocaldb ysfdbname ysfdbuser ysfdbpw
 		elif [[ "$value" == yd* ]]; then unset ysfdbname
