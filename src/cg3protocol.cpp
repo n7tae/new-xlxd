@@ -246,7 +246,6 @@ void CG3Protocol::ConfigTask(void)
 
 	if ( m_ConfigSocket.Receive(&Buffer, &Ip, 20) != -1 )
 	{
-
 		if (Buffer.size() == 16)
 		{
 			if (memcmp(&Buffer.data()[8], "        ", 8) == 0)

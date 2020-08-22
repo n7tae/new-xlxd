@@ -40,7 +40,7 @@
 //
 // There are 3 steps in handling an incoming connection
 //
-// 1 - Notification of terminal call on port UDP 12346, Presence port, aCUdpSocket.
+// 1 - Notification of terminal call on port UDP 12346, Presence port, a CUdpSocket.
 //      - Call will be rejected if in blacklisted
 //
 // 2 - Destination request on port UDP 12345, Config port, a CUdpMsgSocket.

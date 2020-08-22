@@ -89,7 +89,7 @@ std::string CProtoAddress::GetV4Address(int protocol)
 }
 #endif
 
-#ifdef LISTEN_IPV4
+#ifdef LISTEN_IPV6
 std::string CProtoAddress::GetV6Address(int protocol)
 {
 	if (v6address.end() == v6address.find(protocol))
