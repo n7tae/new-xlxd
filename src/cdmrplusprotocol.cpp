@@ -628,17 +628,6 @@ void CDmrplusProtocol::EncodeDvPacket
 	SwapEndianess(&(Buffer->data()[26]), 34);
 }
 
-
-void CDmrplusProtocol::EncodeDvLastPacket
-(const CDvHeaderPacket &Header,
- const CDvFramePacket &DvFrame0, const CDvFramePacket &DvFrame1, const CDvFramePacket &DvFrame2,
- uint8 seqid, CBuffer *Buffer) const
-{
-	EncodeDvPacket(Header, DvFrame0, DvFrame1, DvFrame2, seqid, Buffer);
-	Buffer->ReplaceAt(8, (uint8)3);
-	Buffer->ReplaceAt(18, (uint16)0x2222);
-}
-
 void CDmrplusProtocol::SwapEndianess(uint8 *buffer, int len) const
 {
 	for ( int i = 0; i < len; i += 2 )
