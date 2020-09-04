@@ -49,7 +49,7 @@ InstallReflector () {
 			cp ../config/xlxd.blacklist .
 		fi
 		if [ ! -e xlxd.interlink ]; then
-			cp ../config/xlxd.whitelist .
+			cp ../config/xlxd.interlink .
 		fi
 		if [[ "$g3support" == true ]] && [ ! -e xlxd.terminal ]; then
 			cp ../config/xlxd.terminal .
@@ -62,7 +62,7 @@ InstallReflector () {
 			cp ../config/xlxd.blacklist xrfd.blacklist
 		fi
 		if [ ! -e xrfd.interlink ]; then
-			cp ../config/xlxd.whitelist xrfd.interlink
+			cp ../config/xlxd.interlink xrfd.interlink
 		fi
 		if [[ "$g3support" == true ]] && [ ! -e xrfd.terminal ]; then
 			cp ../config/xlxd.terminal xrfd.terminal

@@ -231,6 +231,11 @@ WriteSRCMKFile ()
 	else
 		echo "debug = $dbsupport" >> $file
 	fi
+	if [ -z ${ysflocaldb+x} ]; then
+		echo "ysf_db = $ysflocaldb_d" >> $file
+	else
+		echo "ysf_db = $ysflocaldb" >> $file
+	fi
 }
 
 WriteAmbeHFile ()
