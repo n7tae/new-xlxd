@@ -53,7 +53,8 @@ bool CG3Protocol::Initialize(const char */*type*/, const int /*type*/, const uin
 	//m_ReflectorCallsign.PatchCallsign(0, (const uint8 *)"XLX", 3);
 
 	// create our sockets
-	CIp ip(AF_INET, G3_DV_PORT, g_Reflector.m_Address.GetV4Address(PROTOCOL_G3).c_str());
+	auto s = g_Reflector.m_Address.GetV4Address(PROTOCOL_G3);
+	CIp ip(AF_INET, G3_DV_PORT, s.c_str());
 	if ( ip.IsSet() )
 	{
 		if (! m_Socket4.Open(ip))

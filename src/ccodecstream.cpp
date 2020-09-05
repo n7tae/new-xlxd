@@ -89,14 +89,14 @@ bool CCodecStream::Init(uint16 uiPort)
 	// create socket address, family based on transcoder listen address
 #ifdef LISTEN_IPV4
 #ifdef LISTEN_IPV6
-	s = (AF_INET == m_Ip.GetFamily()) ? g_Reflector.m_Address.GetV4Address(PROTOCOL_ANY).c_str() : g_Reflector.m_Address.GetV6Address(PROTOCOL_ANY).c_str();
+	const auto paddr = (AF_INET == m_Ip.GetFamily()) ? g_Reflector.m_Address.GetV4Address(PROTOCOL_ANY) : g_Reflector.m_Address.GetV6Address(PROTOCOL_ANY);
 #else
-	s = g_Reflector.m_Address.GetV4Address(PROTOCOL_ANY).c_str();
+	const auto paddr = g_Reflector.m_Address.GetV4Address(PROTOCOL_ANY);
 #endif
 #else
-	s = g_Reflector.m_Address.GetV6Address(PROTOCOL_ANY).c_str();
+	const auto paddr = g_Reflector.m_Address.GetV6Address(PROTOCOL_ANY);
 #endif
-	CIp ip(m_Ip.GetFamily(), m_uiPort, s);
+	CIp ip(m_Ip.GetFamily(), m_uiPort, paddr.c_str());
 
 	// create our socket
 	if (ip.IsSet())
@@ -109,7 +109,7 @@ bool CCodecStream::Init(uint16 uiPort)
 	}
 	else
 	{
-		std::cerr << "Could not initialize Codec Stream on " << s << std::endl;
+		std::cerr << "Could not initialize Codec Stream on " << paddr << std::endl;
 		return false;
 	}
 

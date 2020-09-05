@@ -72,7 +72,8 @@ bool CProtocol::Initialize(const char *type, int ptype, const uint16 port, const
 #ifdef LISTEN_IPV4
 	if (has_ipv4)
 	{
-		CIp ip4(AF_INET, port, g_Reflector.m_Address.GetV4Address(ptype).c_str());
+		const auto s = g_Reflector.m_Address.GetV4Address(ptype);
+		CIp ip4(AF_INET, port, s.c_str());
 		if ( ip4.IsSet() )
 		{
 			if (! m_Socket4.Open(ip4))

@@ -82,14 +82,14 @@ bool CTranscoder::Init(void)
 	// now open the transcoder port
 #ifdef LISTEN_IPV4
 #ifdef LISTEN_IPV6
-	s = (AF_INET == m_Ip.GetFamily()) ? g_Reflector.m_Address.GetV4Address(PROTOCOL_ANY).c_str() : g_Reflector.m_Address.GetV6Address(PROTOCOL_ANY).c_str();
+	const auto paddr = (AF_INET == m_Ip.GetFamily()) ? g_Reflector.m_Address.GetV4Address(PROTOCOL_ANY) : g_Reflector.m_Address.GetV6Address(PROTOCOL_ANY);
 #else
-	s = g_Reflector.m_Address.GetV4Address(PROTOCOL_ANY).c_str();
+	const auto paddr = g_Reflector.m_Address.GetV4Address(PROTOCOL_ANY);
 #endif
 #else
-	s = g_Reflector.m_address.GetV6Address(PROTOCOL_ANY).c_str();
+	const auto paddr = g_Reflector.m_address.GetV6Address(PROTOCOL_ANY);
 #endif
-	CIp tc(m_Ip.GetFamily(), TRANSCODER_PORT, s);
+	CIp tc(m_Ip.GetFamily(), TRANSCODER_PORT, paddr.c_str());
 
 	// create our socket
 	if (tc.IsSet())
@@ -103,7 +103,7 @@ bool CTranscoder::Init(void)
 	else
 	{
 		// something bad was specified for the transcoder IP?
-		std::cerr << "Error initializing transcoder port using " << ((AF_INET == m_Ip.GetFamily()) ? "IPv4" : "IPv6") << " on " << s << std::endl;
+		std::cerr << "Error initializing transcoder port using " << ((AF_INET == m_Ip.GetFamily()) ? "IPv4" : "IPv6") << " on " << paddr << std::endl;
 		return false;
 	}
 
