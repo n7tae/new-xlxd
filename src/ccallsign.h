@@ -91,7 +91,7 @@ protected:
 	char    m_Callsign[CALLSIGN_LEN];
 	char    m_Suffix[CALLSUFFIX_LEN];
 	char    m_Module;
-	char	m_sz[CALLSIGN_LEN+CALLSUFFIX_LEN+5];
+	mutable char	m_sz[CALLSIGN_LEN+CALLSUFFIX_LEN+5];
 #ifndef NO_XLX
 	uint32  m_uiDmrid;
 #endif

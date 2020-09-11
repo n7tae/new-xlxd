@@ -331,23 +331,20 @@ bool CCallsign::operator ==(const CCallsign &callsign) const
 
 CCallsign::operator const char *() const
 {
-	char *sz = (char *)(const char *)m_sz;
-
 	// empty
-	::memset(sz, 0, sizeof(m_sz));
+	::memset(m_sz, 0, sizeof(m_sz));
 	// callsign
-	sz[CALLSIGN_LEN] = 0;
-	::memcpy(sz, m_Callsign, sizeof(m_Callsign));
+	::memcpy(m_sz, m_Callsign, sizeof(m_Callsign));
 	// module
 	if ( HasModule() )
 	{
-		sz[sizeof(m_Callsign)] = m_Module;
+		m_sz[sizeof(m_Callsign)] = m_Module;
 	}
 	// suffix
 	if ( HasSuffix() )
 	{
-		::strcat(sz, " / ");
-		::strncat(sz, m_Suffix, sizeof(m_Suffix));
+		::strcat(m_sz, " / ");
+		::strncat(m_sz, m_Suffix, sizeof(m_Suffix));
 	}
 
 	// done
