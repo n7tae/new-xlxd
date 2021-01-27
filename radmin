@@ -130,7 +130,7 @@ do
 		ps -aux | grep -e xlxd -e xrfd -e ambed | grep -v grep
 	fi
 	echo
-	echo "        Reflector Administration, Version #200723"
+	echo "        Reflector Administration, Version #210127"
 	echo
 	git status | head -1
 	echo
@@ -145,17 +145,17 @@ do
 			exit 1
 		elif [ -e $xlxserv ]; then
 			echo "us : Uninstall the XLX reflector"
-			echo "rl : View reflector log"
+			echo "rl : Reflector log"
 			if [ -e $ambserv ]; then
-				echo "tl : View transcoder log"
+				echo "tl : Transcoder log"
 			fi
 		elif [ -e $xrfserv ]; then
 			echo "us : Uninstall the XRF reflector"
-			echo "rl : View Reflector log"
+			echo "rl : Reflector log"
 		fi
-		echo "rr : Restart the reflector"
+		echo "rr : Reflector restart"
 		if [ -e $ambserv ]; then
-			echo "rt : Restart the transcoder"
+			echo "tr : Transcoder restart"
 		fi
 	else
 		if [[ "$callsign" == XRF* ]] || [[ "$callsign" == XLX* ]]; then
@@ -209,7 +209,7 @@ do
 		elif [[ "$callsign" == XRF* ]] && [ -e $xrfserv ]; then
 			sudo systemctl restart xrfd
 		fi
-	elif [[ "$key" == rt* ]] && [ -e $ambserv ]; then sudo systemctl restart ambed
+	elif [[ "$key" == tr* ]] && [ -e $ambserv ]; then sudo systemctl restart ambed
 	elif [[ "$key" == cl* ]]; then Clean
 	elif [[ "$key" == co* ]]; then Compile
 	elif [[ "$key" == tl* ]] && [ -e $ambserv ]; then sudo journalctl -u ambed -f
