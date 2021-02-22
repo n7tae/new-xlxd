@@ -183,8 +183,8 @@ void CProtocol::OnDvLastFramePacketIn(std::unique_ptr<CDvLastFramePacket> &Frame
 		stream->Push(std::move(Frame));
 		stream->Unlock();
 
-		// and close the stream
-		g_Reflector.CloseStream(stream);
+		// Don't close yet, this stops the last packet relfection bug that was fixed in upstream by the same change.
+		
 	}
 	// else
 	// {
