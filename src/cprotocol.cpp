@@ -184,6 +184,10 @@ void CProtocol::OnDvLastFramePacketIn(std::unique_ptr<CDvLastFramePacket> &Frame
 		stream->Unlock();
 
 		// Don't close yet, this stops the last packet relfection bug that was fixed in upstream by the same change.
+		// Don't close the stream yet but rely on CheckStreamsTimeout
+        	// mechanism, so the stream will be closed after the queues have
+        	// been sinked out. This avoid last packets to be send back
+        	// to transmitting client (master)
 		
 	}
 	// else
