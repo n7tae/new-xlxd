@@ -255,7 +255,7 @@ void CBuffer::Dump(const std::string &title)
 		output += '*';
 
 		::sprintf(temp, "%04X:  ", offset);
-		std::cout << offset << output << std::endl;
+		std::cout << temp << output << std::endl;
 
 		offset += 16U;
 
