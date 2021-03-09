@@ -67,6 +67,7 @@ public:
 	// debug
 	void DebugDump(std::ofstream &) const;
 	void DebugDumpAscii(std::ofstream &) const;
+	void Dump(const std::string &title);
 
 	// pass through
 	void clear() { m_data.clear(); }

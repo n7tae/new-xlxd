@@ -66,7 +66,7 @@
 
 #define VERSION_MAJOR                   2
 #define VERSION_MINOR                   4
-#define VERSION_REVISION                28
+#define VERSION_REVISION                29
 
 // global ------------------------------------------------------
 

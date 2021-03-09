@@ -189,7 +189,9 @@ void CXlxProtocol::Task(void)
 		}
 		else
 		{
-			std::cout << "XLX packet (" << Buffer.size() << ")" << std::endl;
+			std::string title("Unknown XLX packet from ");
+			title += Ip.GetAddress();
+			Buffer.Dump(title);
 		}
 	}
 

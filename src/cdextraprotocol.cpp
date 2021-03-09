@@ -188,8 +188,9 @@ void CDextraProtocol::Task(void)
 		}
 		else
 		{
-			std::cout << "DExtra packet (" << Buffer.size() << ")" << std::endl;
-			//std::cout << Buffer.data() << std::endl;
+			std::string title("Unknown DExtra packet from ");
+			title += Ip.GetAddress();
+			Buffer.Dump(title);
 		}
 	}
 

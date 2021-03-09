@@ -219,3 +219,49 @@ void CBuffer::DebugDumpAscii(std::ofstream &debugout) const
 		}
 	}
 }
+
+void CBuffer::Dump(const std::string &title)
+{
+	std::cout << title << ":" << std::endl;
+
+	unsigned int offset = 0U;
+	unsigned int length = m_data.size();
+
+	while (length > 0U) {
+		std::string output;
+
+		unsigned int bytes = (length > 16U) ? 16U : length;
+
+		char temp[10U];
+		for (unsigned i = 0U; i < bytes; i++) {
+			::sprintf(temp, "%02X ", m_data[offset + i]);
+			output += temp;
+		}
+
+		for (unsigned int i = bytes; i < 16U; i++)
+			output += "   ";
+
+		output += "   *";
+
+		for (unsigned i = 0U; i < bytes; i++) {
+			unsigned char c = m_data[offset + i];
+
+			if (::isprint(c))
+				output += c;
+			else
+				output += '.';
+		}
+
+		output += '*';
+
+		::sprintf(temp, "%04X:  ", offset);
+		std::cout << offset << output << std::endl;
+
+		offset += 16U;
+
+		if (length >= 16U)
+			length -= 16U;
+		else
+			length = 0U;
+	}
+}

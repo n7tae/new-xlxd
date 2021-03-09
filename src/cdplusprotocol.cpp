@@ -153,7 +153,9 @@ void CDplusProtocol::Task(void)
 		}
 		else
 		{
-			std::cout << "DPlus packet (" << Buffer.size() << ")" << std::endl;
+			std::string title("Unknown DPlus packet from ");
+			title += Ip.GetAddress();
+			Buffer.Dump(title);
 		}
 	}
 

@@ -234,8 +234,8 @@ void CDmrmmdvmProtocol::Task(void)
 		}
 		else if ( Buffer.size() != 55 )
 		{
-			std::cout << "DMRmmdvm packet (" << Buffer.size() << ")" << std::endl;
-			//std::cout << Buffer << std::endl;
+			std::string title("Unknown DMRMMDVM packet from ");
+			title += Ip.GetAddress();
 		}
 	}
 

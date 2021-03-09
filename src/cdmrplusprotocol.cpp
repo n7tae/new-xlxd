@@ -156,6 +156,12 @@ void CDmrplusProtocol::Task(void)
 			}
 			g_Reflector.ReleaseClients();
 		}
+		else
+		{
+			std::string title("Unknown DMR+ packet from ");
+			title += Ip.GetAddress();
+			Buffer.Dump(title);
+		}
 	}
 
 	// handle end of streaming timeout

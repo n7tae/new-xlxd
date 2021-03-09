@@ -195,9 +195,9 @@ void CYsfProtocol::Task(void)
 		}
 		else
 		{
-			// invalid packet
-			//std::cout << "YSF packet (" << Buffer.size() << ") from " << Callsign << " at " << Ip << std::endl;
-			//Buffer.DebugDump(g_Reflector.m_DebugFile);
+			std::string title("Unknown YSF packet from ");
+			title += Ip.GetAddress();
+			Buffer.Dump(title);
 		}
 	}
 
