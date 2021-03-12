@@ -122,7 +122,8 @@ std::shared_ptr<CClient> CClients::FindClient(const CIp &Ip)
 	// find client
 	for ( auto it=begin(); it!=end(); it++ )
 	{
-		if ( (*it)->GetIp() == Ip )
+                // check the port too to allow multiple clients from the same ip
+		if ( ((*it)->GetIp() == Ip) && ((*it)->GetIp().GetPort() == Ip.GetPort()) )
 		{
 			return *it;
 		}
