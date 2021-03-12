@@ -109,40 +109,54 @@ void CIp::Initialize(const int family, const uint16_t port, const char *address)
 	}
 }
 
-bool CIp::operator==(const CIp &rhs) const	// doesn't compare ports, only addresses and families
+bool CIp::operator==(const CIp &rhs) const	// compares ports, addresses and families
 {
+	// if anything is not equal, then we are done
 	if (addr.ss_family != rhs.addr.ss_family)
 		return false;
 	if (AF_INET == addr.ss_family)
 	{
 		auto l = (struct sockaddr_in *)&addr;
 		auto r = (struct sockaddr_in *)&rhs.addr;
-		return (l->sin_addr.s_addr == r->sin_addr.s_addr);
+		if (l->sin_addr.s_addr == r->sin_addr.s_addr)
+			return l->sin_port == r->sin_port;
+		else
+			return false;
 	}
 	else if (AF_INET6 == addr.ss_family)
 	{
 		auto l = (struct sockaddr_in6 *)&addr;
 		auto r = (struct sockaddr_in6 *)&rhs.addr;
-		return (0 == memcmp(&(l->sin6_addr), &(r->sin6_addr), sizeof(struct in6_addr)));
+		if (0 == memcmp(&(l->sin6_addr), &(r->sin6_addr), sizeof(struct in6_addr)))
+			return l->sin6_port == r->sin6_port;
+		else
+			return false;
 	}
 	return false;
 }
 
-bool CIp::operator!=(const CIp &rhs) const	// doesn't compare ports, only addresses and families
+bool CIp::operator!=(const CIp &rhs) const	// compares ports, addresses and families
 {
+	// if anything is not equal, then we are done
 	if (addr.ss_family != rhs.addr.ss_family)
 		return true;
 	if (AF_INET == addr.ss_family)
 	{
 		auto l = (struct sockaddr_in *)&addr;
 		auto r = (struct sockaddr_in *)&rhs.addr;
-		return (l->sin_addr.s_addr != r->sin_addr.s_addr);
+		if (l->sin_addr.s_addr != r->sin_addr.s_addr)
+			return true;
+		else
+			return l->sin_port != r->sin_port;
 	}
 	else if (AF_INET6 == addr.ss_family)
 	{
 		auto l = (struct sockaddr_in6 *)&addr;
 		auto r = (struct sockaddr_in6 *)&rhs.addr;
-		return (0 != memcmp(&(l->sin6_addr), &(r->sin6_addr), sizeof(struct in6_addr)));
+		if (0 != memcmp(&(l->sin6_addr), &(r->sin6_addr), sizeof(struct in6_addr)))
+			return true;
+		else
+			return l->sin6_port != r->sin6_port;
 	}
 	return true;
 }
