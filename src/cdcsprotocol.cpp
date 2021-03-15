@@ -422,7 +422,7 @@ bool CDcsProtocol::IsIgnorePacket(const CBuffer &Buffer)
 {
 	uint8 tag[] = { 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, };
 
-	if ( 15==Buffer.size() == 15 && 0==Buffer.Compare(tag, sizeof(tag)) )
+	if ( Buffer.size() == 15 && Buffer.Compare(tag, sizeof(tag)) == 0 )
 		return true;
 	return false;
 }
