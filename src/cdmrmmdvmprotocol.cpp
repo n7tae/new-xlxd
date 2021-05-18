@@ -504,7 +504,7 @@ bool CDmrmmdvmProtocol::IsValidConnectPacket(const CBuffer &Buffer, CCallsign *c
 		valid = callsign->IsValid();
 		if ( !valid)
 		{
-			std::cout << "DMRmmdvm connect packet from IP address " << Ip << " / unrecognized id " << (int)callsign->GetDmrid()  << std::endl;
+			std::cout << "Invalid callsign in DMRmmdvm RPTL packet from IP: " << Ip << " CS:" << callsign << " DMRID:" << callsign->GetDmrid() << std::endl;
 		}
 	}
 	return valid;
@@ -523,7 +523,7 @@ bool CDmrmmdvmProtocol::IsValidAuthenticationPacket(const CBuffer &Buffer, CCall
 		valid = callsign->IsValid();
 		if ( !valid)
 		{
-			std::cout << "DMRmmdvm authnetication packet from IP address " << Ip << " / unrecognized id " << (int)callsign->GetDmrid()  << std::endl;
+			std::cout << "Invalid callsign in DMRmmdvm RPTK packet from IP: " << Ip << " CS:" << callsign << " DMRID:" << callsign->GetDmrid() << std::endl;
 		}
 
 	}
@@ -558,7 +558,7 @@ bool CDmrmmdvmProtocol::IsValidConfigPacket(const CBuffer &Buffer, CCallsign *ca
 		valid = callsign->IsValid();
 		if ( !valid)
 		{
-			std::cout << "DMRmmdvm config packet from IP address " << Ip << " / unrecognized id " << (int)callsign->GetDmrid()  << std::endl;
+			std::cout << "Invalid callsign in DMRmmdvm RPTC packet from IP: " << Ip << " CS:" << callsign << " DMRID:" << callsign->GetDmrid() << std::endl;
 		}
 
 	}
