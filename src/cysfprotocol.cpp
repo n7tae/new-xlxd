@@ -193,6 +193,14 @@ void CYsfProtocol::Task(void)
 			EncodeServerStatusPacket(&Buffer);
 			Send(Buffer, Ip);
 		}
+		else if ( Buffer.size() == 80 && 0 == ::memcmp(Buffer.data(), "YSFI", 4) )
+		{
+			// do nothing, it's unneeded information from BlueDV
+		}
+		else if ( Buffer.size() == 50 && 0 == ::memcmp(Buffer.data(), "YSFO", 4) )
+		{
+			// do nothing, it's unneeded options from BlueDV
+		}
 		else
 		{
 			std::string title("Unknown YSF packet from ");
