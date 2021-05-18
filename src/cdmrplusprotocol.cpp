@@ -386,7 +386,7 @@ bool CDmrplusProtocol::IsValidConnectPacket(const CBuffer &Buffer, CCallsign *ca
 		valid = (callsign->IsValid() && (std::isupper(*reflectormodule) || (*reflectormodule == ' ')) );
 		if ( !valid)
 		{
-			std::cout << "Invalid callsign in DMR+ connect packet from IP: " << Ip << " CS:" << callsign << " DMRID:" << callsign->GetDmrid() << " ReflectorModule:" << *reflectormodule << std::endl;
+			std::cout << "Invalid callsign in DMR+ connect packet from IP: " << Ip << " CS:" << *callsign << " DMRID:" << callsign->GetDmrid() << " ReflectorModule:" << *reflectormodule << std::endl;
 		}
 	}
 	return valid;

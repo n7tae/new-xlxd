@@ -338,7 +338,7 @@ CCallsign::operator const char *() const
 	// module
 	if ( HasModule() )
 	{
-		m_sz[sizeof(m_Callsign) - 1] = m_Module;
+		m_sz[sizeof(m_Callsign)] = m_Module;
 	}
 	// suffix
 	if ( HasSuffix() )
