@@ -29,9 +29,9 @@ DATADIR = /var/lib/xlxd
 CC = g++
 
 ifeq ($(debug), true)
-CFLAGS = -ggdb3 -W -c -std=c++11 -MMD -MD -c
+CFLAGS = -ggdb3 -W -Werror -c -std=c++11 -MMD -MD -c
 else
-CFLAGS = -c -W -std=c++11 -MMD -MD -c
+CFLAGS = -c -W -Werror -std=c++11 -MMD -MD -c
 endif
 
 LDFLAGS=-pthread

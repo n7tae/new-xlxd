@@ -52,7 +52,7 @@ CCallsignListItem::CCallsignListItem(const CCallsign &callsign, const CIp &ip, c
 		}
 		else
 		{
-			int n = MIN((int)::strlen(modules), sizeof(m_Modules)-1);
+			int n = MIN(::strlen(modules), sizeof(m_Modules)-1);
 			int j = 0;
 			for ( int i = 0; i < n; i++ )
 			{
@@ -82,7 +82,7 @@ CCallsignListItem::CCallsignListItem(const CCallsign &callsign, const char *url,
 		}
 		else
 		{
-			int n = MIN((int)::strlen(modules), sizeof(m_Modules)-1);
+			int n = MIN(::strlen(modules), sizeof(m_Modules)-1);
 			int j = 0;
 			for ( int i = 0; i < n; i++ )
 			{

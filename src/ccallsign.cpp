@@ -173,7 +173,7 @@ void CCallsign::SetCallsign(const uint8 *buffer, int len, bool UpdateDmrid)
 	// set callsign
 	::memset(m_Callsign, ' ', sizeof(m_Callsign));
 	m_Module = ' ';
-	::memcpy(m_Callsign, buffer, MIN(len, sizeof(m_Callsign)-1));
+	::memcpy(m_Callsign, buffer, MIN(len, (int)sizeof(m_Callsign)-1));
 	for ( unsigned i = 0; i < sizeof(m_Callsign); i++ )
 	{
 		if ( m_Callsign[i] == 0 )
@@ -238,7 +238,7 @@ void CCallsign::SetSuffix(const char *sz)
 
 void CCallsign::SetSuffix(const uint8 *buffer, int len)
 {
-	len = MIN(len, sizeof(m_Suffix));
+	len = MIN(len, (int)sizeof(m_Suffix));
 	::memset(m_Suffix, ' ', sizeof(m_Suffix));
 	::memcpy(m_Suffix, buffer, len);
 }
@@ -250,7 +250,7 @@ void CCallsign::PatchCallsign(int off, const uint8 *patch, int len)
 {
 	if ( off < CALLSIGN_LEN )
 	{
-		::memcpy(m_Callsign, patch, MIN(len, sizeof(m_Callsign) - off));
+		::memcpy(m_Callsign, patch, MIN(len, (int)sizeof(m_Callsign) - off));
 	}
 }
 
