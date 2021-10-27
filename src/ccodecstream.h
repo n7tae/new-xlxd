@@ -25,7 +25,6 @@
 #ifndef ccodecstream_h
 #define ccodecstream_h
 
-#include "csemaphore.h"
 #include "cudpsocket.h"
 #include "cpacketqueue.h"
 
