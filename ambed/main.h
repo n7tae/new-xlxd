@@ -31,6 +31,7 @@
 #include <map>
 #include <queue>
 #include <chrono>
+#include <thread>
 #include <future>
 #include <atomic>
 #include <mutex>
