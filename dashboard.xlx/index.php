@@ -106,7 +106,7 @@ if ($CallingHome['Active']) {
 
     if ($PageOptions['PageRefreshActive']) {
         echo '
-   <script src="./js/jquery-1.12.4.min.js"></script>
+   <script src="./js/jquery-3.7.1.min.js"></script>
    <script>
       var PageRefresh;
 
